@@ -5,6 +5,9 @@
 
 namespace festation
 {
+    constexpr static float CPU_CLOCK_SPEED = 33.8688f; // MHz
+    constexpr static uint32_t CPU_CLOCKS_PER_SECOND = 33'868'800;
+
     class MIPS_R3000A
     {
     public:
