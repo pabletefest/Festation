@@ -1,15 +1,21 @@
 #pragma once
+#include "mips_r300a_state.h"
 
 #include <cstdint>
 
-class MIPS_R3000A
+namespace festation
 {
-public:
-    MIPS_R3000A() = default;
-    ~MIPS_R3000A() = default;
+    class MIPS_R3000A
+    {
+    public:
+        MIPS_R3000A() = default;
+        ~MIPS_R3000A() = default;
 
-    void clockCycles(uint32_t cycles);
+        void clockCycles(uint32_t cycles);
 
-private:
-    uint64_t totalCyclesElapsed;
+    private:
+        uint64_t totalCyclesElapsed;
+
+        PSXRegs r3000a_regs;
+    };
 };

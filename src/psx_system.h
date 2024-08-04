@@ -1,11 +1,17 @@
 #pragma once
+#include "psx_cpu.h"
 
-class PSXSystem
+namespace festation
 {
-public:
-    PSXSystem() = default;
-    ~PSXSystem() = default;
+    class PSXSystem
+    {
+    public:
+        PSXSystem() = default;
+        ~PSXSystem() = default;
 
-    void runWholeFrame();
-private:
+        void runWholeFrame();
+
+    private:
+        MIPS_R3000A cpu;
+    };
 };
