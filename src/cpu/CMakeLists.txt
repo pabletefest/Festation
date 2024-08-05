@@ -12,7 +12,8 @@ target_sources(cpu
     ${CMAKE_CURRENT_LIST_DIR}/psx_cpu.h
     ${CMAKE_CURRENT_LIST_DIR}/mips_r300a_state.h
     ${CMAKE_CURRENT_LIST_DIR}/mips_r3000a_opcodes.h
-  )
+    ${CMAKE_CURRENT_LIST_DIR}/cpu_masks_utils.h
+    )
 target_include_directories(cpu
   PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}
