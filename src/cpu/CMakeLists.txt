@@ -8,11 +8,13 @@ target_sources(cpu
   PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/psx_cpu.cpp
     ${CMAKE_CURRENT_LIST_DIR}/mips_r3000a_opcodes.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/coprocessor_cp0_opcodes.cpp
   PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/psx_cpu.h
     ${CMAKE_CURRENT_LIST_DIR}/mips_r3000a_state.h
     ${CMAKE_CURRENT_LIST_DIR}/mips_r3000a_opcodes.h
     ${CMAKE_CURRENT_LIST_DIR}/cpu_masks_types_utils.h
+    ${CMAKE_CURRENT_LIST_DIR}/coprocessor_cp0_opcodes.h
   )
 target_include_directories(cpu
   PUBLIC
