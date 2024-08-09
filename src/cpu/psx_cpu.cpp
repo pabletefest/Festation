@@ -11,7 +11,6 @@ namespace festation
     PSXRegs r3000a_regs;
 };
 
-
 festation::MIPS_R3000A::MIPS_R3000A()
     : tempRAM(2 * 1024 * 1024)
 {
@@ -56,7 +55,7 @@ void festation::MIPS_R3000A::executeInstruction()
 
     EncodingType type = std::get<0>(instructionType);
 
-    InstructionTypePtr instructionTypePtr = std::get<1>(instructionType);
+    InstructionTypeVariant instructionTypePtr = std::get<1>(instructionType);
 
     switch (type)
     {
@@ -112,29 +111,29 @@ festation::InstructionType festation::MIPS_R3000A::decodeInstruction(uint32_t in
 
     if (opcode == R_TYPE_OPCODE_PATTERN) // R-FORMAT INSTRUCTION
     {
-        return std::make_pair<EncodingType, InstructionTypePtr>(EncodingType::REGISTER, decodeRFormat(instruction));
+        return std::make_pair<EncodingType, InstructionTypeVariant>(EncodingType::REGISTER, decodeRFormat(instruction));
     }
     else if ((opcode & J_TYPE_OPCODE_MASK) >= J_TYPE_OPCODE_PATTERN) // J-FORMAT INSTRUCTION
     {
-        return std::make_pair<EncodingType, InstructionTypePtr>(EncodingType::IMMEDIATE, decodeIFormat(instruction));
+        return std::make_pair<EncodingType, InstructionTypeVariant>(EncodingType::IMMEDIATE, decodeIFormat(instruction));
     }
     else // I-FORMAT INSTRUCTION
     {
-        return std::make_pair<EncodingType, InstructionTypePtr>(EncodingType::JUMP, decodeJFormat(instruction));
+        return std::make_pair<EncodingType, InstructionTypeVariant>(EncodingType::JUMP, decodeJFormat(instruction));
     }
 }
 
-festation::InstructionTypePtr festation::MIPS_R3000A::decodeRFormat(uint32_t instruction)
+festation::InstructionTypeVariant festation::MIPS_R3000A::decodeRFormat(uint32_t instruction)
 {
-    return InstructionTypePtr();
+    return InstructionTypeVariant();
 }
 
-festation::InstructionTypePtr festation::MIPS_R3000A::decodeJFormat(uint32_t instruction)
+festation::InstructionTypeVariant festation::MIPS_R3000A::decodeJFormat(uint32_t instruction)
 {
-    return InstructionTypePtr();
+    return InstructionTypeVariant();
 }
 
-festation::InstructionTypePtr festation::MIPS_R3000A::decodeIFormat(uint32_t instruction)
+festation::InstructionTypeVariant festation::MIPS_R3000A::decodeIFormat(uint32_t instruction)
 {
-    return InstructionTypePtr();
+    return InstructionTypeVariant();
 }

@@ -88,8 +88,8 @@ namespace festation
     using ITypeInstructionEncoding = std::tuple<ITypeInstructionPtr, GprRegs, GprRegs, immed16_t>;
     using JTypeInstructionEncoding = std::tuple<JTypeInstructionPtr, j_immed26_offset_t>;
 
-    using InstructionTypePtr = std::variant<RTypeInstructionEncoding, ITypeInstructionEncoding, JTypeInstructionEncoding>;
-    using InstructionType = std::pair<EncodingType, InstructionTypePtr>;
+    using InstructionTypeVariant = std::variant<RTypeInstructionEncoding, ITypeInstructionEncoding, JTypeInstructionEncoding>;
+    using InstructionType = std::pair<EncodingType, InstructionTypeVariant>;
 
     static inline constexpr uint8_t getInstOpcode(uint32_t instruction)
     {

@@ -32,9 +32,9 @@ namespace festation
     private:        
         uint32_t fetchInstruction();
         InstructionType decodeInstruction(uint32_t instruction);
-        InstructionTypePtr decodeRFormat(uint32_t instruction);
-        InstructionTypePtr decodeJFormat(uint32_t instruction);
-        InstructionTypePtr decodeIFormat(uint32_t instruction);
+        InstructionTypeVariant decodeRFormat(uint32_t instruction);
+        InstructionTypeVariant decodeJFormat(uint32_t instruction);
+        InstructionTypeVariant decodeIFormat(uint32_t instruction);
 
     private:
         uint64_t totalCyclesElapsed;

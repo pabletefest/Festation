@@ -11,6 +11,4 @@ namespace festation
         uint32_t hi;            // High part of mult/div opcodes results
         uint32_t lo;            // Low part of mult/div opcodes results
     };
-
-    extern PSXRegs r3000a_regs;
 };
