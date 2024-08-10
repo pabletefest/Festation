@@ -65,9 +65,7 @@ namespace festation
         SHIFT_MASK_BIT_LOCATION = 6,
         SHIFT_MASK = 0x1F,
         FUNCTION_MASK = 0x3F,
-        R_TYPE_OPCODE_PATTERN = 0,
-        J_TYPE_OPCODE_MASK = 0b000111 ,
-        J_TYPE_OPCODE_PATTERN = 2 // or higher opcode value
+        R_TYPE_OPCODE_PATTERN = 0
     };
 
     enum class SrcRegs
@@ -76,17 +74,18 @@ namespace festation
         RS
     };
 
-    using shift_amount_t = uint8_t;
+    using reg_t = uint8_t;
+    using shift_t = uint8_t;
     using immed16_t = uint16_t;
-    using j_immed26_offset_t = uint32_t;
+    using j_immed26_t = uint32_t;
 
-    using RTypeInstructionPtr = std::function<void(uint8_t, uint8_t, uint8_t, uint8_t)>;
-    using ITypeInstructionPtr = std::function<void(uint8_t, uint8_t, uint16_t)>;
-    using JTypeInstructionPtr = std::function<void(uint32_t)>;
+    using RTypeInstructionPtr = std::function<void(reg_t, reg_t, reg_t, shift_t)>;
+    using ITypeInstructionPtr = std::function<void(reg_t, reg_t, immed16_t)>;
+    using JTypeInstructionPtr = std::function<void(j_immed26_t)>;
 
-    using RTypeInstructionEncoding = std::tuple<RTypeInstructionPtr, GprRegs, GprRegs, GprRegs, shift_amount_t>;
-    using ITypeInstructionEncoding = std::tuple<ITypeInstructionPtr, GprRegs, GprRegs, immed16_t>;
-    using JTypeInstructionEncoding = std::tuple<JTypeInstructionPtr, j_immed26_offset_t>;
+    using RTypeInstructionEncoding = std::tuple<RTypeInstructionPtr, reg_t, reg_t, reg_t, shift_t>;
+    using ITypeInstructionEncoding = std::tuple<ITypeInstructionPtr, reg_t, reg_t, immed16_t>;
+    using JTypeInstructionEncoding = std::tuple<JTypeInstructionPtr, j_immed26_t>;
 
     using InstructionTypeVariant = std::variant<RTypeInstructionEncoding, ITypeInstructionEncoding, JTypeInstructionEncoding>;
     using InstructionType = std::pair<EncodingType, InstructionTypeVariant>;
@@ -97,9 +96,9 @@ namespace festation
     }
 
     template<EncodingType ENCODING>
-    static inline constexpr uint8_t getInstDestRegEncoding(uint32_t instruction)
+    static inline constexpr reg_t getInstDestRegEncoding(uint32_t instruction)
     {
-        uint8_t rd = 0;
+        reg_t rd = 0;
 
         if constexpr (ENCODING == EncodingType::REGISTER)
         {
@@ -114,9 +113,9 @@ namespace festation
     }
 
     template<EncodingType ENCODING = EncodingType::IMMEDIATE, SrcRegs SRC = SrcRegs::RT>
-    static inline constexpr uint8_t getInstSrcRegEncoding(uint32_t instruction)
+    static inline constexpr reg_t getInstSrcRegEncoding(uint32_t instruction)
     {
-        uint8_t src = 0;
+        reg_t src = 0;
 
         if constexpr (ENCODING == EncodingType::REGISTER)
         {
@@ -137,7 +136,7 @@ namespace festation
         return src;
     }
 
-    static inline constexpr uint8_t getInstShiftAmount(uint32_t instruction)
+    static inline constexpr shift_t getInstShiftAmount(uint32_t instruction)
     {
         return (instruction >> SHIFT_MASK_BIT_LOCATION) & SHIFT_MASK;
     }

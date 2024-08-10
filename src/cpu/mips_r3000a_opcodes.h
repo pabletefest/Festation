@@ -50,9 +50,9 @@ namespace festation
     void sllv(uint8_t rd, uint8_t rt, uint8_t rs);
     void srlv(uint8_t rd, uint8_t rt, uint8_t rs);
     void srav(uint8_t rd, uint8_t rt, uint8_t rs);
-    void sll(uint8_t rd, uint8_t rt, uint16_t imm);
-    void srl(uint8_t rd, uint8_t rt, uint16_t imm);
-    void sra(uint8_t rd, uint8_t rt, uint16_t imm);
+    void sll(uint8_t rd, uint8_t rt, uint8_t shift_imm);
+    void srl(uint8_t rd, uint8_t rt, uint8_t shift_imm);
+    void sra(uint8_t rd, uint8_t rt, uint8_t shift_imm);
     void lui(uint8_t rt, uint16_t imm);
 
     // Multiply/Divide instructions
