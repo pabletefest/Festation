@@ -282,7 +282,23 @@ festation::InstructionTypeVariant festation::MIPS_R3000A::decodeRFormat(uint32_t
 
 festation::InstructionTypeVariant festation::MIPS_R3000A::decodeJFormat(uint32_t instruction)
 {
-    return InstructionTypeVariant();
+    switch (getInstOpcode(instruction))
+    {
+    case 0x02:
+        return { std::make_tuple([](j_immed26_t dest){
+            j(dest);
+        }, getInstAddress(instruction)) };
+        break;
+    case 0x03:
+        return { std::make_tuple([](j_immed26_t dest){
+            jal(dest);
+        }, getInstAddress(instruction)) };
+        break;
+    default:
+        printf("Unimplemented or invalid J-type instruction! Instruction opcode: %02X - from hex MIPS instruction encoding (%08X)\n", getInstOpcode(instruction), instruction);
+        return InstructionTypeVariant();
+        break;
+    }
 }
 
 festation::InstructionTypeVariant festation::MIPS_R3000A::decodeIFormat(uint32_t instruction)
