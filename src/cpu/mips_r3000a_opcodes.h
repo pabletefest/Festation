@@ -1,83 +1,84 @@
 #pragma once
 #include "mips_r3000a_state.h"
+#include "cpu_masks_types_utils.h"
 
 namespace festation
 {
     extern PSXRegs r3000a_regs;
 
     // Load instructions
-    void lb(uint8_t rt, uint8_t rs, uint16_t imm);
-    void lbu(uint8_t rt, uint8_t rs, uint16_t imm);
-    void lh(uint8_t rt, uint8_t rs, uint16_t imm);
-    void lhu(uint8_t rt, uint8_t rs, uint16_t imm);
-    void lw(uint8_t rt, uint8_t rs, uint16_t imm);
+    void lb(reg_t rt, reg_t rs, immed16_t imm);
+    void lbu(reg_t rt, reg_t rs, immed16_t imm);
+    void lh(reg_t rt, reg_t rs, immed16_t imm);
+    void lhu(reg_t rt, reg_t rs, immed16_t imm);
+    void lw(reg_t rt, reg_t rs, immed16_t imm);
 
     // Store instructions
-    void sb(uint8_t rt, uint8_t rs, uint16_t imm);
-    void sh(uint8_t rt, uint8_t rs, uint16_t imm);
-    void sw(uint8_t rt, uint8_t rs, uint16_t imm);
+    void sb(reg_t rt, reg_t rs, immed16_t imm);
+    void sh(reg_t rt, reg_t rs, immed16_t imm);
+    void sw(reg_t rt, reg_t rs, immed16_t imm);
 
     // Load/Store Alignment
-    void lwr(uint8_t rt, uint8_t rs, uint16_t imm);
-    void lwl(uint8_t rt, uint8_t rs, uint16_t imm);
-    void swr(uint8_t rt, uint8_t rs, uint16_t imm);
-    void swl(uint8_t rt, uint8_t rs, uint16_t imm);
+    void lwr(reg_t rt, reg_t rs, immed16_t imm);
+    void lwl(reg_t rt, reg_t rs, immed16_t imm);
+    void swr(reg_t rt, reg_t rs, immed16_t imm);
+    void swl(reg_t rt, reg_t rs, immed16_t imm);
 
     // Arithmetic instructions
-    void add(uint8_t rd, uint8_t rs, uint8_t rt);
-    void addu(uint8_t rd, uint8_t rs, uint8_t rt);
-    void sub(uint8_t rd, uint8_t rs, uint8_t rt);
-    void subu(uint8_t rd, uint8_t rs, uint8_t rt);
-    void addi(uint8_t rt, uint8_t rs, uint16_t imm);
-    void addiu(uint8_t rt, uint8_t rs, uint16_t imm);
+    void add(reg_t rd, reg_t rs, reg_t rt);
+    void addu(reg_t rd, reg_t rs, reg_t rt);
+    void sub(reg_t rd, reg_t rs, reg_t rt);
+    void subu(reg_t rd, reg_t rs, reg_t rt);
+    void addi(reg_t rt, reg_t rs, immed16_t imm);
+    void addiu(reg_t rt, reg_t rs, immed16_t imm);
 
     // Comparison instructions
-    void slt(uint8_t rd, uint8_t rs, uint8_t rt);
-    void sltu(uint8_t rd, uint8_t rs, uint8_t rt);
-    void slti(uint8_t rt, uint8_t rs, uint16_t imm);
-    void sltiu(uint8_t rt, uint8_t rs, uint16_t imm);
+    void slt(reg_t rd, reg_t rs, reg_t rt);
+    void sltu(reg_t rd, reg_t rs, reg_t rt);
+    void slti(reg_t rt, reg_t rs, immed16_t imm);
+    void sltiu(reg_t rt, reg_t rs, immed16_t imm);
 
     // Logical instructions
-    void _and(uint8_t rd, uint8_t rs, uint8_t rt);
-    void _or(uint8_t rd, uint8_t rs, uint8_t rt);
-    void _xor(uint8_t rd, uint8_t rs, uint8_t rt);
-    void nor(uint8_t rd, uint8_t rs, uint8_t rt);
-    void andi(uint8_t rt, uint8_t rs, uint16_t imm);
-    void ori(uint8_t rt, uint8_t rs, uint16_t imm);
-    void xori(uint8_t rt, uint8_t rs, uint16_t imm);
+    void _and(reg_t rd, reg_t rs, reg_t rt);
+    void _or(reg_t rd, reg_t rs, reg_t rt);
+    void _xor(reg_t rd, reg_t rs, reg_t rt);
+    void nor(reg_t rd, reg_t rs, reg_t rt);
+    void andi(reg_t rt, reg_t rs, immed16_t imm);
+    void ori(reg_t rt, reg_t rs, immed16_t imm);
+    void xori(reg_t rt, reg_t rs, immed16_t imm);
 
     // Shifting instructions
-    void sllv(uint8_t rd, uint8_t rt, uint8_t rs);
-    void srlv(uint8_t rd, uint8_t rt, uint8_t rs);
-    void srav(uint8_t rd, uint8_t rt, uint8_t rs);
-    void sll(uint8_t rd, uint8_t rt, uint8_t shift_imm);
-    void srl(uint8_t rd, uint8_t rt, uint8_t shift_imm);
-    void sra(uint8_t rd, uint8_t rt, uint8_t shift_imm);
-    void lui(uint8_t rt, uint16_t imm);
+    void sllv(reg_t rd, reg_t rt, reg_t rs);
+    void srlv(reg_t rd, reg_t rt, reg_t rs);
+    void srav(reg_t rd, reg_t rt, reg_t rs);
+    void sll(reg_t rd, reg_t rt, shift_t shift_imm);
+    void srl(reg_t rd, reg_t rt, shift_t shift_imm);
+    void sra(reg_t rd, reg_t rt, shift_t shift_imm);
+    void lui(reg_t rt, immed16_t imm);
 
     // Multiply/Divide instructions
-    void mult(uint8_t rs, uint8_t rt);
-    void multu(uint8_t rs, uint8_t rt);
-    void div(uint8_t rs, uint8_t rt);
-    void divu(uint8_t rs, uint8_t rt);
-    void mfhi(uint8_t rd);
-    void mflo(uint8_t rd);
-    void mthi(uint8_t rs);
-    void mtlo(uint8_t rs);
+    void mult(reg_t rs, reg_t rt);
+    void multu(reg_t rs, reg_t rt);
+    void div(reg_t rs, reg_t rt);
+    void divu(reg_t rs, reg_t rt);
+    void mfhi(reg_t rd);
+    void mflo(reg_t rd);
+    void mthi(reg_t rs);
+    void mtlo(reg_t rs);
 
     // Jump and Branches instructions
-    void j(uint32_t dest);
-    void jal(uint32_t dest);
-    void jr(uint8_t rs);
-    void jalr(uint8_t rs);
-    void beq(uint8_t rs, uint8_t rt, uint16_t dest);
-    void bne(uint8_t rs, uint8_t rt, uint16_t dest);
-    void bltz(uint8_t rs, uint16_t dest);
-    void bgez(uint8_t rs, uint16_t dest);
-    void bgtz(uint8_t rs, uint16_t dest);
-    void blez(uint8_t rs, uint16_t dest);
-    void bltzal(uint8_t rs, uint16_t dest);
-    void bgezal(uint8_t rs, uint16_t dest);
+    void j(j_immed26_t dest);
+    void jal(j_immed26_t dest);
+    void jr(reg_t rs);
+    void jalr(reg_t rs);
+    void beq(reg_t rs, reg_t rt, immed16_t dest);
+    void bne(reg_t rs, reg_t rt, immed16_t dest);
+    void bltz(reg_t rs, immed16_t dest);
+    void bgez(reg_t rs, immed16_t dest);
+    void bgtz(reg_t rs, immed16_t dest);
+    void blez(reg_t rs, immed16_t dest);
+    void bltzal(reg_t rs, immed16_t dest);
+    void bgezal(reg_t rs, immed16_t dest);
 
     // Exceptions opcodes
     void syscall(uint32_t imm20);
