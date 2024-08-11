@@ -65,7 +65,9 @@ namespace festation
         SHIFT_MASK_BIT_LOCATION = 6,
         SHIFT_MASK = 0x1F,
         FUNCTION_MASK = 0x3F,
-        R_TYPE_OPCODE_PATTERN = 0
+        R_TYPE_OPCODE_PATTERN = 0,
+        IMMEDIATE_MASK = 0xFFFF,
+        JUMP_ADDRESS_MASK = 0x3FFFFFF
     };
 
     enum class SrcRegs
@@ -144,5 +146,15 @@ namespace festation
     static inline constexpr uint8_t getInstFunctionOperation(uint32_t instruction)
     {
         return instruction & FUNCTION_MASK;
+    }
+
+    static inline constexpr immed16_t getInstImmediate(uint32_t instruction)
+    {
+        return instruction & IMMEDIATE_MASK;
+    }
+
+    static inline constexpr j_immed26_t getInstAddress(uint32_t instruction)
+    {
+        return instruction & JUMP_ADDRESS_MASK;
     }
 };
