@@ -9,13 +9,15 @@
 
 namespace festation
 {
+    class PSXSystem;
+
     static constexpr float CPU_CLOCK_SPEED = 33.8688f; // MHz
     static constexpr uint32_t CPU_CLOCKS_PER_SECOND = 33'868'800;
 
     class MIPS_R3000A
     {
     public:
-        MIPS_R3000A();
+        MIPS_R3000A(PSXSystem* device);
         ~MIPS_R3000A() = default;
 
         uint8_t read8(uint32_t address);
@@ -38,8 +40,6 @@ namespace festation
 
     private:
         uint64_t totalCyclesElapsed;
-
-        // TEMP
-        std::vector<uint8_t> tempRAM;
+        PSXSystem* system = nullptr;
     };
 };

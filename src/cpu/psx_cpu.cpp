@@ -1,4 +1,5 @@
 #include "psx_cpu.h"
+#include "psx_system.h"
 #include "mips_r3000a_opcodes.h"
 
 #include <cstring>
@@ -11,40 +12,40 @@ namespace festation
     PSXRegs r3000a_regs;
 };
 
-festation::MIPS_R3000A::MIPS_R3000A()
-    : tempRAM(2 * 1024 * 1024)
+festation::MIPS_R3000A::MIPS_R3000A(PSXSystem* device)
+    : system(device)
 {
     std::memset((void*) &r3000a_regs, 0, sizeof(PSXRegs));
 }
 
 uint8_t festation::MIPS_R3000A::read8(uint32_t address)
 {
-    return tempRAM[address];
+    return system->read8(address);
 }
 
 uint16_t festation::MIPS_R3000A::read16(uint32_t address)
 {
-    return *(uint16_t*)&tempRAM.data()[address];
+    return system->read16(address);
 }
 
 uint32_t festation::MIPS_R3000A::read32(uint32_t address)
 {
-    return *(uint32_t*)&tempRAM.data()[address];
+    return system->read32(address);
 }
 
 void festation::MIPS_R3000A::write8(uint32_t address, uint8_t value)
 {
-    tempRAM[address] = value;
+    system->write8(address, value);
 }
 
 void festation::MIPS_R3000A::write16(uint32_t address, uint16_t value)
 {
-    *(uint16_t*)&tempRAM.data()[address] = value;
+    system->write16(address, value);
 }
 
 void festation::MIPS_R3000A::write32(uint32_t address, uint32_t value)
 {
-    *(uint32_t*)&tempRAM.data()[address] = value;
+    system->write32(address, value);
 }
 
 void festation::MIPS_R3000A::executeInstruction()
