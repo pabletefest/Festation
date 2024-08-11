@@ -162,17 +162,17 @@ namespace festation
 
     }
 
-    void sll(uint8_t rd, uint8_t rt, uint16_t imm)
+    void sll(uint8_t rd, uint8_t rt, uint8_t imm)
     {
 
     }
 
-    void srl(uint8_t rd, uint8_t rt, uint16_t imm)
+    void srl(uint8_t rd, uint8_t rt, uint8_t imm)
     {
 
     }
 
-    void sra(uint8_t rd, uint8_t rt, uint16_t imm)
+    void sra(uint8_t rd, uint8_t rt, uint8_t imm)
     {
 
     }
@@ -289,6 +289,6 @@ namespace festation
 
     void _break(uint32_t imm20)
     {
-        
+
     }
 };
