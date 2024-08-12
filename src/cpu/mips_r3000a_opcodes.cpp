@@ -6,6 +6,8 @@ namespace festation
     extern PSXSystem psxSystem;
     extern PSXRegs r3000a_regs;
 
+    // TODO: implement load delay slot 
+
     void lb(reg_t rt, reg_t rs, immed16_t imm)
     {
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
