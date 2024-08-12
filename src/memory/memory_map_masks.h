@@ -6,7 +6,8 @@ namespace festation
 
     enum MemoryMapRangesSize        
     {
-        MAIN_RAM_SIZE = 0x7FFFFF,           // 2MB or 8MB (mirrors every 2MB)
+        MAIN_RAM_SIZE = 0x1FFFFF,            // 2MB
+        MAIN_RAM_EXTENDED_SIZE = 0x7FFFFF,  // 8MB (mirrors every 2MB)
         EXPANSION_REGION1_SIZE = 0x7FFFFF,  // 8MB
         SCRATCHPAD_SIZE = 0x3FF,            // 1KB
         IO_PORTS_SIZE = 0xFFF,              // 4KB
@@ -19,7 +20,7 @@ namespace festation
     enum MemoryMapRegions
     {
         MAIN_RAM_START = 0x00000000,
-        MAIN_RAM_END = MAIN_RAM_START + MAIN_RAM_SIZE,
+        MAIN_RAM_END = MAIN_RAM_START + MAIN_RAM_EXTENDED_SIZE,
         EXPANSION_REGION1_START = 0x1F000000,
         EXPANSION_REGION1_END = EXPANSION_REGION1_START + EXPANSION_REGION1_SIZE,
         SCRATCHPAD_START = 0x1F800000,

@@ -1,5 +1,6 @@
 #include "psx_system.h"
 #include "virtual_mem_allocator_utils.h"
+#include "memory_map_masks.h"
 
 #include <stdlib.h>
 
@@ -23,33 +24,69 @@ festation::PSXSystem::~PSXSystem()
 }
 
 uint8_t festation::PSXSystem::read8(uint32_t address)
-{
-    return mainRAM[address];
+{   
+    uint32_t masked_address = address & PHYSICAL_MEMORY_MASK;
+
+    if (masked_address <= MAIN_RAM_END)
+    {
+        return mainRAM[address & MAIN_RAM_SIZE];
+    }
+
+    return 0;
 }
 
 uint16_t festation::PSXSystem::read16(uint32_t address)
 {
-    return *(uint16_t*)&mainRAM[address];
+    uint32_t masked_address = address & PHYSICAL_MEMORY_MASK;
+
+    if (masked_address <= MAIN_RAM_END)
+    {
+        return *(uint16_t*)&mainRAM[address & MAIN_RAM_SIZE];
+    }
+
+    return 0;
 }
 
 uint32_t festation::PSXSystem::read32(uint32_t address)
 {
-    return *(uint32_t*)&mainRAM[address];
+    uint32_t masked_address = address & PHYSICAL_MEMORY_MASK;
+
+    if (masked_address <= MAIN_RAM_END)
+    {
+        return *(uint32_t*)&mainRAM[address & MAIN_RAM_SIZE];
+    }
+
+    return 0;
 }
 
 void festation::PSXSystem::write8(uint32_t address, uint8_t value)
 {
-    mainRAM[address] = value;
+    uint32_t masked_address = address & PHYSICAL_MEMORY_MASK;
+
+    if (masked_address <= MAIN_RAM_END)
+    {
+        mainRAM[address & MAIN_RAM_SIZE] = value;
+    }
 }
 
 void festation::PSXSystem::write16(uint32_t address, uint16_t value)
 {
-    *(uint16_t*)&mainRAM[address] = value;
+    uint32_t masked_address = address & PHYSICAL_MEMORY_MASK;
+
+    if (masked_address <= MAIN_RAM_END)
+    {
+        *(uint16_t*)&mainRAM[address & MAIN_RAM_SIZE] = value;
+    }
 }
 
 void festation::PSXSystem::write32(uint32_t address, uint32_t value)
 {
-    *(uint32_t*)&mainRAM[address] = value;
+    uint32_t masked_address = address & PHYSICAL_MEMORY_MASK;
+
+    if (masked_address <= MAIN_RAM_END)
+    {
+        *(uint32_t*)&mainRAM[address & MAIN_RAM_SIZE] = value;
+    }
 }
 
 void festation::PSXSystem::runWholeFrame()
