@@ -6,7 +6,7 @@
 festation::PSXSystem::PSXSystem()
     : cpu(this)
 {
-    mainRAM = allocateVirtMemForMainRAM();
+    mainRAM = allocVirtMemForMainRAM();
 
     if (!mainRAM)
         mainRAM = (uint8_t*)malloc(2 * 1024 * 1024);
@@ -14,7 +14,7 @@ festation::PSXSystem::PSXSystem()
 
 festation::PSXSystem::~PSXSystem()
 {
-    if (deallocateVirtMemForMainRAM(mainRAM) == -1)
+    if (deallocVirtMemForMainRAM(mainRAM) == -1)
     {
         free(mainRAM);
     }

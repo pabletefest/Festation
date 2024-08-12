@@ -11,7 +11,7 @@
 static constexpr const uint32_t MAIN_RAM_SIZE = 2 * 1024 * 1024;
 static constexpr const uint32_t GPU_VRAM_SIZE = 1 * 1024 * 1024;
 
-uint8_t *festation::allocateVirtMemForMainRAM()
+uint8_t *festation::allocVirtMemForMainRAM()
 {
     uint8_t* virtMemBuffer = nullptr;
 
@@ -19,10 +19,13 @@ uint8_t *festation::allocateVirtMemForMainRAM()
         virtMemBuffer = (uint8_t*)mmap(NULL, MAIN_RAM_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 #endif
 
+    if (virtMemBuffer)
+        printf("- 2MB of virtual memory allocated for PSX main RAM\n");
+
     return virtMemBuffer;
 }
 
-int festation::deallocateVirtMemForMainRAM(void *mainMemory)
+int festation::deallocVirtMemForMainRAM(void *mainMemory)
 {
     if (!mainMemory)
     {
@@ -35,17 +38,20 @@ int festation::deallocateVirtMemForMainRAM(void *mainMemory)
 #endif
 }
 
-uint8_t *festation::allocateVirtMemForGPUVRAM()
+uint8_t *festation::allocVirtMemForGPUVRAM()
 {
     uint8_t* virtMemBuffer = nullptr;
 #if defined(__linux__) || defined(__unix__) || defined(__FreeBSD__) || defined(__APPLE__)
         virtMemBuffer = (uint8_t*)mmap(NULL, GPU_VRAM_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 #endif
 
+    if (virtMemBuffer)
+        printf("- 1MB of virtual memory allocated for PSX GPU VRAM\n");
+
     return virtMemBuffer;
 }
 
-int festation::deallocateVirtMemForGPUVRAM(void *gpuMemory)
+int festation::deallocVirtMemForGPUVRAM(void *gpuMemory)
 {
     if (!gpuMemory)
     {
