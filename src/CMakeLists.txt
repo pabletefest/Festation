@@ -13,7 +13,9 @@ add_executable(${PROJECT_NAME} main.cpp
                                cpu/mips_r3000a_opcodes.cpp 
                                cpu/mips_r3000a_opcodes.h
                                cpu/coprocessor_cp0_opcodes.cpp
-                               cpu/coprocessor_cp0_opcodes.h)
+                               cpu/coprocessor_cp0_opcodes.h
+                               memory/virtual_mem_allocator_utils.cpp
+                               memory/virtual_mem_allocator_utils.h)
 
 
 find_package(SDL2 REQUIRED)

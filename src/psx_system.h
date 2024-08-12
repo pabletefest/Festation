@@ -6,8 +6,8 @@ namespace festation
     class PSXSystem
     {
     public:
-        PSXSystem() = default;
-        ~PSXSystem() = default;
+        PSXSystem();
+        ~PSXSystem();
 
         uint8_t read8(uint32_t address);
         uint16_t read16(uint32_t address);

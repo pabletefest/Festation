@@ -2,6 +2,8 @@
 
 #include <SDL2/SDL.h>
 
+#include "psx_system.h"
+
 /* Sets constants */
 #define WIDTH 800
 #define HEIGHT 600
@@ -10,6 +12,8 @@
 int main(int, char**)
 {
     printf("Hello, from Festation!\n");
+
+    festation::PSXSystem psxSystem;
 
     /* Initialises data */
     SDL_Window *window = NULL;
