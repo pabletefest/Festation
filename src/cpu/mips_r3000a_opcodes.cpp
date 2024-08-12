@@ -1,30 +1,44 @@
 #include "mips_r3000a_opcodes.h"
+#include "psx_system.h"
 
 namespace festation
 {
+    extern PSXSystem psxSystem;
+    extern PSXRegs r3000a_regs;
+
     void lb(reg_t rt, reg_t rs, immed16_t imm)
     {
+        // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
 
+        r3000a_regs.gpr_regs[rt] = (int32_t)psxSystem.read8(r3000a_regs.gpr_regs[rs] + imm);
     }
 
     void lbu(reg_t rt, reg_t rs, immed16_t imm)
     {
+        // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception     
 
+        r3000a_regs.gpr_regs[rt] = psxSystem.read8(r3000a_regs.gpr_regs[rs] + imm);
     }
 
     void lh(reg_t rt, reg_t rs, immed16_t imm)
     {
+        // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
 
+        r3000a_regs.gpr_regs[rt] = (int32_t)psxSystem.read16(r3000a_regs.gpr_regs[rs] + imm);
     }
 
     void lhu(reg_t rt, reg_t rs, immed16_t imm)
     {
+        // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
 
+        r3000a_regs.gpr_regs[rt] = psxSystem.read16(r3000a_regs.gpr_regs[rs] + imm);        
     }
 
     void lw(reg_t rt, reg_t rs, immed16_t imm)
     {
+        // TODO: handle invalid memory locations bus error exception
 
+        r3000a_regs.gpr_regs[rt] = psxSystem.read32(r3000a_regs.gpr_regs[rs] + imm);
     }
 
     void sb(reg_t rt, reg_t rs, immed16_t imm)

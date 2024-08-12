@@ -4,8 +4,6 @@
 
 namespace festation
 {
-    extern PSXRegs r3000a_regs;
-
     // Load instructions
     void lb(reg_t rt, reg_t rs, immed16_t imm);
     void lbu(reg_t rt, reg_t rs, immed16_t imm);
