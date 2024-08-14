@@ -43,19 +43,21 @@ namespace festation
         r3000a_regs.gpr_regs[rt] = psxSystem.read32(r3000a_regs.gpr_regs[rs] + imm);
     }
 
+    // No need to implement write-queue behaviour for store instructions
+
     void sb(reg_t rt, reg_t rs, immed16_t imm)
     {
-
+        psxSystem.write8(r3000a_regs.gpr_regs[rs] + imm, rt & 0xFF);
     }
 
     void sh(reg_t rt, reg_t rs, immed16_t imm)
     {
-
+        psxSystem.write16(r3000a_regs.gpr_regs[rs] + imm, rt & 0xFFFF);
     }
 
     void sw(reg_t rt, reg_t rs, immed16_t imm)
     {
-
+        psxSystem.write32(r3000a_regs.gpr_regs[rs] + imm, rt);
     }
 
     void lwr(reg_t rt, reg_t rs, immed16_t imm)
