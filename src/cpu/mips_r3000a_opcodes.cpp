@@ -62,17 +62,33 @@ namespace festation
 
     void lwr(reg_t rt, reg_t rs, immed16_t imm)
     {
+        uint32_t prevRT = r3000a_regs.gpr_regs[rt];
+        uint32_t address = r3000a_regs.gpr_regs[rs] + imm;
+        uint8_t offset = address % 4;
+        uint32_t loadedWord = psxSystem.read32(address);
 
+        uint32_t properValue = loadedWord >> (8 * offset);
+        prevRT &= (0xFFFFFFFFu << (8 * (4 - offset)));
+
+        r3000a_regs.gpr_regs[rt] = prevRT | properValue;
     }
 
     void lwl(reg_t rt, reg_t rs, immed16_t imm)
     {
+        uint32_t prevRT = r3000a_regs.gpr_regs[rt];
+        uint32_t address = r3000a_regs.gpr_regs[rs] + imm;
+        uint8_t offset = address % 4;
+        uint32_t loadedWord = psxSystem.read32(address);
 
+        uint32_t properValue = loadedWord >> (8 * (4 - offset));
+        prevRT &= (0xFFFFFFFFu >> (8 * offset));
+
+        r3000a_regs.gpr_regs[rt] = prevRT | properValue;
     }
 
     void swr(reg_t rt, reg_t rs, immed16_t imm)
     {
-
+        
     }
 
     void swl(reg_t rt, reg_t rs, immed16_t imm)
