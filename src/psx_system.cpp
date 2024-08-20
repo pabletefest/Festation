@@ -1,6 +1,6 @@
-#include "psx_system.h"
-#include "virtual_mem_allocator_utils.h"
-#include "memory_map_masks.h"
+#include "psx_system.hpp"
+#include "virtual_mem_allocator_utils.hpp"
+#include "memory_map_masks.hpp"
 
 #include <stdlib.h>
 

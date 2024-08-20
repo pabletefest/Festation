@@ -1,6 +1,6 @@
 ## Festation
 
-A Sony Playstation 1 (PSX) emulator written in C++. This projects is currently in development and aims to be cross-platform.
+A Sony Playstation 1 (PSX) emulator written in C++. This projects is currently in development and aims to be cross-platform (development under Linux).
 
 ## Copyright
 

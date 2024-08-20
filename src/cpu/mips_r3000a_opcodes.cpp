@@ -1,5 +1,5 @@
-#include "mips_r3000a_opcodes.h"
-#include "psx_system.h"
+#include "mips_r3000a_opcodes.hpp"
+#include "psx_system.hpp"
 
 namespace festation
 {
@@ -88,12 +88,28 @@ namespace festation
 
     void swr(reg_t rt, reg_t rs, immed16_t imm)
     {
-        
+        uint32_t address = r3000a_regs.gpr_regs[rs] + imm;
+        uint32_t prevStored = psxSystem.read32(address);
+        uint8_t offset = address % 4;
+        uint32_t storedRT = r3000a_regs.gpr_regs[rt];
+
+        uint32_t properValue = storedRT >> (8 * offset);
+        prevStored &= (0xFFFFFFFFu << (8 * (4 - offset)));
+
+        psxSystem.write32(address, prevStored | properValue);
     }
 
     void swl(reg_t rt, reg_t rs, immed16_t imm)
     {
+        uint32_t address = r3000a_regs.gpr_regs[rs] + imm;
+        uint32_t prevStored = psxSystem.read32(address);
+        uint8_t offset = address % 4;
+        uint32_t storedRT = r3000a_regs.gpr_regs[rt];
 
+        uint32_t properValue = storedRT >> (8 * (4 - offset));
+        prevStored &= (0xFFFFFFFFu >> (8 * offset));
+
+        psxSystem.write32(address, prevStored | properValue);
     }
 
     void add(reg_t rd, reg_t rs, reg_t rt)

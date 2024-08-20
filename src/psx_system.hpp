@@ -1,5 +1,5 @@
 #pragma once
-#include "psx_cpu.h"
+#include "psx_cpu.hpp"
 
 namespace festation
 {

@@ -2,18 +2,21 @@
 
 #include <SDL2/SDL.h>
 
-#include "psx_system.h"
+#include "psx_system.hpp"
 
 /* Sets constants */
 #define WIDTH 800
 #define HEIGHT 600
 #define DELAY 3000
 
+namespace festation
+{
+    PSXSystem psxSystem;
+};
+
 int main(int, char**)
 {
     printf("Hello, from Festation!\n");
-
-    festation::PSXSystem psxSystem;
 
     /* Initialises data */
     SDL_Window *window = NULL;

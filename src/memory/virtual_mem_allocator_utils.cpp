@@ -1,6 +1,6 @@
 // SUPPORTING UNIX-BASED OS ONLY FOR NOW (Windows is planned)
 
-#include "virtual_mem_allocator_utils.h"
+#include "virtual_mem_allocator_utils.hpp"
 
 #if defined(__linux__) || defined(__unix__) || defined(__FreeBSD__) || defined(__APPLE__)
     #include <sys/mman.h>

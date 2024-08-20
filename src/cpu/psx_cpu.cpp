@@ -1,6 +1,6 @@
-#include "psx_cpu.h"
-#include "psx_system.h"
-#include "mips_r3000a_opcodes.h"
+#include "psx_cpu.hpp"
+#include "psx_system.hpp"
+#include "mips_r3000a_opcodes.hpp"
 
 #include <cstring>
 #include <stdio.h>

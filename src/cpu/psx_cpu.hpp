@@ -1,6 +1,6 @@
 #pragma once
-#include "mips_r3000a_state.h"
-#include "cpu_masks_types_utils.h"
+#include "mips_r3000a_state.hpp"
+#include "cpu_masks_types_utils.hpp"
 
 #include <cstdint>
 
