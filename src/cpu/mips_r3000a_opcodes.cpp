@@ -114,32 +114,62 @@ namespace festation
 
     void add(reg_t rd, reg_t rs, reg_t rt)
     {
+        int32_t result;
 
+        #ifdef __GNUC__
+            if (__builtin_add_overflow((int32_t)r3000a_regs.gpr_regs[rs], (int32_t)r3000a_regs.gpr_regs[rt], &result))
+            {
+                // TODO: Overflow Exception
+                return;
+            }
+
+            r3000a_regs.gpr_regs[rd] = (uint32_t)result;
+        #endif
     }
 
     void addu(reg_t rd, reg_t rs, reg_t rt)
     {
-
+        r3000a_regs.gpr_regs[rd] = r3000a_regs.gpr_regs[rs] + r3000a_regs.gpr_regs[rt];
     }
 
     void sub(reg_t rd, reg_t rs, reg_t rt)
     {
+        int32_t result;
 
+        #ifdef __GNUC__
+            if (__builtin_sub_overflow((int32_t)r3000a_regs.gpr_regs[rs], (int32_t)r3000a_regs.gpr_regs[rt], &result))
+            {
+                // TODO: Overflow Exception
+                return;
+            }
+
+            r3000a_regs.gpr_regs[rd] = (uint32_t)result;
+        #endif
     }
 
     void subu(reg_t rd, reg_t rs, reg_t rt)
     {
-
+        r3000a_regs.gpr_regs[rd] = r3000a_regs.gpr_regs[rs] - r3000a_regs.gpr_regs[rt];
     }
     
     void addi(reg_t rt, reg_t rs, immed16_t imm)
     {
+        int32_t result;
 
+        #ifdef __GNUC__
+            if (__builtin_add_overflow((int32_t)r3000a_regs.gpr_regs[rs], (int16_t)imm, &result))
+            {
+                // TODO: Overflow Exception
+                return;
+            }
+
+            r3000a_regs.gpr_regs[rt] = (uint32_t)result;
+        #endif
     }
 
     void addiu(reg_t rt, reg_t rs, immed16_t imm)
     {
-
+        r3000a_regs.gpr_regs[rt] = r3000a_regs.gpr_regs[rs] + (int16_t)imm;
     }
 
     void slt(reg_t rd, reg_t rs, reg_t rt)
