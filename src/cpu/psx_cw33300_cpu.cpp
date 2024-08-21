@@ -1,4 +1,4 @@
-#include "psx_cpu.hpp"
+#include "psx_cw33300_cpu.hpp"
 #include "psx_system.hpp"
 #include "mips_r3000a_opcodes.hpp"
 
@@ -12,43 +12,43 @@ namespace festation
     PSXRegs r3000a_regs;
 };
 
-festation::MIPS_R3000A::MIPS_R3000A(PSXSystem* device)
+festation::MIPS_R3000A_Core::MIPS_R3000A_Core(PSXSystem* device)
     : system(device)
 {
     std::memset((void*) &r3000a_regs, 0, sizeof(PSXRegs));
 }
 
-uint8_t festation::MIPS_R3000A::read8(uint32_t address)
+uint8_t festation::MIPS_R3000A_Core::read8(uint32_t address)
 {
     return system->read8(address);
 }
 
-uint16_t festation::MIPS_R3000A::read16(uint32_t address)
+uint16_t festation::MIPS_R3000A_Core::read16(uint32_t address)
 {
     return system->read16(address);
 }
 
-uint32_t festation::MIPS_R3000A::read32(uint32_t address)
+uint32_t festation::MIPS_R3000A_Core::read32(uint32_t address)
 {
     return system->read32(address);
 }
 
-void festation::MIPS_R3000A::write8(uint32_t address, uint8_t value)
+void festation::MIPS_R3000A_Core::write8(uint32_t address, uint8_t value)
 {
     system->write8(address, value);
 }
 
-void festation::MIPS_R3000A::write16(uint32_t address, uint16_t value)
+void festation::MIPS_R3000A_Core::write16(uint32_t address, uint16_t value)
 {
     system->write16(address, value);
 }
 
-void festation::MIPS_R3000A::write32(uint32_t address, uint32_t value)
+void festation::MIPS_R3000A_Core::write32(uint32_t address, uint32_t value)
 {
     system->write32(address, value);
 }
 
-void festation::MIPS_R3000A::executeInstruction()
+void festation::MIPS_R3000A_Core::executeInstruction()
 {
     uint8_t instruction = fetchInstruction();
 
@@ -97,7 +97,7 @@ void festation::MIPS_R3000A::executeInstruction()
     }
 }
 
-uint32_t festation::MIPS_R3000A::fetchInstruction()
+uint32_t festation::MIPS_R3000A_Core::fetchInstruction()
 {
     uint32_t instruction = read32(r3000a_regs.pc);
 
@@ -106,7 +106,7 @@ uint32_t festation::MIPS_R3000A::fetchInstruction()
     return instruction;
 }
 
-festation::InstructionType festation::MIPS_R3000A::decodeInstruction(uint32_t instruction)
+festation::InstructionType festation::MIPS_R3000A_Core::decodeInstruction(uint32_t instruction)
 {
     uint8_t opcode = getInstOpcode(instruction);
 
@@ -124,7 +124,7 @@ festation::InstructionType festation::MIPS_R3000A::decodeInstruction(uint32_t in
     }
 }
 
-festation::InstructionTypeVariant festation::MIPS_R3000A::decodeRFormat(uint32_t instruction)
+festation::InstructionTypeVariant festation::MIPS_R3000A_Core::decodeRFormat(uint32_t instruction)
 {
     uint8_t function = getInstFunctionOperation(instruction);
     reg_t rd = getInstDestRegEncoding<EncodingType::REGISTER>(instruction);
@@ -252,7 +252,7 @@ festation::InstructionTypeVariant festation::MIPS_R3000A::decodeRFormat(uint32_t
     }
 }
 
-festation::InstructionTypeVariant festation::MIPS_R3000A::decodeJFormat(uint32_t instruction)
+festation::InstructionTypeVariant festation::MIPS_R3000A_Core::decodeJFormat(uint32_t instruction)
 {
     switch (getInstOpcode(instruction))
     {
@@ -270,7 +270,7 @@ festation::InstructionTypeVariant festation::MIPS_R3000A::decodeJFormat(uint32_t
     }
 }
 
-festation::InstructionTypeVariant festation::MIPS_R3000A::decodeIFormat(uint32_t instruction)
+festation::InstructionTypeVariant festation::MIPS_R3000A_Core::decodeIFormat(uint32_t instruction)
 {
     uint8_t opcode = getInstOpcode(instruction);
     reg_t rt = getInstDestRegEncoding<EncodingType::IMMEDIATE>(instruction);

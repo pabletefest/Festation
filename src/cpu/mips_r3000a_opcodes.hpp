@@ -1,5 +1,5 @@
 #pragma once
-#include "mips_r3000a_state.hpp"
+#include "psx_cpu_state.hpp"
 #include "cpu_masks_types_utils.hpp"
 
 namespace festation

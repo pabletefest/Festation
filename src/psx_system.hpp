@@ -1,5 +1,5 @@
 #pragma once
-#include "psx_cpu.hpp"
+#include "psx_cw33300_cpu.hpp"
 
 namespace festation
 {
@@ -20,7 +20,7 @@ namespace festation
         void runWholeFrame();
 
     private:
-        MIPS_R3000A cpu;
+        MIPS_R3000A_Core cpu;
         uint8_t* mainRAM = nullptr;
     };
 };
