@@ -12,6 +12,8 @@
 namespace festation
 {
     PSXSystem psxSystem;
+
+    static constexpr const char* EMU_TITLE = "Festation (PSX Emulator)";
 };
 
 int main(int, char**)
@@ -31,7 +33,7 @@ int main(int, char**)
     }
 
     /* Creates a SDL window */
-    window = SDL_CreateWindow("SDL Example", /* Title of the SDL window */
+    window = SDL_CreateWindow(festation::EMU_TITLE, /* Title of the SDL window */
                     SDL_WINDOWPOS_UNDEFINED, /* Position x of the window */
                     SDL_WINDOWPOS_UNDEFINED, /* Position y of the window */
                     WIDTH, /* Width of the window in pixels */
