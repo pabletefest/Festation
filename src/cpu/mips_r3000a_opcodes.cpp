@@ -241,37 +241,37 @@ namespace festation
 
     void sllv(reg_t rd, reg_t rt, reg_t rs)
     {
-
+        r3000a_regs.gpr_regs[rd] = r3000a_regs.gpr_regs[rt] << (r3000a_regs.gpr_regs[rs] & 0x1F);
     }
 
     void srlv(reg_t rd, reg_t rt, reg_t rs)
     {
-
+        r3000a_regs.gpr_regs[rd] = r3000a_regs.gpr_regs[rt] >> (r3000a_regs.gpr_regs[rs] & 0x1F);
     }
 
     void srav(reg_t rd, reg_t rt, reg_t rs)
     {
-
+        r3000a_regs.gpr_regs[rd] = (int32_t)r3000a_regs.gpr_regs[rt] >> (int8_t)(r3000a_regs.gpr_regs[rs] & 0x1F);   
     }
 
     void sll(reg_t rd, reg_t rt, shift_t imm)
     {
-
+        r3000a_regs.gpr_regs[rd] = r3000a_regs.gpr_regs[rt] << imm;
     }
 
     void srl(reg_t rd, reg_t rt, shift_t imm)
     {
-
+        r3000a_regs.gpr_regs[rd] = r3000a_regs.gpr_regs[rt] >> imm;
     }
 
     void sra(reg_t rd, reg_t rt, shift_t imm)
     {
-
+        r3000a_regs.gpr_regs[rd] = (int32_t)r3000a_regs.gpr_regs[rt] >> (int8_t)imm;
     }
 
     void lui(reg_t rt, immed16_t imm)
     {
-        
+        r3000a_regs.gpr_regs[rt] = imm << 16;
     }
 
     void mult(reg_t rs, reg_t rt)
