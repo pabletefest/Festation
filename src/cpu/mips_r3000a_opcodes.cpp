@@ -174,22 +174,34 @@ namespace festation
 
     void slt(reg_t rd, reg_t rs, reg_t rt)
     {
-
+        if (((int32_t)r3000a_regs.gpr_regs[rs]) < ((int32_t)r3000a_regs.gpr_regs[rt]))
+            r3000a_regs.gpr_regs[rd] = 1;
+        else
+            r3000a_regs.gpr_regs[rd] = 0;
     }
 
     void sltu(reg_t rd, reg_t rs, reg_t rt)
     {
-
+        if (r3000a_regs.gpr_regs[rs] < r3000a_regs.gpr_regs[rt])
+            r3000a_regs.gpr_regs[rd] = 1;
+        else
+            r3000a_regs.gpr_regs[rd] = 0;
     }
 
     void slti(reg_t rt, reg_t rs, immed16_t imm)
     {
-
+        if (((int32_t)r3000a_regs.gpr_regs[rs]) < ((int32_t)imm))
+            r3000a_regs.gpr_regs[rt] = 1;
+        else
+            r3000a_regs.gpr_regs[rt] = 0;
     }
 
     void sltiu(reg_t rt, reg_t rs, immed16_t imm)
     {
-
+        if (r3000a_regs.gpr_regs[rs] < (uint32_t)((int32_t)imm))
+            r3000a_regs.gpr_regs[rt] = 1;
+        else
+            r3000a_regs.gpr_regs[rt] = 0;
     }
 
     void _and(reg_t rd, reg_t rs, reg_t rt)
