@@ -206,37 +206,37 @@ namespace festation
 
     void _and(reg_t rd, reg_t rs, reg_t rt)
     {
-
+        r3000a_regs.gpr_regs[rd] = r3000a_regs.gpr_regs[rs] & r3000a_regs.gpr_regs[rt];
     }
 
     void _or(reg_t rd, reg_t rs, reg_t rt)
     {
-
+        r3000a_regs.gpr_regs[rd] = r3000a_regs.gpr_regs[rs] | r3000a_regs.gpr_regs[rt];
     }
 
     void _xor(reg_t rd, reg_t rs, reg_t rt)
     {
-
+        r3000a_regs.gpr_regs[rd] = r3000a_regs.gpr_regs[rs] ^ r3000a_regs.gpr_regs[rt];
     }
 
     void nor(reg_t rd, reg_t rs, reg_t rt)
     {
-
+        r3000a_regs.gpr_regs[rd] = 0xFFFFFFFF ^ (r3000a_regs.gpr_regs[rs] | r3000a_regs.gpr_regs[rt]);
     }
 
     void andi(reg_t rt, reg_t rs, immed16_t imm)
     {
-
+        r3000a_regs.gpr_regs[rt] = r3000a_regs.gpr_regs[rs] & imm;
     }
 
     void ori(reg_t rt, reg_t rs, immed16_t imm)
     {
-
+        r3000a_regs.gpr_regs[rt] = r3000a_regs.gpr_regs[rs] | imm;
     }
 
     void xori(reg_t rt, reg_t rs, immed16_t imm)
     {
-
+        r3000a_regs.gpr_regs[rt] = r3000a_regs.gpr_regs[rs] ^ imm;
     }
 
     void sllv(reg_t rd, reg_t rt, reg_t rs)
