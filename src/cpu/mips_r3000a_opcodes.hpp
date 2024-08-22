@@ -68,7 +68,7 @@ namespace festation
     void j(j_immed26_t dest);
     void jal(j_immed26_t dest);
     void jr(reg_t rs);
-    void jalr(reg_t rs);
+    void jalr(reg_t rs, reg_t rd);
     void beq(reg_t rs, reg_t rt, immed16_t dest);
     void bne(reg_t rs, reg_t rt, immed16_t dest);
     void bltz(reg_t rs, immed16_t dest);

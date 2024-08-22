@@ -164,7 +164,7 @@ festation::InstructionTypeVariant festation::MIPS_R3000A_Core::decodeRFormat(uin
         }, rd, rt, rs, shift) };
     case 0x09:
         return { std::make_tuple([](reg_t _rd, reg_t _rt, reg_t _rs, shift_t _shift){
-            jalr(_rs);
+            jalr(_rs, _rd);
         }, rd, rt, rs, shift) };
     case 0x0C:
         return { std::make_tuple([](reg_t _rd, reg_t _rt, reg_t _rs, shift_t _shift){

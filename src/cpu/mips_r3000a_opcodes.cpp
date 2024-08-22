@@ -359,22 +359,34 @@ namespace festation
 
     void j(j_immed26_t dest)
     {
-
+        r3000a_regs.pc = (r3000a_regs.pc & 0xF0000000) | (dest << 2); // High 4 bits of PC + 26-bit address * 4 (4 bytes multiples so lower 2 bits not addressable)
     }
 
     void jal(j_immed26_t dest)
     {
-
+        r3000a_regs.gpr_regs[ra] = r3000a_regs.pc + 8; // Skip branch delay slot instruction so it's 8 bytes next instruction when returning
+        r3000a_regs.pc = (r3000a_regs.pc & 0xF0000000) | (dest << 2);
     }
 
     void jr(reg_t rs)
     {
-
+        // TODO: arise address error (AdEL) exception if jumping to unaligned address
+        r3000a_regs.pc = r3000a_regs.gpr_regs[rs];
     }
 
-    void jalr(reg_t rs)
+    void jalr(reg_t rs, reg_t rd)
     {
+        if (rd == 0) // rd omitted in the assembly instruction
+        {
+            r3000a_regs.gpr_regs[ra] = r3000a_regs.pc + 8;
+        }
+        else
+        {
+            r3000a_regs.gpr_regs[rd] = r3000a_regs.pc + 8;
+        }
 
+        // TODO: arise address error (AdEL) exception if jumping to unaligned address
+        r3000a_regs.pc = r3000a_regs.gpr_regs[rs];
     }
 
     void beq(reg_t rs, reg_t rt, immed16_t dest)
