@@ -1,6 +1,8 @@
 #include "mips_r3000a_opcodes.hpp"
 #include "psx_system.hpp"
 
+#include <limits>
+
 namespace festation
 {
     extern PSXSystem psxSystem;
@@ -276,42 +278,83 @@ namespace festation
 
     void mult(reg_t rs, reg_t rt)
     {
+        int64_t result = (int64_t)(int32_t)r3000a_regs.gpr_regs[rs] * (int64_t)(int32_t)r3000a_regs.gpr_regs[rt];
 
+        r3000a_regs.hi = (uint64_t)(result >> 32) & 0xFFFFFFFF;
+        r3000a_regs.lo = (uint64_t)result & 0xFFFFFFFF;
     }
 
     void multu(reg_t rs, reg_t rt)
     {
+        uint64_t result = (uint64_t)r3000a_regs.gpr_regs[rs] * (uint64_t)r3000a_regs.gpr_regs[rt];
 
+        r3000a_regs.hi = (result >> 32) & 0xFFFFFFFF;
+        r3000a_regs.lo = result & 0xFFFFFFFF;
     }
 
     void div(reg_t rs, reg_t rt)
     {
+        int32_t rsOperand = (int32_t)r3000a_regs.gpr_regs[rs];
+        int32_t rtOperand = (int32_t)r3000a_regs.gpr_regs[rt];
 
+        if (rtOperand == 0)
+        {
+            r3000a_regs.hi = rsOperand;
+
+            if (rsOperand >= 0)
+                r3000a_regs.lo = -1;
+            else
+                r3000a_regs.lo = 1;
+
+            return;
+        }
+        else if (rtOperand == -1 && rsOperand == std::numeric_limits<std::int32_t>::min())
+        {
+            r3000a_regs.hi = 0;
+            r3000a_regs.lo = rsOperand; // std::numeric_limits<std::int32_t>::min() or (int32_t)0x80000000 or -0x80000000
+            
+            return;
+        }
+
+        r3000a_regs.lo = (uint32_t)(rsOperand / rtOperand);
+        r3000a_regs.hi = (uint32_t)(rsOperand % rtOperand);
     }
 
     void divu(reg_t rs, reg_t rt)
     {
+        uint32_t rsOperand = r3000a_regs.gpr_regs[rs];
+        uint32_t rtOperand = r3000a_regs.gpr_regs[rt];
 
+        if (rtOperand == 0)
+        {
+            r3000a_regs.hi = rsOperand;
+            r3000a_regs.lo = 0xFFFFFFFF;
+            
+            return;
+        }
+
+        r3000a_regs.lo = rsOperand / rtOperand;
+        r3000a_regs.hi = rsOperand % rtOperand;
     }
 
     void mfhi(reg_t rd)
     {
-
+        r3000a_regs.gpr_regs[rd] = r3000a_regs.hi;
     }
 
     void mflo(reg_t rd)
     {
-
+        r3000a_regs.gpr_regs[rd] = r3000a_regs.lo;
     }
 
     void mthi(reg_t rs)
     {
-
+       r3000a_regs.hi = r3000a_regs.gpr_regs[rs];
     }
 
     void mtlo(reg_t rs)
     {
-
+       r3000a_regs.lo = r3000a_regs.gpr_regs[rs];
     }
 
     void j(j_immed26_t dest)
