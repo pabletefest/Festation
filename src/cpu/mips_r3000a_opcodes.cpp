@@ -11,10 +11,9 @@ namespace festation
     static void calculateAndPerformBranchAddress(immed16_t dest)
     {
         int32_t branchAddr = (int32_t)r3000a_regs.pc + 4 + ((int16_t)dest * 4);
-        r3000a_regs.pc = (uint32_t)branchAddr;
+        // r3000a_regs.pc = (uint32_t)branchAddr;
+        r3000a_regs.storeDelayedJump((uint32_t)branchAddr);
     }
-
-    // TODO: implement load delay slot 
 
     void lb(reg_t rt, reg_t rs, immed16_t imm)
     {

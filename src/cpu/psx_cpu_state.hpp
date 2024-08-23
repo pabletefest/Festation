@@ -12,6 +12,7 @@ namespace festation
         uint32_t hi;            // High part of mult/div opcodes results
         uint32_t lo;            // Low part of mult/div opcodes results
 
+    private:
         class LoadDelaySlot // Struct containing last latched loaded value from memory due to delay slot (cleared after being consumed) and corresponding register
         {
         private:
@@ -19,25 +20,52 @@ namespace festation
             uint8_t destReg = 0;
             bool isDelay = false;
 
-            friend class PSXRegs;
-        }delaySlotLatch;
+            friend struct PSXRegs;
+        }loadDelaySlotLatch;
 
-        constexpr inline bool isLoadDelaySlot()
+        class BranchDelaySlot
         {
-            return delaySlotLatch.isDelay;
+        private:
+            uint32_t destAddr = 0;
+            bool isDelay = false;
+
+            friend struct PSXRegs;
+        }branchDelaySlotLatch;
+
+    public:
+        constexpr inline bool isLoadDelaySlot() const
+        {
+            return loadDelaySlotLatch.isDelay;
         }
 
         constexpr inline void consumeLoadedData()
         {
-           gpr_regs[delaySlotLatch.destReg] = delaySlotLatch.loadedValue;
-           delaySlotLatch.isDelay = false;
+           gpr_regs[loadDelaySlotLatch.destReg] = loadDelaySlotLatch.loadedValue;
+           loadDelaySlotLatch.isDelay = false;
         }
 
         constexpr inline void storeDelayedData(uint32_t data, uint8_t reg)
         {
-            delaySlotLatch.loadedValue = data;
-            delaySlotLatch.destReg = reg;
-            delaySlotLatch.isDelay = true;
+            loadDelaySlotLatch.loadedValue = data;
+            loadDelaySlotLatch.destReg = reg;
+            loadDelaySlotLatch.isDelay = true;
+        }
+
+        constexpr inline bool isBranchDelaySlot() const
+        {
+            return branchDelaySlotLatch.isDelay;
+        }
+
+        constexpr inline void performDelayedJump()
+        {
+            pc = branchDelaySlotLatch.destAddr;
+            branchDelaySlotLatch.isDelay = false;
+        }
+
+        constexpr inline void storeDelayedJump(uint32_t destination)
+        {
+            branchDelaySlotLatch.destAddr = destination;
+            branchDelaySlotLatch.isDelay = true;
         }
     };
 };
