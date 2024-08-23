@@ -95,6 +95,9 @@ void festation::MIPS_R3000A_Core::executeInstruction()
     default:
         break;
     }
+
+    if (r3000a_regs.isLoadDelaySlot())
+        r3000a_regs.consumeLoadedData();
 }
 
 uint32_t festation::MIPS_R3000A_Core::fetchInstruction()

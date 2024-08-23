@@ -20,35 +20,45 @@ namespace festation
     {
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
 
-        r3000a_regs.gpr_regs[rt] = (int32_t)psxSystem.read8(r3000a_regs.gpr_regs[rs] + imm);
+        // r3000a_regs.gpr_regs[rt] = (uint32_t)(int32_t)(int8_t)psxSystem.read8(r3000a_regs.gpr_regs[rs] + imm);
+        uint32_t cachedLoad = (uint32_t)(int32_t)(int8_t)psxSystem.read8(r3000a_regs.gpr_regs[rs] + imm);
+        r3000a_regs.storeDelayedData(cachedLoad, rt);
     }
 
     void lbu(reg_t rt, reg_t rs, immed16_t imm)
     {
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception     
 
-        r3000a_regs.gpr_regs[rt] = psxSystem.read8(r3000a_regs.gpr_regs[rs] + imm);
+        // r3000a_regs.gpr_regs[rt] = psxSystem.read8(r3000a_regs.gpr_regs[rs] + imm);
+        uint32_t cachedLoad = psxSystem.read8(r3000a_regs.gpr_regs[rs] + imm);
+        r3000a_regs.storeDelayedData(cachedLoad, rt);
     }
 
     void lh(reg_t rt, reg_t rs, immed16_t imm)
     {
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
 
-        r3000a_regs.gpr_regs[rt] = (int32_t)psxSystem.read16(r3000a_regs.gpr_regs[rs] + imm);
+        // r3000a_regs.gpr_regs[rt] = (uint32_t)(int32_t)(int16_t)psxSystem.read16(r3000a_regs.gpr_regs[rs] + imm);
+        uint32_t cachedLoad = (uint32_t)(int32_t)(int16_t)psxSystem.read16(r3000a_regs.gpr_regs[rs] + imm);
+        r3000a_regs.storeDelayedData(cachedLoad, rt);
     }
 
     void lhu(reg_t rt, reg_t rs, immed16_t imm)
     {
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
 
-        r3000a_regs.gpr_regs[rt] = psxSystem.read16(r3000a_regs.gpr_regs[rs] + imm);        
+        // r3000a_regs.gpr_regs[rt] = psxSystem.read16(r3000a_regs.gpr_regs[rs] + imm);
+        uint32_t cachedLoad = psxSystem.read16(r3000a_regs.gpr_regs[rs] + imm);
+        r3000a_regs.storeDelayedData(cachedLoad, rt);
     }
 
     void lw(reg_t rt, reg_t rs, immed16_t imm)
     {
         // TODO: handle invalid memory locations bus error exception
 
-        r3000a_regs.gpr_regs[rt] = psxSystem.read32(r3000a_regs.gpr_regs[rs] + imm);
+        // r3000a_regs.gpr_regs[rt] = psxSystem.read32(r3000a_regs.gpr_regs[rs] + imm);
+        uint32_t cachedLoad = psxSystem.read32(r3000a_regs.gpr_regs[rs] + imm);
+        r3000a_regs.storeDelayedData(cachedLoad, rt);
     }
 
     // No need to implement write-queue behaviour for store instructions
