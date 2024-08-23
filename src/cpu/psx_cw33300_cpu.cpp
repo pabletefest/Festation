@@ -10,6 +10,7 @@ namespace festation
     #define INSTRUCTION_SIZE 4
 
     PSXRegs r3000a_regs;
+    CP0Regs cp0_state;
 };
 
 festation::MIPS_R3000A_Core::MIPS_R3000A_Core(PSXSystem* device)

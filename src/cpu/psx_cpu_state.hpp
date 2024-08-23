@@ -68,4 +68,10 @@ namespace festation
             branchDelaySlotLatch.isDelay = true;
         }
     };
+
+    struct CP0Regs
+    {
+        uint32_t cp0_regs[32];
+        uint32_t NA_control_regs[32]; // None such
+    };
 };
