@@ -50,6 +50,8 @@ void festation::MIPS_R3000A_Core::write32(uint32_t address, uint32_t value)
 
 void festation::MIPS_R3000A_Core::executeInstruction()
 {
+    const bool isLoadDelayPending = r3000a_regs.isLoadDelaySlot();
+
     uint8_t instruction = fetchInstruction();
 
     InstructionType instructionType = decodeInstruction(instruction);
@@ -96,7 +98,7 @@ void festation::MIPS_R3000A_Core::executeInstruction()
         break;
     }
 
-    if (r3000a_regs.isLoadDelaySlot())
+    if (isLoadDelayPending)
         r3000a_regs.consumeLoadedData();
 }
 
