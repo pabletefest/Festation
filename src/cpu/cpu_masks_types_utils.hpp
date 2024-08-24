@@ -157,4 +157,19 @@ namespace festation
     {
         return instruction & JUMP_ADDRESS_MASK;
     }
+
+    enum CP0RegsIDs
+    {
+        BPC = 3,
+        BDA = 5,
+        JUMPDEST,
+        DCIC,
+        BadVaddr,
+        BDAM,
+        BPCM = 11,
+        SR,
+        CAUSE,
+        EPC,
+        PRID
+    };
 };
