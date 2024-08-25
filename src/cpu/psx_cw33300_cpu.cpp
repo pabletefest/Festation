@@ -10,7 +10,7 @@ namespace festation
     #define INSTRUCTION_SIZE 4
 
     PSXRegs r3000a_regs;
-    CP0Regs cp0_state;
+    CP0SystemControlRegs cp0_state;
 };
 
 festation::MIPS_R3000A_Core::MIPS_R3000A_Core(PSXSystem* device)
@@ -177,12 +177,16 @@ festation::InstructionTypeVariant festation::MIPS_R3000A_Core::decodeRFormat(uin
             jalr(_rs, _rd);
         }, rd, rt, rs, shift) };
     case 0x0C:
-        return { std::make_tuple([](reg_t _rd, reg_t _rt, reg_t _rs, shift_t _shift){
-            //syscall();
+        return { std::make_tuple([instruction](reg_t _rd, reg_t _rt, reg_t _rs, shift_t _shift){
+            syscall_break_code_t code = getSyscallBreakCode(instruction);
+
+            syscall(code);
         }, rd, rt, rs, shift) };
     case 0x0D:
-        return { std::make_tuple([](reg_t _rd, reg_t _rt, reg_t _rs, shift_t _shift){
-            //break();
+        return { std::make_tuple([instruction](reg_t _rd, reg_t _rt, reg_t _rs, shift_t _shift){
+            syscall_break_code_t code = getSyscallBreakCode(instruction);
+
+            _break(code);
         }, rd, rt, rs, shift) };
     case 0x10:
         return { std::make_tuple([](reg_t _rd, reg_t _rt, reg_t _rs, shift_t _shift){

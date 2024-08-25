@@ -67,7 +67,9 @@ namespace festation
         FUNCTION_MASK = 0x3F,
         R_TYPE_OPCODE_PATTERN = 0,
         IMMEDIATE_MASK = 0xFFFF,
-        JUMP_ADDRESS_MASK = 0x3FFFFFF
+        JUMP_ADDRESS_MASK = 0x3FFFFFF,
+        SYSCALL_BREAK_SHIFT_AMOUNT = 6,
+        SYSCALL_BREAK_MASK = 0xFFFFF
     };
 
     enum class SrcRegs
@@ -80,6 +82,7 @@ namespace festation
     using shift_t = uint8_t;
     using immed16_t = uint16_t;
     using j_immed26_t = uint32_t;
+    using syscall_break_code_t = uint32_t;
 
     using RTypeInstructionPtr = std::function<void(reg_t, reg_t, reg_t, shift_t)>;
     using ITypeInstructionPtr = std::function<void(reg_t, reg_t, immed16_t)>;
@@ -156,6 +159,11 @@ namespace festation
     static inline constexpr j_immed26_t getInstAddress(uint32_t instruction)
     {
         return instruction & JUMP_ADDRESS_MASK;
+    }
+
+    static inline constexpr syscall_break_code_t getSyscallBreakCode(uint32_t instruction)
+    {
+        return (instruction >> SYSCALL_BREAK_SHIFT_AMOUNT) & SYSCALL_BREAK_MASK; 
     }
 
     enum CP0RegsIDs

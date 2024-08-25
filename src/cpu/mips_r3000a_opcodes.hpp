@@ -1,5 +1,4 @@
 #pragma once
-#include "psx_cpu_state.hpp"
 #include "cpu_masks_types_utils.hpp"
 
 namespace festation

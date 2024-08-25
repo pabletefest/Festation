@@ -1,5 +1,6 @@
 #include "mips_r3000a_opcodes.hpp"
 #include "psx_system.hpp"
+#include "psx_cpu_state.hpp"
 
 #include <limits>
 
