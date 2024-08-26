@@ -69,7 +69,7 @@ namespace festation
         }
     };
 
-    struct CP0Regs
+    struct CP0SystemControlRegs
     {
         uint32_t cp0_regs[32];
         uint32_t NA_control_regs[32]; // None such

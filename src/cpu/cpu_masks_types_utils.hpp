@@ -180,4 +180,6 @@ namespace festation
         EPC,
         PRID
     };
+
+    using cop0_command_t = uint32_t;
 };
