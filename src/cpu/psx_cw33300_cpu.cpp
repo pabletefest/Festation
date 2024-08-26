@@ -1,6 +1,7 @@
 #include "psx_cw33300_cpu.hpp"
 #include "psx_system.hpp"
 #include "mips_r3000a_opcodes.hpp"
+#include "coprocessor_cp0_opcodes.hpp"
 
 #include <cstring>
 #include <stdio.h>
@@ -364,13 +365,38 @@ festation::InstructionTypeVariant festation::MIPS_R3000A_Core::decodeIFormat(uin
         return { std::make_tuple([](reg_t _rt, reg_t _rs, immed16_t _imm16){
             lui(_rt, _imm16);
         }, rt, rs, imm16) };
-    case 0x10:
+    case 0x10: // COP0
+        if (rt == 0b10000)
+        {
+            // We don't check last 6 bits because PS1 CPU doesn't have TLB
+            return { std::make_tuple([](reg_t _rt, reg_t _rs, immed16_t _imm16){
+                rfe();
+            }, rt, rs, imm16) };
+        }
+        else
+        {
+            reg_t rd = getInstDestRegEncoding<EncodingType::REGISTER>(instruction);
+
+            switch (rt) // We don't need to check for more opcodes on COP0
+            {
+            case 0b00000:
+                return { std::make_tuple([rd](reg_t _rt, reg_t _rs, immed16_t _imm16){
+                    mfc0(_rt, rd);
+                }, rt, rs, imm16) };
+            case 0b00100:
+                return { std::make_tuple([rd](reg_t _rt, reg_t _rs, immed16_t _imm16){
+                    mtc0(_rt, rd);
+                }, rt, rs, imm16) };
+            default:
+                printf("Unimplemented or invalid COP0 instruction! Instruction opcode: %02X - from hex MIPS instruction encoding (%08X)\n", opcode, instruction);
+                return InstructionTypeVariant();
+            }
+        }
+    case 0x11: // COP1
         return InstructionTypeVariant();
-    case 0x11:
+    case 0x12: // COP2
         return InstructionTypeVariant();
-    case 0x12:
-        return InstructionTypeVariant();
-    case 0x13:
+    case 0x13: // COP3
         return InstructionTypeVariant();
     case 0x20:
         return { std::make_tuple([](reg_t _rt, reg_t _rs, immed16_t _imm16){
@@ -420,21 +446,25 @@ festation::InstructionTypeVariant festation::MIPS_R3000A_Core::decodeIFormat(uin
         return { std::make_tuple([](reg_t _rt, reg_t _rs, immed16_t _imm16){
             swr(_rt, _rs, _imm16);
         }, rt, rs, imm16) };
-    case 0x30:
+    case 0x30: // COP0
+        return { std::make_tuple([](reg_t _rt, reg_t _rs, immed16_t _imm16){
+            lwc0(_rt, _rs, _imm16);
+        }, rt, rs, imm16) };
+    case 0x31: // COP1
         return InstructionTypeVariant();
-    case 0x31:
+    case 0x32: // COP2
         return InstructionTypeVariant();
-    case 0x32:
+    case 0x33: // COP3
         return InstructionTypeVariant();
-    case 0x33:
+    case 0x38: // COP0
+        return { std::make_tuple([](reg_t _rt, reg_t _rs, immed16_t _imm16){
+            swc0(_rt, _rs, _imm16);
+        }, rt, rs, imm16) };
+    case 0x39: // COP1
         return InstructionTypeVariant();
-    case 0x38:
+    case 0x3A: // COP2
         return InstructionTypeVariant();
-    case 0x39:
-        return InstructionTypeVariant();
-    case 0x3A:
-        return InstructionTypeVariant();
-    case 0x3B:
+    case 0x3B: // COP3
         return InstructionTypeVariant();
     default:
         printf("Unimplemented or invalid I-type instruction! Instruction opcode: %02X - from hex MIPS instruction encoding (%08X)\n", opcode, instruction);
