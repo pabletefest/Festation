@@ -166,7 +166,7 @@ namespace festation
         return (instruction >> SYSCALL_BREAK_SHIFT_AMOUNT) & SYSCALL_BREAK_MASK; 
     }
 
-    enum CP0RegsIDs
+    enum COP0RegsIDs
     {
         BPC = 3,
         BDA = 5,
@@ -182,4 +182,22 @@ namespace festation
     };
 
     using cop0_command_t = uint32_t;
+
+    enum COP0ExeptionExcodes
+    {
+        INT,
+        MOD,
+        TLBL,
+        TLBS,
+        AdEL,
+        AdES,
+        IBE,
+        DBE,
+        Syscall,
+        BP,
+        RI,
+        CpU,
+        Ov,
+        UNUSED
+    };
 };
