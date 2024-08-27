@@ -14,4 +14,5 @@ namespace festation
     void setExceptionExcodeOnRegCAUSE(COP0ExeptionExcodes excode, bool isInterrupt);
     bool handleAndSetBadVaddrReg(uint32_t badAddr, uint8_t boundary);
     void jumpToExceptionVector(ExceptionVectorType exceptionVectorType);
+    void handleReset();
 };

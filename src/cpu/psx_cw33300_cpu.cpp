@@ -2,6 +2,7 @@
 #include "psx_system.hpp"
 #include "mips_r3000a_opcodes.hpp"
 #include "coprocessor_cp0_opcodes.hpp"
+#include "exceptions_handling.hpp"
 
 #include <cstring>
 #include <stdio.h>
@@ -9,6 +10,7 @@
 namespace festation
 {
     #define INSTRUCTION_SIZE 4
+    #define RESET_VECTOR 0xBCF00000
 
     PSXRegs r3000a_regs;
     COP0SystemControlRegs cop0_state;
@@ -21,6 +23,11 @@ festation::MIPS_R3000A_Core::MIPS_R3000A_Core(PSXSystem* device)
 
     // For a Playstation with CXD8606CQ CPU, the PRID value is 00000002h. (psx-spx)
     cop0_state.cop0_regs[PRID] = 0x00000002;
+}
+
+void festation::MIPS_R3000A_Core::reset()
+{
+    handleReset();
 }
 
 uint8_t festation::MIPS_R3000A_Core::read8(uint32_t address)

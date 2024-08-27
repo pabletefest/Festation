@@ -17,6 +17,8 @@ namespace festation
         MIPS_R3000A_Core(PSXSystem* device);
         ~MIPS_R3000A_Core() = default;
 
+        void reset();
+
         uint8_t read8(uint32_t address);
         uint16_t read16(uint32_t address);
         uint32_t read32(uint32_t address);

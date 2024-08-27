@@ -78,4 +78,9 @@ namespace festation
             break;
         }
     }
+
+    void handleReset()
+    {
+        jumpToExceptionVector(ExceptionVectorType::Reset);
+    }
 };
