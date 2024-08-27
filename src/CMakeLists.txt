@@ -14,6 +14,8 @@ add_executable(${PROJECT_NAME} main.cpp
                                cpu/mips_r3000a_opcodes.hpp
                                cpu/coprocessor_cp0_opcodes.cpp
                                cpu/coprocessor_cp0_opcodes.hpp
+                               cpu/exceptions_handling.hpp
+                               cpu/exceptions_handling.hpp
                                memory/virtual_mem_allocator_utils.cpp
                                memory/virtual_mem_allocator_utils.hpp)
 
