@@ -19,7 +19,8 @@ festation::MIPS_R3000A_Core::MIPS_R3000A_Core(PSXSystem* device)
 {
     std::memset((void*) &r3000a_regs, 0, sizeof(PSXRegs));
 
-    
+    // For a Playstation with CXD8606CQ CPU, the PRID value is 00000002h. (psx-spx)
+    cop0_state.cop0_regs[PRID] = 0x00000002;
 }
 
 uint8_t festation::MIPS_R3000A_Core::read8(uint32_t address)
