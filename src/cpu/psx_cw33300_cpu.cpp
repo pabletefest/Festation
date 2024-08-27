@@ -11,13 +11,15 @@ namespace festation
     #define INSTRUCTION_SIZE 4
 
     PSXRegs r3000a_regs;
-    CP0SystemControlRegs cp0_state;
+    COP0SystemControlRegs cop0_state;
 };
 
 festation::MIPS_R3000A_Core::MIPS_R3000A_Core(PSXSystem* device)
     : system(device)
 {
     std::memset((void*) &r3000a_regs, 0, sizeof(PSXRegs));
+
+    
 }
 
 uint8_t festation::MIPS_R3000A_Core::read8(uint32_t address)

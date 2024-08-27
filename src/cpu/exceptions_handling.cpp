@@ -6,9 +6,9 @@
 namespace festation
 {
     extern PSXRegs r3000a_regs;
-    extern CP0SystemControlRegs c0p0_state;
+    extern COP0SystemControlRegs cop0_state;
 
-    enum ExceptionVectorsBEV0
+    enum ExceptionVectorsBEV0 : uint32_t
     {
         Reset_BEV0 = 0xBFC00000,
         UTLB_Miss_BEV0 = 0x80000000,
@@ -16,7 +16,7 @@ namespace festation
         General_BEV0 = 0x80000080
     };
 
-    enum ExceptionVectorsBEV1
+    enum ExceptionVectorsBEV1 : uint32_t
     {
         Reset_BEV1 = 0xBFC00000,
         UTLB_Miss_BEV1 = 0xBFC00100,
@@ -29,15 +29,15 @@ namespace festation
     {
         uint32_t address = r3000a_regs.pc;
 
-        if ((c0p0_state.cp0_regs[CAUSE] & 0x80000000) && !isInterrupt)
+        if ((cop0_state.cop0_regs[CAUSE] & 0x80000000) && !isInterrupt)
             address -= 4;
 
-        c0p0_state.cp0_regs[EPC] = address;
+        cop0_state.cop0_regs[EPC] = address;
     }
 
     void setExceptionExcodeOnRegCAUSE(COP0ExeptionExcodes excode, bool isInterrupt)
     {
-        c0p0_state.cp0_regs[CAUSE] = (c0p0_state.cp0_regs[CAUSE] & 0xFFFFFF00) | (excode << 2);
+        cop0_state.cop0_regs[CAUSE] = (cop0_state.cop0_regs[CAUSE] & 0xFFFFFF00) | (excode << 2);
 
         setEPCReg(isInterrupt);
     }
@@ -49,7 +49,7 @@ namespace festation
         // We don't take into account MMU exceptions (not present on PS1) and outside kuseg in User mode (PS1 always runs kernel mode)
         if (badAddr % boundary != 0)
         {
-            c0p0_state.cp0_regs[BadVaddr] = badAddr;
+            cop0_state.cop0_regs[BadVaddr] = badAddr;
             return true;
         }
 
@@ -58,7 +58,7 @@ namespace festation
 
     void jumpToExceptionVector(ExceptionVectorType exceptionVectorType)
     {
-        uint8_t BEVbit = (c0p0_state.cp0_regs[SR] >> 22) & 1;
+        uint8_t BEVbit = (cop0_state.cop0_regs[SR] >> 22) & 1;
 
         switch (exceptionVectorType)
         {

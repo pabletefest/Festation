@@ -9,7 +9,7 @@ namespace festation
 {
     extern PSXSystem psxSystem;
     extern PSXRegs r3000a_regs;
-    extern CP0SystemControlRegs c0p0_state;
+    extern COP0SystemControlRegs cop0_state;
 
     static constexpr const uint8_t HALF_WORD_BOUNDARY = 2;
     static constexpr const uint8_t WORD_BOUNDARY = 4;

@@ -6,11 +6,11 @@ namespace festation
 {
     extern PSXSystem psxSystem;
     extern PSXRegs r3000a_regs;
-    extern CP0SystemControlRegs c0p0_state;
+    extern COP0SystemControlRegs cop0_state;
 
     void mfc0(reg_t rt, reg_t rd)
     {
-        r3000a_regs.gpr_regs[rt] = c0p0_state.cp0_regs[rd];
+        r3000a_regs.gpr_regs[rt] = cop0_state.cop0_regs[rd];
     }
 
     void cfc0(reg_t rt, reg_t rd)
@@ -20,7 +20,7 @@ namespace festation
 
     void mtc0(reg_t rt, reg_t rd)
     {
-        c0p0_state.cp0_regs[rd] = r3000a_regs.gpr_regs[rt];
+        cop0_state.cop0_regs[rd] = r3000a_regs.gpr_regs[rt];
     }
     
     void ctc0(reg_t rt, reg_t rd)
@@ -35,12 +35,12 @@ namespace festation
 
     void lwc0(reg_t rt, reg_t rs, immed16_t imm)
     {
-        c0p0_state.cp0_regs[rt] = psxSystem.read32(r3000a_regs.gpr_regs[rs] + imm); 
+        cop0_state.cop0_regs[rt] = psxSystem.read32(r3000a_regs.gpr_regs[rs] + imm); 
     }
 
     void swc0(reg_t rt, reg_t rs, immed16_t imm)
     {
-        psxSystem.write32(r3000a_regs.gpr_regs[rs] + imm, c0p0_state.cp0_regs[rt]);
+        psxSystem.write32(r3000a_regs.gpr_regs[rs] + imm, cop0_state.cop0_regs[rt]);
     }
 
     void bc0f(immed16_t dest)
@@ -55,10 +55,10 @@ namespace festation
 
     void rfe()
     {
-        uint32_t shiftedBitsSR = c0p0_state.cp0_regs[SR];
+        uint32_t shiftedBitsSR = cop0_state.cop0_regs[SR];
 
         shiftedBitsSR >>= 2;
 
-        c0p0_state.cp0_regs[SR] = (c0p0_state.cp0_regs[SR] & 0xFFFFFFF0) | (shiftedBitsSR & 0xFu);
+        cop0_state.cop0_regs[SR] = (cop0_state.cop0_regs[SR] & 0xFFFFFFF0) | (shiftedBitsSR & 0xFu);
     }
 }
