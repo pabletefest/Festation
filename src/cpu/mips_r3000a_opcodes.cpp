@@ -1,6 +1,7 @@
 #include "mips_r3000a_opcodes.hpp"
 #include "psx_system.hpp"
 #include "psx_cpu_state.hpp"
+#include "exceptions_handling.hpp"
 
 #include <limits>
 
@@ -8,18 +9,16 @@ namespace festation
 {
     extern PSXSystem psxSystem;
     extern PSXRegs r3000a_regs;
-    extern CP0SystemControlRegs cp0_state;
+    extern CP0SystemControlRegs c0p0_state;
+
+    static constexpr const uint8_t HALF_WORD_BOUNDARY = 2;
+    static constexpr const uint8_t WORD_BOUNDARY = 4;
 
     static void calculateAndPerformBranchAddress(immed16_t dest)
     {
         int32_t branchAddr = (int32_t)r3000a_regs.pc + 4 + ((int16_t)dest * 4);
         // r3000a_regs.pc = (uint32_t)branchAddr;
         r3000a_regs.storeDelayedJump((uint32_t)branchAddr);
-    }
-
-    static void setExceptionExcodeOnRegCAUSE(COP0ExeptionExcodes excode)
-    {
-        cp0_state.cp0_regs[CAUSE] = (cp0_state.cp0_regs[CAUSE] & 0xFFFFFF00) | (excode << 2);
     }
 
     void lb(reg_t rt, reg_t rs, immed16_t imm)
@@ -42,28 +41,49 @@ namespace festation
 
     void lh(reg_t rt, reg_t rs, immed16_t imm)
     {
+        uint32_t address = r3000a_regs.gpr_regs[rs] + imm;
+
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
+        if (handleAndSetBadVaddrReg(address, HALF_WORD_BOUNDARY))
+        {
+            setExceptionExcodeOnRegCAUSE(COP0ExeptionExcodes::AdEL, false);
+            return;
+        }
 
         // r3000a_regs.gpr_regs[rt] = (uint32_t)(int32_t)(int16_t)psxSystem.read16(r3000a_regs.gpr_regs[rs] + imm);
-        uint32_t cachedLoad = (uint32_t)(int32_t)(int16_t)psxSystem.read16(r3000a_regs.gpr_regs[rs] + imm);
+        uint32_t cachedLoad = (uint32_t)(int32_t)(int16_t)psxSystem.read16(address);
         r3000a_regs.storeDelayedData(cachedLoad, rt);
     }
 
     void lhu(reg_t rt, reg_t rs, immed16_t imm)
     {
+        uint32_t address = r3000a_regs.gpr_regs[rs] + imm;
+
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
+        if (handleAndSetBadVaddrReg(address, HALF_WORD_BOUNDARY))
+        {
+            setExceptionExcodeOnRegCAUSE(COP0ExeptionExcodes::AdEL, false);
+            return;
+        }
 
         // r3000a_regs.gpr_regs[rt] = psxSystem.read16(r3000a_regs.gpr_regs[rs] + imm);
-        uint32_t cachedLoad = psxSystem.read16(r3000a_regs.gpr_regs[rs] + imm);
+        uint32_t cachedLoad = psxSystem.read16(address);
         r3000a_regs.storeDelayedData(cachedLoad, rt);
     }
 
     void lw(reg_t rt, reg_t rs, immed16_t imm)
     {
-        // TODO: handle invalid memory locations bus error exception
+        uint32_t address = r3000a_regs.gpr_regs[rs] + imm;
+
+        // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
+        if (handleAndSetBadVaddrReg(address, WORD_BOUNDARY))
+        {
+            setExceptionExcodeOnRegCAUSE(COP0ExeptionExcodes::AdEL, false);
+            return;
+        }
 
         // r3000a_regs.gpr_regs[rt] = psxSystem.read32(r3000a_regs.gpr_regs[rs] + imm);
-        uint32_t cachedLoad = psxSystem.read32(r3000a_regs.gpr_regs[rs] + imm);
+        uint32_t cachedLoad = psxSystem.read32(address);
         r3000a_regs.storeDelayedData(cachedLoad, rt);
     }
 
@@ -76,12 +96,23 @@ namespace festation
 
     void sh(reg_t rt, reg_t rs, immed16_t imm)
     {
-        psxSystem.write16(r3000a_regs.gpr_regs[rs] + imm, rt & 0xFFFF);
+        uint32_t address = r3000a_regs.gpr_regs[rs] + imm;
+
+        (void)handleAndSetBadVaddrReg(address, HALF_WORD_BOUNDARY);
+        setExceptionExcodeOnRegCAUSE(COP0ExeptionExcodes::AdES, false);
+
+        psxSystem.write16(address, rt & 0xFFFF);
     }
 
     void sw(reg_t rt, reg_t rs, immed16_t imm)
     {
-        psxSystem.write32(r3000a_regs.gpr_regs[rs] + imm, rt);
+        uint32_t address = r3000a_regs.gpr_regs[rs] + imm;
+
+        (void)handleAndSetBadVaddrReg(address, WORD_BOUNDARY);
+
+        setExceptionExcodeOnRegCAUSE(COP0ExeptionExcodes::AdES, false);
+
+        psxSystem.write32(address, rt);
     }
 
     void lwr(reg_t rt, reg_t rs, immed16_t imm)
@@ -491,11 +522,13 @@ namespace festation
 
     void syscall(uint32_t imm20)
     {
-
+        setExceptionExcodeOnRegCAUSE(COP0ExeptionExcodes::Syscall, false);
+        jumpToExceptionVector(ExceptionVectorType::General);
     }
 
     void _break(uint32_t imm20)
     {
-
+        setExceptionExcodeOnRegCAUSE(COP0ExeptionExcodes::BP, false);
+        jumpToExceptionVector(ExceptionVectorType::General);
     }
 };
