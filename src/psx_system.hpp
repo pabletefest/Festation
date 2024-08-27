@@ -9,6 +9,8 @@ namespace festation
         PSXSystem();
         ~PSXSystem();
 
+        void reset();
+
         uint8_t read8(uint32_t address);
         uint16_t read16(uint32_t address);
         uint32_t read32(uint32_t address);

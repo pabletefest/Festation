@@ -23,6 +23,11 @@ festation::PSXSystem::~PSXSystem()
     mainRAM = nullptr;
 }
 
+void festation::PSXSystem::reset()
+{
+    cpu.reset();
+}
+
 uint8_t festation::PSXSystem::read8(uint32_t address)
 {   
     uint32_t masked_address = address & PHYSICAL_MEMORY_MASK;
