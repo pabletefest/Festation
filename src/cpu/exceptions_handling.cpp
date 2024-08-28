@@ -63,16 +63,16 @@ namespace festation
         switch (exceptionVectorType)
         {
         case ExceptionVectorType::Reset:
-            r3000a_regs.pc = (BEVbit) ? Reset_BEV1 : Reset_BEV0;
+            r3000a_regs.pc = (BEVbit) ? (uint32_t)Reset_BEV1 : (uint32_t)Reset_BEV0;
             break;
         case ExceptionVectorType::UTLB_Miss:
-            r3000a_regs.pc = (BEVbit) ? UTLB_Miss_BEV1 : UTLB_Miss_BEV0;
+            r3000a_regs.pc = (BEVbit) ? (uint32_t)UTLB_Miss_BEV1 : (uint32_t)UTLB_Miss_BEV0;
             break;
         case ExceptionVectorType::COP0_Break:
-            r3000a_regs.pc = (BEVbit) ? COP0_Break_BEV1 : COP0_Break_BEV0;
+            r3000a_regs.pc = (BEVbit) ? (uint32_t)COP0_Break_BEV1 : (uint32_t)COP0_Break_BEV0;
             break;
         case ExceptionVectorType::General:
-            r3000a_regs.pc = (BEVbit) ? General_BEV1 : General_BEV0;
+            r3000a_regs.pc = (BEVbit) ? (uint32_t)General_BEV1 : (uint32_t)General_BEV0;
             break;  
         default:
             break;
@@ -83,7 +83,7 @@ namespace festation
     {
         // For a Playstation with CXD8606CQ CPU, the PRID value is 00000002h. (psx-spx)
         cop0_state.cop0_regs[PRID] = 0x00000002;
-        
+
         jumpToExceptionVector(ExceptionVectorType::Reset);
     }
 };
