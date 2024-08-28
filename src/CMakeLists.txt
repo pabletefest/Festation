@@ -2,6 +2,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 add_subdirectory(cpu)
 add_subdirectory(memory)
+add_subdirectory(kernel_bios)
 
 add_executable(${PROJECT_NAME} main.cpp 
                                psx_system.cpp 
@@ -14,12 +15,14 @@ add_executable(${PROJECT_NAME} main.cpp
                                cpu/mips_r3000a_opcodes.hpp
                                cpu/coprocessor_cp0_opcodes.cpp
                                cpu/coprocessor_cp0_opcodes.hpp
+                               cpu/exceptions_handling.cpp
                                cpu/exceptions_handling.hpp
-                               cpu/exceptions_handling.hpp
+                               kernel_bios/bios.cpp
+                               kernel_bios/bios.hpp
                                memory/virtual_mem_allocator_utils.cpp
                                memory/virtual_mem_allocator_utils.hpp)
 
 
 find_package(SDL2 REQUIRED)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES} cpu)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES} cpu memory kernel_bios)
