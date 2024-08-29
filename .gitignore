@@ -34,5 +34,8 @@
 # Build dir
 [Bb]uild/
 
+# BIOS dir
+[Bb]ios/
+
 # VSCode dir
 .vscode
