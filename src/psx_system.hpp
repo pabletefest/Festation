@@ -1,5 +1,6 @@
 #pragma once
 #include "psx_cw33300_cpu.hpp"
+#include "kernel_bios/bios.hpp"
 
 namespace festation
 {
@@ -24,5 +25,6 @@ namespace festation
     private:
         MIPS_R3000A_Core cpu;
         uint8_t* mainRAM = nullptr;
+        KernelBIOS bios;
     };
 };

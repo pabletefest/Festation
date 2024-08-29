@@ -5,10 +5,8 @@
 #include <stdlib.h>
 
 festation::PSXSystem::PSXSystem()
-    : cpu(this)
+    : cpu(this), mainRAM(allocVirtMemForMainRAM())
 {
-    mainRAM = allocVirtMemForMainRAM();
-
     if (!mainRAM)
         mainRAM = (uint8_t*)malloc(2 * 1024 * 1024);
 }

@@ -9,7 +9,8 @@ namespace festation
     class KernelBIOS
     {
     public:
-        KernelBIOS() = default;
+        KernelBIOS();
+        KernelBIOS(const std::string& filename);
         ~KernelBIOS() = default;
 
         uint8_t read8(uint32_t address);

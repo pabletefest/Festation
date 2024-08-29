@@ -44,7 +44,7 @@ namespace festation
 
     bool handleAndSetBadVaddrReg(uint32_t badAddr, uint8_t boundary)
     {
-        assert((boundary != 2 || boundary != 4) && "Boundary error when checking for misaligned address exceptions, boundary is not 2 nor 4!");
+        assert((boundary == 2 || boundary == 4) && "Boundary error when checking for misaligned address exceptions, boundary is not 2 nor 4!");
 
         // We don't take into account MMU exceptions (not present on PS1) and outside kuseg in User mode (PS1 always runs kernel mode)
         if (badAddr % boundary != 0)

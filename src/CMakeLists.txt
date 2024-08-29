@@ -1,8 +1,8 @@
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 add_subdirectory(cpu)
-add_subdirectory(memory)
 add_subdirectory(kernel_bios)
+add_subdirectory(memory)
 
 add_executable(${PROJECT_NAME} main.cpp 
                                psx_system.cpp 
@@ -20,7 +20,8 @@ add_executable(${PROJECT_NAME} main.cpp
                                kernel_bios/bios.cpp
                                kernel_bios/bios.hpp
                                memory/virtual_mem_allocator_utils.cpp
-                               memory/virtual_mem_allocator_utils.hpp)
+                               memory/virtual_mem_allocator_utils.hpp
+                               memory/memory_map_masks.hpp)
 
 
 find_package(SDL2 REQUIRED)
