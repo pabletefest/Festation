@@ -26,7 +26,7 @@ namespace festation
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
 
         // r3000a_regs.gpr_regs[rt] = (uint32_t)(int32_t)(int8_t)psxSystem.read8(r3000a_regs.gpr_regs[rs] + imm);
-        uint32_t cachedLoad = (uint32_t)(int32_t)(int8_t)psxSystem.read8(r3000a_regs.gpr_regs[rs] + imm);
+        uint32_t cachedLoad = (uint32_t)(int32_t)(int8_t)psxSystem.read8(r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm);
         r3000a_regs.storeDelayedData(cachedLoad, rt);
     }
 
@@ -41,7 +41,7 @@ namespace festation
 
     void lh(reg_t rt, reg_t rs, immed16_t imm)
     {
-        uint32_t address = r3000a_regs.gpr_regs[rs] + imm;
+        uint32_t address = r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm;
 
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
         if (handleAndSetBadVaddrReg(address, HALF_WORD_BOUNDARY))
@@ -73,7 +73,7 @@ namespace festation
 
     void lw(reg_t rt, reg_t rs, immed16_t imm)
     {
-        uint32_t address = r3000a_regs.gpr_regs[rs] + imm;
+        uint32_t address = r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm;
 
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
         if (handleAndSetBadVaddrReg(address, WORD_BOUNDARY))
@@ -91,12 +91,12 @@ namespace festation
 
     void sb(reg_t rt, reg_t rs, immed16_t imm)
     {
-        psxSystem.write8(r3000a_regs.gpr_regs[rs] + imm, rt & 0xFF);
+        psxSystem.write8(r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm, rt & 0xFF);
     }
 
     void sh(reg_t rt, reg_t rs, immed16_t imm)
     {
-        uint32_t address = r3000a_regs.gpr_regs[rs] + imm;
+        uint32_t address = r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm;
 
         (void)handleAndSetBadVaddrReg(address, HALF_WORD_BOUNDARY);
         setExceptionExcodeOnRegCAUSE(COP0ExeptionExcodes::AdES, false);
@@ -106,7 +106,7 @@ namespace festation
 
     void sw(reg_t rt, reg_t rs, immed16_t imm)
     {
-        uint32_t address = r3000a_regs.gpr_regs[rs] + imm;
+        uint32_t address = r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm;
 
         (void)handleAndSetBadVaddrReg(address, WORD_BOUNDARY);
 
@@ -118,7 +118,7 @@ namespace festation
     void lwr(reg_t rt, reg_t rs, immed16_t imm)
     {
         uint32_t prevRT = r3000a_regs.gpr_regs[rt];
-        uint32_t address = r3000a_regs.gpr_regs[rs] + imm;
+        uint32_t address = r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm;
         uint8_t offset = address % 4;
         uint32_t loadedWord = psxSystem.read32(address);
 
@@ -131,7 +131,7 @@ namespace festation
     void lwl(reg_t rt, reg_t rs, immed16_t imm)
     {
         uint32_t prevRT = r3000a_regs.gpr_regs[rt];
-        uint32_t address = r3000a_regs.gpr_regs[rs] + imm;
+        uint32_t address = r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm;
         uint8_t offset = address % 4;
         uint32_t loadedWord = psxSystem.read32(address);
 
@@ -143,7 +143,7 @@ namespace festation
 
     void swr(reg_t rt, reg_t rs, immed16_t imm)
     {
-        uint32_t address = r3000a_regs.gpr_regs[rs] + imm;
+        uint32_t address = r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm;
         uint32_t prevStored = psxSystem.read32(address);
         uint8_t offset = address % 4;
         uint32_t storedRT = r3000a_regs.gpr_regs[rt];
@@ -156,7 +156,7 @@ namespace festation
 
     void swl(reg_t rt, reg_t rs, immed16_t imm)
     {
-        uint32_t address = r3000a_regs.gpr_regs[rs] + imm;
+        uint32_t address = r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm;
         uint32_t prevStored = psxSystem.read32(address);
         uint8_t offset = address % 4;
         uint32_t storedRT = r3000a_regs.gpr_regs[rt];
@@ -212,7 +212,7 @@ namespace festation
         int32_t result;
 
         #ifdef __GNUC__
-            if (__builtin_add_overflow((int32_t)r3000a_regs.gpr_regs[rs], (int16_t)imm, &result))
+            if (__builtin_add_overflow((int32_t)r3000a_regs.gpr_regs[rs], (int32_t)(int16_t)imm, &result))
             {
                 // TODO: Overflow Exception
                 return;
@@ -224,7 +224,7 @@ namespace festation
 
     void addiu(reg_t rt, reg_t rs, immed16_t imm)
     {
-        r3000a_regs.gpr_regs[rt] = r3000a_regs.gpr_regs[rs] + (int16_t)imm;
+        r3000a_regs.gpr_regs[rt] = r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm;
     }
 
     void slt(reg_t rd, reg_t rs, reg_t rt)
@@ -245,7 +245,7 @@ namespace festation
 
     void slti(reg_t rt, reg_t rs, immed16_t imm)
     {
-        if (((int32_t)r3000a_regs.gpr_regs[rs]) < ((int32_t)imm))
+        if (((int32_t)r3000a_regs.gpr_regs[rs]) < ((int32_t)(int16_t)imm))
             r3000a_regs.gpr_regs[rt] = 1;
         else
             r3000a_regs.gpr_regs[rt] = 0;
@@ -253,7 +253,7 @@ namespace festation
 
     void sltiu(reg_t rt, reg_t rs, immed16_t imm)
     {
-        if (r3000a_regs.gpr_regs[rs] < (uint32_t)((int32_t)imm))
+        if (r3000a_regs.gpr_regs[rs] < (uint32_t)imm)
             r3000a_regs.gpr_regs[rt] = 1;
         else
             r3000a_regs.gpr_regs[rt] = 0;
