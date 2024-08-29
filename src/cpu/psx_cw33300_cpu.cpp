@@ -138,11 +138,11 @@ festation::InstructionType festation::MIPS_R3000A_Core::decodeInstruction(uint32
     }
     else if (opcode == 0x02 || opcode == 0x03) // J-FORMAT INSTRUCTION
     {
-        return std::make_pair<EncodingType, InstructionTypeVariant>(EncodingType::IMMEDIATE, decodeIFormat(instruction));
+        return std::make_pair<EncodingType, InstructionTypeVariant>(EncodingType::JUMP, decodeIFormat(instruction));
     }
     else // I-FORMAT INSTRUCTION
     {
-        return std::make_pair<EncodingType, InstructionTypeVariant>(EncodingType::JUMP, decodeJFormat(instruction));
+        return std::make_pair<EncodingType, InstructionTypeVariant>(EncodingType::IMMEDIATE, decodeJFormat(instruction));
     }
 }
 
