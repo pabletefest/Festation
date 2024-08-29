@@ -10,8 +10,9 @@ namespace festation
 };
 
 festation::KernelBIOS::KernelBIOS()
+    : KernelBIOS(std::filesystem::canonical("/proc/self/exe").parent_path().string() + "/../bios/SCPH1001.BIN")
 {
-    KernelBIOS(std::filesystem::canonical("/proc/self/exe").parent_path().string() + "/../bios/SCPH1001.BIN");
+
 }
 
 festation::KernelBIOS::KernelBIOS(const std::string &filename)
