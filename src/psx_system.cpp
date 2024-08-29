@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 festation::PSXSystem::PSXSystem()
-    : cpu(this), mainRAM(allocVirtMemForMainRAM())
+    : cpu(this), mainRAM(allocVirtMemForMainRAM()), bios(KernelBIOS())
 {
     if (!mainRAM)
         mainRAM = (uint8_t*)malloc(2 * 1024 * 1024);
@@ -26,6 +26,9 @@ void festation::PSXSystem::reset()
     cpu.reset();
 }
 
+// IMPLEMENT READ16 AND READ32 AS MULTIPLE READ8 SIMPLIFIES IMPLEMENTATION
+// IF PERFORMANCE IS REDUCED DUE TO OVERHEAD, TRY IMPLEMENT THEM ON THEIR OWN
+
 uint8_t festation::PSXSystem::read8(uint32_t address)
 {   
     uint32_t masked_address = address & PHYSICAL_MEMORY_MASK;
@@ -33,6 +36,10 @@ uint8_t festation::PSXSystem::read8(uint32_t address)
     if (masked_address <= MAIN_RAM_END)
     {
         return mainRAM[address & MAIN_RAM_SIZE];
+    }
+    else if (masked_address >= BIOS_ROM_START && masked_address <= BIOS_ROM_END)
+    {
+        return bios.read8(address & BIOS_ROM_SIZE);
     }
 
     return 0;
@@ -73,6 +80,10 @@ void festation::PSXSystem::write8(uint32_t address, uint8_t value)
     if (masked_address <= MAIN_RAM_END)
     {
         mainRAM[address & MAIN_RAM_SIZE] = value;
+    }
+    else if (masked_address >= BIOS_ROM_START && masked_address <= BIOS_ROM_END)
+    {
+        bios.write8(address & BIOS_ROM_SIZE, value);
     }
 }
 
