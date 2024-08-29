@@ -46,6 +46,8 @@ int main(int, char**)
         return 1;
     }
 
+    festation::psxSystem.runWholeFrame();
+
     /* Pauses all SDL subsystems for a variable amount of milliseconds */
     SDL_Delay(DELAY);
 
