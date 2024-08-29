@@ -64,7 +64,7 @@ void festation::MIPS_R3000A_Core::executeInstruction()
     const bool isLoadDelayPending = r3000a_regs.isLoadDelaySlot();
     const bool isBranchDelayPending = r3000a_regs.isBranchDelaySlot();
 
-    uint8_t instruction = fetchInstruction();
+    uint32_t instruction = fetchInstruction();
 
     InstructionType instructionType = decodeInstruction(instruction);
 
