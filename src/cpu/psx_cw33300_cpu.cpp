@@ -110,6 +110,8 @@ void festation::MIPS_R3000A_Core::executeInstruction()
         break;
     }
 
+    r3000a_regs.gpr_regs[0] = 0; // $0 or $zero is always zero
+
     if (isLoadDelayPending)
         r3000a_regs.consumeLoadedData();
 
