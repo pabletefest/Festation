@@ -24,6 +24,13 @@ namespace festation
         bool loadBIOSROMFile(const std::string& filename);
 
         inline std::vector<uint8_t>& getBIOSData() { return biosROM; }
+
+        void checkKernerlTTYOutput();
+
+    // private:
+    //     void checkKernelAFunctions();
+    //     void checkKernelAFunctions();
+    //     void checkKernelAFunctions();
     
     private:
         std::vector<uint8_t> biosROM;

@@ -18,7 +18,9 @@ add_executable(${PROJECT_NAME} main.cpp
                                cpu/exceptions_handling.cpp
                                cpu/exceptions_handling.hpp
                                kernel_bios/bios.cpp
+                               kernel_bios/tty.cpp
                                kernel_bios/bios.hpp
+                               kernel_bios/tty.hpp
                                memory/virtual_mem_allocator_utils.cpp
                                memory/virtual_mem_allocator_utils.hpp
                                memory/memory_map_masks.hpp)
@@ -26,4 +28,4 @@ add_executable(${PROJECT_NAME} main.cpp
 
 find_package(SDL2 REQUIRED)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES} cpu memory kernel_bios)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES} cpu kernel_bios memory)

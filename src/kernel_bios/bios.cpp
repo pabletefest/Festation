@@ -1,11 +1,17 @@
 #include "bios.hpp"
+#include "psx_cpu_state.hpp"
+#include "tty.hpp"
 
 #include <filesystem>
 #include <fstream>
 #include <cassert>
 
+#define R9 9
+
 namespace festation
 {
+    extern PSXRegs r3000a_regs;
+
     static constexpr const uint32_t BIOS_SIZE = 512 * 1024;
 };
 
@@ -75,4 +81,15 @@ bool festation::KernelBIOS::loadBIOSROMFile(const std::string &filename)
     } 
 
     return false;
+}
+
+void festation::KernelBIOS::checkKernerlTTYOutput()
+{
+    uint32_t masked_pc = r3000a_regs.pc & 0x1FFFFFFF; // Only interested on the first 29 bits (any MIPS memory region)
+    uint32_t r9FunctNumber = r3000a_regs.gpr_regs[R9];
+
+    if ((masked_pc == 0x000000A0 && r9FunctNumber == 0x3C) || (masked_pc == 0x000000B0 && r9FunctNumber == 0x3D))
+    {
+        kernel_putchar();
+    }
 }
