@@ -30,6 +30,9 @@ namespace festation
         void executeInstruction();
         void clockCycles(uint32_t cycles);
 
+        PSXRegs& getCPURegs();
+        COP0SystemControlRegs& getCOP0Regs();
+
     private:        
         uint32_t fetchInstruction();
         InstructionType decodeInstruction(uint32_t instruction);

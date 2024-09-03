@@ -119,6 +119,16 @@ void festation::MIPS_R3000A_Core::executeInstruction()
         r3000a_regs.performDelayedJump();
 }
 
+festation::PSXRegs& festation::MIPS_R3000A_Core::getCPURegs()
+{
+    return r3000a_regs;
+}
+
+festation::COP0SystemControlRegs& festation::MIPS_R3000A_Core::getCOP0Regs()
+{
+    return cop0_state;
+}
+
 uint32_t festation::MIPS_R3000A_Core::fetchInstruction()
 {
     uint32_t instruction = read32(r3000a_regs.pc);
@@ -377,7 +387,7 @@ festation::InstructionTypeVariant festation::MIPS_R3000A_Core::decodeIFormat(uin
             lui(_rt, _imm16);
         }, rt, rs, imm16) };
     case 0x10: // COP0
-        if (rt == 0b10000)
+        if (rs == 0b10000)
         {
             // We don't check last 6 bits because PS1 CPU doesn't have TLB
             return { std::make_tuple([](reg_t _rt, reg_t _rs, immed16_t _imm16){
@@ -388,7 +398,7 @@ festation::InstructionTypeVariant festation::MIPS_R3000A_Core::decodeIFormat(uin
         {
             reg_t rd = getInstDestRegEncoding<EncodingType::REGISTER>(instruction);
 
-            switch (rt) // We don't need to check for more opcodes on COP0
+            switch (rs) // We don't need to check for more opcodes on COP0
             {
             case 0b00000:
                 return { std::make_tuple([rd](reg_t _rt, reg_t _rs, immed16_t _imm16){
