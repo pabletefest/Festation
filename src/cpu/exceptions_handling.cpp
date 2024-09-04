@@ -84,6 +84,9 @@ namespace festation
         // For a Playstation with CXD8606CQ CPU, the PRID value is 00000002h. (psx-spx)
         cop0_state.cop0_regs[PRID] = 0x00000002;
 
+        // Reason unknown for the moment but it appears to be the initial register value.
+        cop0_state.cop0_regs[SR] = 0x10900000;
+
         jumpToExceptionVector(ExceptionVectorType::Reset);
     }
 };
