@@ -66,6 +66,8 @@ void festation::MIPS_R3000A_Core::executeInstruction()
 
     uint32_t instruction = fetchInstruction();
 
+    printf("\n* Executing instruction: %08X *\n", instruction);
+
     InstructionType instructionType = decodeInstruction(instruction);
 
     EncodingType type = std::get<0>(instructionType);
@@ -396,17 +398,18 @@ festation::InstructionTypeVariant festation::MIPS_R3000A_Core::decodeIFormat(uin
         }
         else
         {
-            reg_t rd = getInstDestRegEncoding<EncodingType::REGISTER>(instruction);
+            reg_t rtcop0 = getInstSrcRegEncoding<EncodingType::REGISTER, SrcRegs::RT>(instruction);
+            reg_t rdcop0 = getInstDestRegEncoding<EncodingType::REGISTER>(instruction);
 
             switch (rs) // We don't need to check for more opcodes on COP0
             {
             case 0b00000:
-                return { std::make_tuple([rd](reg_t _rt, reg_t _rs, immed16_t _imm16){
-                    mfc0(_rt, rd);
+                return { std::make_tuple([rtcop0, rdcop0](reg_t _rt, reg_t _rs, immed16_t _imm16){
+                    mfc0(rtcop0, rdcop0);
                 }, rt, rs, imm16) };
             case 0b00100:
-                return { std::make_tuple([rd](reg_t _rt, reg_t _rs, immed16_t _imm16){
-                    mtc0(_rt, rd);
+                return { std::make_tuple([rtcop0, rdcop0](reg_t _rt, reg_t _rs, immed16_t _imm16){
+                    mtc0(rtcop0, rdcop0);
                 }, rt, rs, imm16) };
             default:
                 printf("Unimplemented or invalid COP0 instruction! Instruction opcode: %02X - from hex MIPS instruction encoding (%08X)\n", opcode, instruction);
