@@ -16,7 +16,9 @@ namespace festation
 
     static void calculateAndPerformBranchAddress(immed16_t dest)
     {
-        int32_t branchAddr = (int32_t)r3000a_regs.pc + 4 + ((int16_t)dest * 4);
+        // We remove "+ 4" from the ecuation as PC already points to the address of the instructuon in the delay slot
+        // In order to add 4, we should sub 4 before, so removing "+ 4" effectively leads to the same result
+        int32_t branchAddr = ((int32_t)r3000a_regs.pc) + /*4 +*/ (((int32_t)(int16_t)dest) * 4);
         // r3000a_regs.pc = (uint32_t)branchAddr;
         r3000a_regs.storeDelayedJump((uint32_t)branchAddr);
     }
@@ -98,8 +100,10 @@ namespace festation
     {
         uint32_t address = r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm;
 
-        (void)handleAndSetBadVaddrReg(address, HALF_WORD_BOUNDARY);
-        setExceptionExcodeOnRegCAUSE(COP0ExeptionExcodes::AdES, false);
+        if (handleAndSetBadVaddrReg(address, HALF_WORD_BOUNDARY))
+        {
+            setExceptionExcodeOnRegCAUSE(COP0ExeptionExcodes::AdES, false);
+        }
 
         psxSystem.write16(address, rt & 0xFFFF);
     }
@@ -108,9 +112,10 @@ namespace festation
     {
         uint32_t address = r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm;
 
-        (void)handleAndSetBadVaddrReg(address, WORD_BOUNDARY);
-
-        setExceptionExcodeOnRegCAUSE(COP0ExeptionExcodes::AdES, false);
+        if (handleAndSetBadVaddrReg(address, WORD_BOUNDARY))
+        {
+            setExceptionExcodeOnRegCAUSE(COP0ExeptionExcodes::AdES, false);
+        }
 
         psxSystem.write32(address, rt);
     }
