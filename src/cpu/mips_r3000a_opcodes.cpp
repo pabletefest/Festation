@@ -103,6 +103,7 @@ namespace festation
         if (handleAndSetBadVaddrReg(address, HALF_WORD_BOUNDARY))
         {
             setExceptionExcodeOnRegCAUSE(COP0ExeptionExcodes::AdES, false);
+            return;
         }
 
         psxSystem.write16(address, rt & 0xFFFF);
@@ -115,6 +116,7 @@ namespace festation
         if (handleAndSetBadVaddrReg(address, WORD_BOUNDARY))
         {
             setExceptionExcodeOnRegCAUSE(COP0ExeptionExcodes::AdES, false);
+            return;
         }
 
         psxSystem.write32(address, rt);
