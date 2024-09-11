@@ -14,6 +14,12 @@ namespace festation
     static constexpr const uint8_t HALF_WORD_BOUNDARY = 2;
     static constexpr const uint8_t WORD_BOUNDARY = 4;
 
+    static void calculateAndPerformJumpAddress(j_immed26_t dest)
+    {
+        uint32_t jumpAddress = (r3000a_regs.pc & 0xF0000000) | (dest << 2);
+        r3000a_regs.storeDelayedJump(jumpAddress);
+    }
+
     static void calculateAndPerformBranchAddress(immed16_t dest)
     {
         // We remove "+ 4" from the ecuation as PC already points to the address of the instructuon in the delay slot
@@ -419,19 +425,24 @@ namespace festation
 
     void j(j_immed26_t dest)
     {
-        r3000a_regs.pc = (r3000a_regs.pc & 0xF0000000) | (dest << 2); // High 4 bits of PC + 26-bit address * 4 (4 bytes multiples so lower 2 bits not addressable)
+        // r3000a_regs.pc = (r3000a_regs.pc & 0xF0000000) | (dest << 2); // High 4 bits of PC (delay slot instruction) + 26-bit address * 4 (4 bytes multiples so lower 2 bits not addressable)
+        calculateAndPerformJumpAddress(dest);
     }
 
     void jal(j_immed26_t dest)
     {
-        r3000a_regs.gpr_regs[ra] = r3000a_regs.pc + 8; // Skip branch delay slot instruction so it's 8 bytes next instruction when returning
-        r3000a_regs.pc = (r3000a_regs.pc & 0xF0000000) | (dest << 2);
+        // Skip branch delay slot instruction so it's 8 bytes next instruction when returning
+        // We only add "+ 4" because PC was already incremented by 4 after fetching the instruction
+        r3000a_regs.gpr_regs[ra] = r3000a_regs.pc + 4; // Effectively instruction address + 8
+        // r3000a_regs.pc = (r3000a_regs.pc & 0xF0000000) | (dest << 2);
+        calculateAndPerformJumpAddress(dest);
     }
 
     void jr(reg_t rs)
     {
         // TODO: arise address error (AdEL) exception if jumping to unaligned address
-        r3000a_regs.pc = r3000a_regs.gpr_regs[rs];
+        // r3000a_regs.pc = r3000a_regs.gpr_regs[rs];
+        r3000a_regs.storeDelayedJump(r3000a_regs.gpr_regs[rs]);
     }
 
     void jalr(reg_t rs, reg_t rd)
@@ -446,7 +457,8 @@ namespace festation
         }
 
         // TODO: arise address error (AdEL) exception if jumping to unaligned address
-        r3000a_regs.pc = r3000a_regs.gpr_regs[rs];
+        // r3000a_regs.pc = r3000a_regs.gpr_regs[rs];
+        r3000a_regs.storeDelayedJump(r3000a_regs.gpr_regs[rs]);
     }
 
     void beq(reg_t rs, reg_t rt, immed16_t dest)
