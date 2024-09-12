@@ -99,7 +99,7 @@ namespace festation
 
     void sb(reg_t rt, reg_t rs, immed16_t imm)
     {
-        psxSystem.write8(r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm, rt & 0xFF);
+        psxSystem.write8(r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm, r3000a_regs.gpr_regs[rt] & 0xFF);
     }
 
     void sh(reg_t rt, reg_t rs, immed16_t imm)
@@ -112,7 +112,7 @@ namespace festation
             return;
         }
 
-        psxSystem.write16(address, rt & 0xFFFF);
+        psxSystem.write16(address, r3000a_regs.gpr_regs[rt] & 0xFFFF);
     }
 
     void sw(reg_t rt, reg_t rs, immed16_t imm)
@@ -125,7 +125,7 @@ namespace festation
             return;
         }
 
-        psxSystem.write32(address, rt);
+        psxSystem.write32(address, r3000a_regs.gpr_regs[rt]);
     }
 
     void lwr(reg_t rt, reg_t rs, immed16_t imm)
