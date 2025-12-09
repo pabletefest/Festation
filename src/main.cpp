@@ -1,6 +1,8 @@
-#include <stdio.h>
+#include <print>
+#include <thread>
 
-#include <SDL2/SDL.h>
+#include <glad/gl.h>
+#include <GLFW/glfw3.h>
 
 #include "psx_system.hpp"
 
@@ -16,46 +18,68 @@ namespace festation
     static constexpr const char* EMU_TITLE = "Festation (PSX Emulator)";
 };
 
+static void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
+  glViewport(0, 0, width, height);
+}
+
 int main(int, char**)
 {
-    printf("Hello, from Festation!\n");
+    std::println("Hello, from Festation!");
 
-    /* Initialises data */
-    SDL_Window *window = NULL;
+    GLFWwindow* window;
+
+    /* Initialize the library */
+    if (!glfwInit())
+        return -1;
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+
+    /* Create a windowed mode window and its OpenGL context */
+    window = glfwCreateWindow(WIDTH, HEIGHT, festation::EMU_TITLE, NULL, NULL);
     
-    /*
-    * Initialises the SDL video subsystem (as well as the events subsystem).
-    * Returns 0 on success or a negative error code on failure using SDL_GetError().
-    */
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        fprintf(stderr, "SDL failed to initialise: %s\n", SDL_GetError());
-        return 1;
+    if (!window)
+    {
+        glfwTerminate();
+        return -1;
     }
 
-    /* Creates a SDL window */
-    window = SDL_CreateWindow(festation::EMU_TITLE, /* Title of the SDL window */
-                    SDL_WINDOWPOS_UNDEFINED, /* Position x of the window */
-                    SDL_WINDOWPOS_UNDEFINED, /* Position y of the window */
-                    WIDTH, /* Width of the window in pixels */
-                    HEIGHT, /* Height of the window in pixels */
-                    0); /* Additional flag(s) */
+    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 
-    /* Checks if window has been created; if not, exits program */
-    if (window == NULL) {
-        fprintf(stderr, "SDL window failed to initialise: %s\n", SDL_GetError());
-        return 1;
+    /* Make the window's context current */
+    glfwMakeContextCurrent(window);
+
+    if (!gladLoadGL(glfwGetProcAddress))
+    {
+        std::println("Failed to initialize GLAD");
+        return -1;
     }
 
-    festation::psxSystem.runWholeFrame();
+    /* Loop until the user closes the window */
+    while (!glfwWindowShouldClose(window))
+    {
+        /* Render here */
+        if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0)
+        {
+            continue;
+        }
 
-    /* Pauses all SDL subsystems for a variable amount of milliseconds */
-    SDL_Delay(DELAY);
+        festation::psxSystem.runWholeFrame();
 
-    /* Frees memory */
-    SDL_DestroyWindow(window);
-    
-    /* Shuts down all SDL subsystems */
-    SDL_Quit(); 
+        int display_w, display_h;
+        glfwGetFramebufferSize(window, &display_w, &display_h);
+        glViewport(0, 0, display_w, display_h);
+        
+        /* Swap front and back buffers */
+        glfwSwapBuffers(window);
+        
+        /* Poll for and process events */
+        glfwPollEvents();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(DELAY));
+    }
+
+    glfwTerminate();
     
     return 0;
 }
