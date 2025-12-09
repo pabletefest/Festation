@@ -36,6 +36,8 @@ int festation::deallocVirtMemForMainRAM(void *mainMemory)
 #if defined(__linux__) || defined(__unix__) || defined(__FreeBSD__) || defined(__APPLE__)
     return munmap(mainMemory, MAIN_RAM_SIZE);
 #endif
+
+    return 0;
 }
 
 uint8_t *festation::allocVirtMemForGPUVRAM()
@@ -62,4 +64,6 @@ int festation::deallocVirtMemForGPUVRAM(void *gpuMemory)
 #if defined(__linux__) || defined(__unix__) || defined(__FreeBSD__) || defined(__APPLE__)
     return munmap(gpuMemory, GPU_VRAM_SIZE);
 #endif
+
+    return 0;
 }

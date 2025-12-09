@@ -6,6 +6,7 @@
 *.lo
 *.o
 *.obj
+*.pbd
 
 # Precompiled Headers
 *.gch
@@ -31,8 +32,25 @@
 *.out
 *.app
 
+# CMake
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+CMakeUserPresets.json
+__cmake*
+
 # Build dir
 [Bb]uild/
 
 # VSCode dir
 .vscode
+
+third-party/
