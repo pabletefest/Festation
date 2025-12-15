@@ -3,6 +3,7 @@
 #include "memory_map_masks.hpp"
 
 #include <stdlib.h>
+#include <assert.h>
 
 festation::PSXSystem::PSXSystem()
     : cpu(this), mainRAM(allocVirtMemForMainRAM()), bios(KernelBIOS())
@@ -40,6 +41,9 @@ uint8_t festation::PSXSystem::read8(uint32_t address)
     else if (masked_address >= BIOS_ROM_START && masked_address <= BIOS_ROM_END)
     {
         return bios.read8(address & BIOS_ROM_SIZE);
+    }else {
+        if (masked_address & 0x1FF00000 == 0x1F800000)
+            assert(false);
     }
 
     return 0;
@@ -118,5 +122,6 @@ void festation::PSXSystem::runWholeFrame()
     while(true)
     {
         cpu.executeInstruction();
+        bios.checkKernerlTTYOutput();
     }
 }

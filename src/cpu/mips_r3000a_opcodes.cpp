@@ -4,6 +4,7 @@
 #include "exceptions_handling.hpp"
 
 #include <limits>
+// #include <stdckdint.h>
 
 namespace festation
 {
@@ -182,17 +183,34 @@ namespace festation
 
     void add(reg_t rd, reg_t rs, reg_t rt)
     {
-        int32_t result;
+        int32_t result = 0;
+        int32_t operand_rs =  (int32_t)r3000a_regs.gpr_regs[rs];
+        int32_t operand_rt =  (int32_t)r3000a_regs.gpr_regs[rt];
+        
+        result = operand_rs + operand_rt;
 
-        #ifdef __GNUC__
-            if (__builtin_add_overflow((int32_t)r3000a_regs.gpr_regs[rs], (int32_t)r3000a_regs.gpr_regs[rt], &result))
-            {
-                // TODO: Overflow Exception
-                return;
-            }
+        // #ifdef __GNUC__
+        //     if (__builtin_add_overflow(r3000a_regs.gpr_regs[rs], r3000a_regs.gpr_regs[rt], &result))
+        //     {
+        //         // TODO: Overflow Exception
+        //         return;
+        //     }
+        // #elifdef _MSC_VER
+        //     if (_addcarry_u32(0, (int32_t)r3000a_regs.gpr_regs[rs], r3000a_regs.gpr_regs[rt], &result))
+        //     {
+        //         // TODO: Overflow Exception
+        //         return;
+        //     }
+        // #endif
 
-            r3000a_regs.gpr_regs[rd] = (uint32_t)result;
-        #endif
+        if ((operand_rs ^ result) & (operand_rt ^ result) & 0x80000000) {
+            // TODO: Overflow Exception
+            // setExceptionExcodeOnRegCAUSE(COP0ExeptionExcodes::Ov, false);
+            // jumpToExceptionVector(ExceptionVectorType::General);
+            return;
+        } 
+
+        r3000a_regs.gpr_regs[rd] = (int32_t)result;
     }
 
     void addu(reg_t rd, reg_t rs, reg_t rt)
@@ -202,17 +220,34 @@ namespace festation
 
     void sub(reg_t rd, reg_t rs, reg_t rt)
     {
-        int32_t result;
+        int32_t result = 0;
+        int32_t operand_rs =  (int32_t)r3000a_regs.gpr_regs[rs];
+        int32_t operand_rt =  (int32_t)r3000a_regs.gpr_regs[rt];
+        
+        result = operand_rs - operand_rt;
 
-        #ifdef __GNUC__
-            if (__builtin_sub_overflow((int32_t)r3000a_regs.gpr_regs[rs], (int32_t)r3000a_regs.gpr_regs[rt], &result))
-            {
-                // TODO: Overflow Exception
-                return;
-            }
+        // #ifdef __GNUC__
+        //     if (__builtin_sub_overflow(r3000a_regs.gpr_regs[rs], r3000a_regs.gpr_regs[rt], &result))
+        //     {
+        //         // TODO: Overflow Exception
+        //         return;
+        //     }    
+        // #elifdef _MSC_VER
+        //     if (_subborrow_u32(0, r3000a_regs.gpr_regs[rs], r3000a_regs.gpr_regs[rt], &result))
+        //     {
+        //         // TODO: Overflow Exception
+        //         return;
+        //     }
+        // #endif
 
-            r3000a_regs.gpr_regs[rd] = (uint32_t)result;
-        #endif
+        if ((operand_rs ^ operand_rt) & (operand_rs ^ result) & 0x80000000) {
+            // TODO: Overflow Exception
+            // setExceptionExcodeOnRegCAUSE(COP0ExeptionExcodes::Ov, false);
+            // jumpToExceptionVector(ExceptionVectorType::General);
+            return;
+        } 
+
+        r3000a_regs.gpr_regs[rd] = (int32_t)result;
     }
 
     void subu(reg_t rd, reg_t rs, reg_t rt)
@@ -222,17 +257,34 @@ namespace festation
     
     void addi(reg_t rt, reg_t rs, immed16_t imm)
     {
-        int32_t result;
+        int32_t result = 0;
+        int32_t operand_rs =  (int32_t)r3000a_regs.gpr_regs[rs];
+        int32_t operand_imm =  (int32_t)(int16_t)imm;
+        
+        result = operand_rs + operand_imm;
 
-        #ifdef __GNUC__
-            if (__builtin_add_overflow((int32_t)r3000a_regs.gpr_regs[rs], (int32_t)(int16_t)imm, &result))
-            {
-                // TODO: Overflow Exception
-                return;
-            }
+        // #ifdef __GNUC__
+        //     if (__builtin_add_overflow(r3000a_regs.gpr_regs[rs], (uint32_t)(uint16_t)imm, &result))
+        //     {
+        //         // TODO: Overflow Exception
+        //         return;
+        //     }
+        // #elifdef _MSC_VER
+        //     if (_addcarry_u32(0, r3000a_regs.gpr_regs[rs], r3000a_regs.gpr_regs[rt], &result))
+        //     {
+        //         // TODO: Overflow Exception
+        //         return;
+        //     }
+        // #endif
 
-            r3000a_regs.gpr_regs[rt] = (uint32_t)result;
-        #endif
+        if ((operand_rs ^ result) & (operand_imm ^ result) & 0x80000000) {
+            // TODO: Overflow Exception
+            // setExceptionExcodeOnRegCAUSE(COP0ExeptionExcodes::Ov, false);
+            // jumpToExceptionVector(ExceptionVectorType::General);
+            return;
+        } 
+
+        r3000a_regs.gpr_regs[rt] = (uint32_t)result;
     }
 
     void addiu(reg_t rt, reg_t rs, immed16_t imm)

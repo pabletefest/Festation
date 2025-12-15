@@ -10,7 +10,7 @@ namespace festation
 {
     extern PSXRegs r3000a_regs;
 
-    std::vector<char> bufferedOutputStream;
+    static std::vector<char> bufferedOutputStream;
 
     static void _putchar(char chr)
     {

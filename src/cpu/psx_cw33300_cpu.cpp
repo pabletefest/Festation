@@ -5,7 +5,7 @@
 #include "exceptions_handling.hpp"
 
 #include <cstring>
-#include <stdio.h>
+#include <print>
 
 namespace festation
 {
@@ -66,7 +66,7 @@ void festation::MIPS_R3000A_Core::executeInstruction()
 
     uint32_t instruction = fetchInstruction();
 
-    printf("\n* Executing instruction: %08X *\n", instruction);
+    std::print("\n* Executing instruction: 0x{:08X}  at address 0x{:08X} *\n", instruction, r3000a_regs.pc - 4);
 
     InstructionType instructionType = decodeInstruction(instruction);
 
