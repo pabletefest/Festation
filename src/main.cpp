@@ -19,7 +19,7 @@ namespace festation
 };
 
 static void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
-  glViewport(0, 0, width, height);
+    glViewport(0, 0, width, height);
 }
 
 int main(int, char**)
