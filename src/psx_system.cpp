@@ -42,7 +42,7 @@ uint8_t festation::PSXSystem::read8(uint32_t address)
     {
         return bios.read8(address & BIOS_ROM_SIZE);
     }else {
-        if (masked_address & 0x1FF00000 == 0x1F800000)
+        if ((masked_address & 0x1FF00000) == 0x1F800000)
             assert(false);
     }
 

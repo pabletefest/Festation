@@ -16,7 +16,7 @@ namespace festation
 };
 
 festation::KernelBIOS::KernelBIOS()
-    : KernelBIOS(std::filesystem::path(std::filesystem::current_path().string() + "/../../../res/bios/SCPH1001.BIN").string())
+    : KernelBIOS(std::filesystem::path(std::filesystem::current_path().string() + "/../../../../res/bios/SCPH1001.BIN").string())
 {
 
 }
