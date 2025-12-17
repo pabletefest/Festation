@@ -15,6 +15,27 @@ namespace festation
     static constexpr const uint8_t HALF_WORD_BOUNDARY = 2;
     static constexpr const uint8_t WORD_BOUNDARY = 4;
 
+    static constexpr int32_t signExtend(uint8_t value) {
+        return static_cast<int32_t>(static_cast<int16_t>(static_cast<int8_t>(value)));
+    }
+
+    static constexpr int32_t signExtend(uint16_t value) {
+        return static_cast<int32_t>(static_cast<int16_t>(value));
+    }
+
+    static constexpr int32_t signExtend(uint32_t value) {
+        return static_cast<int32_t>(value);
+    }
+
+    static constexpr int64_t signExtend(uint64_t value) {
+        return static_cast<int64_t>(value);
+    }
+
+    template<typename T, typename R>
+    static constexpr R signExtend(T value) {
+        return static_cast<R>(value);
+    }
+
     static void calculateAndPerformJumpAddress(j_immed26_t dest)
     {
         uint32_t jumpAddress = (r3000a_regs.pc & 0xF0000000) | (dest << 2);
@@ -25,7 +46,7 @@ namespace festation
     {
         // We remove "+ 4" from the ecuation as PC already points to the address of the instructuon in the delay slot
         // In order to add 4, we should sub 4 before, so removing "+ 4" effectively leads to the same result
-        int32_t branchAddr = ((int32_t)r3000a_regs.pc) + /*4 +*/ (((int32_t)(int16_t)dest) * 4);
+        int32_t branchAddr = signExtend(r3000a_regs.pc) + /*4 +*/ (signExtend(dest) * 4);
         // r3000a_regs.pc = (uint32_t)branchAddr;
         r3000a_regs.storeDelayedJump((uint32_t)branchAddr);
     }
@@ -35,7 +56,7 @@ namespace festation
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
 
         // r3000a_regs.gpr_regs[rt] = (uint32_t)(int32_t)(int8_t)psxSystem.read8(r3000a_regs.gpr_regs[rs] + imm);
-        uint32_t cachedLoad = (uint32_t)(int32_t)(int8_t)psxSystem.read8(r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm);
+        uint32_t cachedLoad = (uint32_t)signExtend(psxSystem.read8(r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm));
         r3000a_regs.storeDelayedData(cachedLoad, rt);
     }
 
@@ -50,7 +71,7 @@ namespace festation
 
     void lh(reg_t rt, reg_t rs, immed16_t imm)
     {
-        uint32_t address = r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm;
+        uint32_t address = r3000a_regs.gpr_regs[rs] + signExtend(imm);
 
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
         if (handleAndSetBadVaddrReg(address, HALF_WORD_BOUNDARY))
@@ -60,7 +81,7 @@ namespace festation
         }
 
         // r3000a_regs.gpr_regs[rt] = (uint32_t)(int32_t)(int16_t)psxSystem.read16(r3000a_regs.gpr_regs[rs] + imm);
-        uint32_t cachedLoad = (uint32_t)(int32_t)(int16_t)psxSystem.read16(address);
+        uint32_t cachedLoad = (uint32_t)signExtend(psxSystem.read16(address));
         r3000a_regs.storeDelayedData(cachedLoad, rt);
     }
 
@@ -82,7 +103,7 @@ namespace festation
 
     void lw(reg_t rt, reg_t rs, immed16_t imm)
     {
-        uint32_t address = r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm;
+        uint32_t address = r3000a_regs.gpr_regs[rs] + signExtend(imm);
 
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
         if (handleAndSetBadVaddrReg(address, WORD_BOUNDARY))
@@ -100,12 +121,12 @@ namespace festation
 
     void sb(reg_t rt, reg_t rs, immed16_t imm)
     {
-        psxSystem.write8(r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm, r3000a_regs.gpr_regs[rt] & 0xFF);
+        psxSystem.write8(r3000a_regs.gpr_regs[rs] + signExtend(imm), r3000a_regs.gpr_regs[rt] & 0xFF);
     }
 
     void sh(reg_t rt, reg_t rs, immed16_t imm)
     {
-        uint32_t address = r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm;
+        uint32_t address = r3000a_regs.gpr_regs[rs] + signExtend(imm);
 
         if (handleAndSetBadVaddrReg(address, HALF_WORD_BOUNDARY))
         {
@@ -118,7 +139,7 @@ namespace festation
 
     void sw(reg_t rt, reg_t rs, immed16_t imm)
     {
-        uint32_t address = r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm;
+        uint32_t address = r3000a_regs.gpr_regs[rs] + signExtend(imm);
 
         if (handleAndSetBadVaddrReg(address, WORD_BOUNDARY))
         {
@@ -132,7 +153,7 @@ namespace festation
     void lwr(reg_t rt, reg_t rs, immed16_t imm)
     {
         uint32_t prevRT = r3000a_regs.gpr_regs[rt];
-        uint32_t address = r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm;
+        uint32_t address = r3000a_regs.gpr_regs[rs] + signExtend(imm);
         uint8_t offset = address % 4;
         uint32_t loadedWord = psxSystem.read32(address);
 
@@ -145,7 +166,7 @@ namespace festation
     void lwl(reg_t rt, reg_t rs, immed16_t imm)
     {
         uint32_t prevRT = r3000a_regs.gpr_regs[rt];
-        uint32_t address = r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm;
+        uint32_t address = r3000a_regs.gpr_regs[rs] + signExtend(imm);
         uint8_t offset = address % 4;
         uint32_t loadedWord = psxSystem.read32(address);
 
@@ -157,7 +178,7 @@ namespace festation
 
     void swr(reg_t rt, reg_t rs, immed16_t imm)
     {
-        uint32_t address = r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm;
+        uint32_t address = r3000a_regs.gpr_regs[rs] + signExtend(imm);
         uint32_t prevStored = psxSystem.read32(address);
         uint8_t offset = address % 4;
         uint32_t storedRT = r3000a_regs.gpr_regs[rt];
@@ -170,7 +191,7 @@ namespace festation
 
     void swl(reg_t rt, reg_t rs, immed16_t imm)
     {
-        uint32_t address = r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm;
+        uint32_t address = r3000a_regs.gpr_regs[rs] + signExtend(imm);
         uint32_t prevStored = psxSystem.read32(address);
         uint8_t offset = address % 4;
         uint32_t storedRT = r3000a_regs.gpr_regs[rt];
@@ -184,8 +205,8 @@ namespace festation
     void add(reg_t rd, reg_t rs, reg_t rt)
     {
         int32_t result = 0;
-        int32_t operand_rs =  (int32_t)r3000a_regs.gpr_regs[rs];
-        int32_t operand_rt =  (int32_t)r3000a_regs.gpr_regs[rt];
+        int32_t operand_rs =  signExtend(r3000a_regs.gpr_regs[rs]);
+        int32_t operand_rt =  signExtend(r3000a_regs.gpr_regs[rt]);
         
         result = operand_rs + operand_rt;
 
@@ -210,7 +231,7 @@ namespace festation
             return;
         } 
 
-        r3000a_regs.gpr_regs[rd] = (int32_t)result;
+        r3000a_regs.gpr_regs[rd] = (uint32_t)result;
     }
 
     void addu(reg_t rd, reg_t rs, reg_t rt)
@@ -221,8 +242,8 @@ namespace festation
     void sub(reg_t rd, reg_t rs, reg_t rt)
     {
         int32_t result = 0;
-        int32_t operand_rs =  (int32_t)r3000a_regs.gpr_regs[rs];
-        int32_t operand_rt =  (int32_t)r3000a_regs.gpr_regs[rt];
+        int32_t operand_rs =  signExtend(r3000a_regs.gpr_regs[rs]);
+        int32_t operand_rt =  signExtend(r3000a_regs.gpr_regs[rt]);
         
         result = operand_rs - operand_rt;
 
@@ -247,7 +268,7 @@ namespace festation
             return;
         } 
 
-        r3000a_regs.gpr_regs[rd] = (int32_t)result;
+        r3000a_regs.gpr_regs[rd] = (uint32_t)result;
     }
 
     void subu(reg_t rd, reg_t rs, reg_t rt)
@@ -258,8 +279,8 @@ namespace festation
     void addi(reg_t rt, reg_t rs, immed16_t imm)
     {
         int32_t result = 0;
-        int32_t operand_rs =  (int32_t)r3000a_regs.gpr_regs[rs];
-        int32_t operand_imm =  (int32_t)(int16_t)imm;
+        int32_t operand_rs =  signExtend(r3000a_regs.gpr_regs[rs]);
+        int32_t operand_imm =  signExtend(imm);
         
         result = operand_rs + operand_imm;
 
@@ -289,12 +310,12 @@ namespace festation
 
     void addiu(reg_t rt, reg_t rs, immed16_t imm)
     {
-        r3000a_regs.gpr_regs[rt] = r3000a_regs.gpr_regs[rs] + (int32_t)(int16_t)imm;
+        r3000a_regs.gpr_regs[rt] = r3000a_regs.gpr_regs[rs] + signExtend(imm);
     }
 
     void slt(reg_t rd, reg_t rs, reg_t rt)
     {
-        if (((int32_t)r3000a_regs.gpr_regs[rs]) < ((int32_t)r3000a_regs.gpr_regs[rt]))
+        if (signExtend(r3000a_regs.gpr_regs[rs]) < signExtend(r3000a_regs.gpr_regs[rt]))
             r3000a_regs.gpr_regs[rd] = 1;
         else
             r3000a_regs.gpr_regs[rd] = 0;
@@ -310,7 +331,7 @@ namespace festation
 
     void slti(reg_t rt, reg_t rs, immed16_t imm)
     {
-        if (((int32_t)r3000a_regs.gpr_regs[rs]) < ((int32_t)(int16_t)imm))
+        if (signExtend(r3000a_regs.gpr_regs[rs]) < signExtend(imm))
             r3000a_regs.gpr_regs[rt] = 1;
         else
             r3000a_regs.gpr_regs[rt] = 0;
@@ -396,7 +417,7 @@ namespace festation
 
     void mult(reg_t rs, reg_t rt)
     {
-        int64_t result = (int64_t)(int32_t)r3000a_regs.gpr_regs[rs] * (int64_t)(int32_t)r3000a_regs.gpr_regs[rt];
+        int64_t result = (int64_t)signExtend(r3000a_regs.gpr_regs[rs]) * (int64_t)signExtend(r3000a_regs.gpr_regs[rt]);
 
         r3000a_regs.hi = (uint64_t)(result >> 32) & 0xFFFFFFFF;
         r3000a_regs.lo = (uint64_t)result & 0xFFFFFFFF;
@@ -412,8 +433,8 @@ namespace festation
 
     void div(reg_t rs, reg_t rt)
     {
-        int32_t rsOperand = (int32_t)r3000a_regs.gpr_regs[rs];
-        int32_t rtOperand = (int32_t)r3000a_regs.gpr_regs[rt];
+        int32_t rsOperand = signExtend(r3000a_regs.gpr_regs[rs]);
+        int32_t rtOperand = signExtend(r3000a_regs.gpr_regs[rt]);
 
         if (rtOperand == 0)
         {
@@ -531,7 +552,7 @@ namespace festation
 
     void bltz(reg_t rs, immed16_t dest)
     {
-        if (((int32_t)r3000a_regs.gpr_regs[rs]) < 0)
+        if (signExtend(r3000a_regs.gpr_regs[rs]) < 0)
         {
             calculateAndPerformBranchAddress(dest);
         }
@@ -539,7 +560,7 @@ namespace festation
 
     void bgez(reg_t rs, immed16_t dest)
     {
-        if (((int32_t)r3000a_regs.gpr_regs[rs]) >= 0)
+        if (signExtend(r3000a_regs.gpr_regs[rs]) >= 0)
         {
             calculateAndPerformBranchAddress(dest);
         }
@@ -547,7 +568,7 @@ namespace festation
 
     void bgtz(reg_t rs, immed16_t dest)
     {
-        if (((int32_t)r3000a_regs.gpr_regs[rs]) > 0)
+        if (signExtend(r3000a_regs.gpr_regs[rs]) > 0)
         {
             calculateAndPerformBranchAddress(dest);
         }
@@ -555,7 +576,7 @@ namespace festation
     
     void blez(reg_t rs, immed16_t dest)
     {
-        if (((int32_t)r3000a_regs.gpr_regs[rs]) <= 0)
+        if (signExtend(r3000a_regs.gpr_regs[rs]) <= 0)
         {
             calculateAndPerformBranchAddress(dest);
         }
@@ -570,7 +591,7 @@ namespace festation
 
         r3000a_regs.gpr_regs[ra] = r3000a_regs.pc + 8; 
 
-        if (((int32_t)cmpReg) < 0)
+        if (signExtend(cmpReg) < 0)
         {
             calculateAndPerformBranchAddress(dest);
         }
@@ -585,7 +606,7 @@ namespace festation
 
         r3000a_regs.gpr_regs[ra] = r3000a_regs.pc + 8; 
 
-        if (((int32_t)cmpReg) >= 0)
+        if (signExtend(cmpReg) >= 0)
         {
             calculateAndPerformBranchAddress(dest);
         }
