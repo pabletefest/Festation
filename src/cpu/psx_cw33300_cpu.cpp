@@ -3,9 +3,9 @@
 #include "mips_r3000a_opcodes.hpp"
 #include "coprocessor_cp0_opcodes.hpp"
 #include "exceptions_handling.hpp"
+#include "utils/logger.hpp"
 
 #include <cstring>
-#include <print>
 
 namespace festation
 {
@@ -66,7 +66,7 @@ void festation::MIPS_R3000A_Core::executeInstruction()
 
     uint32_t instruction = fetchInstruction();
 
-    std::print("\n* Executing instruction: 0x{:08X}  at address 0x{:08X} *\n", instruction, r3000a_regs.pc - 4);
+    LOG_DEBUG("\n* Executing instruction: 0x{:08X}  at address 0x{:08X} *", instruction, r3000a_regs.pc - 4);
 
     InstructionType instructionType = decodeInstruction(instruction);
 

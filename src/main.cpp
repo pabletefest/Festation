@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include "psx_system.hpp"
+#include "utils/logger.hpp"
 
 /* Sets constants */
 #define WIDTH 800
@@ -24,7 +25,7 @@ static void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
 
 int main(int, char**)
 {
-    std::println("Hello, from Festation!");
+    LOG_INFO("Hello, from Festation!");
 
     GLFWwindow* window;
 
