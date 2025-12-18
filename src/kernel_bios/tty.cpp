@@ -4,12 +4,8 @@
 #include <stdio.h>
 #include <vector>
 
-#define R4 4
-
 namespace festation
 {
-    extern PSXRegs r3000a_regs;
-
     static std::vector<char> bufferedOutputStream;
 
     static void _putchar(char chr)
@@ -27,8 +23,7 @@ namespace festation
     }
 };
 
-void festation::kernel_putchar()
+void festation::kernel_putchar(char chr)
 {
-    char chrParameter = r3000a_regs.gpr_regs[R4] & 0x000000FF;
-    _putchar(chrParameter);
+    _putchar(chr);
 }

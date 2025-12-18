@@ -43,5 +43,8 @@ namespace festation
     private:
         uint64_t totalCyclesElapsed;
         PSXSystem* system = nullptr;
+
+        PSXRegs r3000a_regs;
+        COP0SystemControlRegs cop0_state;
     };
 };

@@ -2,5 +2,5 @@
 
 namespace festation
 {
-    void kernel_putchar();                
+    void kernel_putchar(char chr);                
 };

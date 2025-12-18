@@ -6,11 +6,13 @@
 
 namespace festation
 {
+    class MIPS_R3000A_Core;
+
     class KernelBIOS
     {
     public:
-        KernelBIOS();
-        KernelBIOS(const std::string& filename);
+        KernelBIOS(MIPS_R3000A_Core& cpu);
+        KernelBIOS(MIPS_R3000A_Core& cpu, const std::string& filename);
         ~KernelBIOS() = default;
 
         uint8_t read8(uint32_t address);
@@ -34,5 +36,6 @@ namespace festation
     
     private:
         std::vector<uint8_t> biosROM;
+        MIPS_R3000A_Core& cpu;
     };
 };

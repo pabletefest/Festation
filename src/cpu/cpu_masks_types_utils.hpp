@@ -84,9 +84,11 @@ namespace festation
     using j_immed26_t = uint32_t;
     using syscall_break_code_t = uint32_t;
 
-    using RTypeInstructionPtr = std::function<void(reg_t, reg_t, reg_t, shift_t)>;
-    using ITypeInstructionPtr = std::function<void(reg_t, reg_t, immed16_t)>;
-    using JTypeInstructionPtr = std::function<void(j_immed26_t)>;
+    class MIPS_R3000A_Core;
+
+    using RTypeInstructionPtr = std::function<void(MIPS_R3000A_Core&, reg_t, reg_t, reg_t, shift_t)>;
+    using ITypeInstructionPtr = std::function<void(MIPS_R3000A_Core&, reg_t, reg_t, immed16_t)>;
+    using JTypeInstructionPtr = std::function<void(MIPS_R3000A_Core&, j_immed26_t)>;
 
     using RTypeInstructionEncoding = std::tuple<RTypeInstructionPtr, reg_t, reg_t, reg_t, shift_t>;
     using ITypeInstructionEncoding = std::tuple<ITypeInstructionPtr, reg_t, reg_t, immed16_t>;

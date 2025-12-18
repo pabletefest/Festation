@@ -6,7 +6,7 @@
 #include <assert.h>
 
 festation::PSXSystem::PSXSystem()
-    : cpu(this), mainRAM(allocVirtMemForMainRAM()), bios(KernelBIOS())
+    : cpu(this), mainRAM(allocVirtMemForMainRAM()), bios(KernelBIOS(cpu))
 {
     if (!mainRAM)
         mainRAM = (uint8_t*)malloc(2 * 1024 * 1024);

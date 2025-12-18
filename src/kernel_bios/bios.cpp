@@ -1,6 +1,7 @@
 #include "bios.hpp"
-#include "psx_cpu_state.hpp"
 #include "tty.hpp"
+#include "psx_cw33300_cpu.hpp"
+#include "cpu_masks_types_utils.hpp"
 
 #include <filesystem>
 #include <fstream>
@@ -10,18 +11,17 @@
 
 namespace festation
 {
-    extern PSXRegs r3000a_regs;
-
     static constexpr const uint32_t BIOS_SIZE = 512 * 1024;
 };
 
-festation::KernelBIOS::KernelBIOS()
-    : KernelBIOS(std::filesystem::path(std::filesystem::current_path().string() + "/../../../../res/bios/SCPH1001.BIN").string())
+festation::KernelBIOS::KernelBIOS(MIPS_R3000A_Core& _cpu)
+    : KernelBIOS(_cpu, std::filesystem::path(std::filesystem::current_path().string() + "/../../../../res/bios/SCPH1001.BIN").string())
 {
 
 }
 
-festation::KernelBIOS::KernelBIOS(const std::string &filename)
+festation::KernelBIOS::KernelBIOS(MIPS_R3000A_Core& _cpu, const std::string &filename)
+    : cpu(_cpu)
 {
     loadBIOSROMFile(filename);
 }
@@ -85,11 +85,12 @@ bool festation::KernelBIOS::loadBIOSROMFile(const std::string &filename)
 
 void festation::KernelBIOS::checkKernerlTTYOutput()
 {
-    uint32_t masked_pc = r3000a_regs.pc & 0x1FFFFFFF; // Only interested on the first 29 bits (any MIPS memory region)
-    uint32_t r9FunctNumber = r3000a_regs.gpr_regs[R9];
+    uint32_t masked_pc = cpu.getCPURegs().pc & 0x1FFFFFFF; // Only interested on the first 29 bits (any MIPS memory region)
+    uint32_t r9FunctNumber = cpu.getCPURegs().gpr_regs[R9];
 
     if ((masked_pc == 0x000000A0 && r9FunctNumber == 0x3C) || (masked_pc == 0x000000B0 && r9FunctNumber == 0x3D))
     {
-        kernel_putchar();
+        constexpr size_t R4 = GprRegs::a0;
+        kernel_putchar(cpu.getCPURegs().gpr_regs[R4] & 0x000000FF);
     }
 }
