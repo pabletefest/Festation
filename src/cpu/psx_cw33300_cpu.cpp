@@ -287,7 +287,7 @@ festation::InstructionTypeVariant festation::MIPS_R3000A_Core::decodeRFormat(uin
             sltu(cpu, _rd, _rs, _rt);
         }, rd, rt, rs, shift) };
     default:
-        printf("Unimplemented or invalid R-type instruction! Function opcode: %02X - from hex MIPS instruction encoding (%08X)\n", function, instruction);
+        LOG_ERROR("Unimplemented or invalid R-type instruction! Function opcode: %02X - from hex MIPS instruction encoding (%08X)\n", function, instruction);
         assert(false);
         return InstructionTypeVariant();
     }
@@ -306,7 +306,7 @@ festation::InstructionTypeVariant festation::MIPS_R3000A_Core::decodeJFormat(uin
             jal(cpu, dest);
         }, getInstAddress(instruction)) };
     default:
-        printf("Unimplemented or invalid J-type instruction! Instruction opcode: %02X - from hex MIPS instruction encoding (%08X)\n", getInstOpcode(instruction), instruction);
+        LOG_ERROR("Unimplemented or invalid J-type instruction! Instruction opcode: %02X - from hex MIPS instruction encoding (%08X)\n", getInstOpcode(instruction), instruction);
         assert(false);
         return InstructionTypeVariant();
     }
@@ -341,7 +341,7 @@ festation::InstructionTypeVariant festation::MIPS_R3000A_Core::decodeIFormat(uin
                 bgezal(cpu, _rs, dest);
             }, rt, rs, imm16) };
         default:
-            printf("Unimplemented or invalid I-type BcondZ instruction! rt bits: %02X - from hex MIPS instruction encoding (%08X)\n", rt, instruction);
+            LOG_ERROR("Unimplemented or invalid I-type BcondZ instruction! rt bits: %02X - from hex MIPS instruction encoding (%08X)\n", rt, instruction);
             assert(false);
             return InstructionTypeVariant();
         }
@@ -417,7 +417,7 @@ festation::InstructionTypeVariant festation::MIPS_R3000A_Core::decodeIFormat(uin
                     mtc0(cpu, rtcop0, rdcop0);
                 }, rt, rs, imm16) };
             default:
-                printf("Unimplemented or invalid COP0 instruction! Instruction opcode: %02X - from hex MIPS instruction encoding (%08X)\n", opcode, instruction);
+                LOG_ERROR("Unimplemented or invalid COP0 instruction! Instruction opcode: %02X - from hex MIPS instruction encoding (%08X)\n", opcode, instruction);
                 assert(false);
                 return InstructionTypeVariant();
             }
@@ -503,7 +503,7 @@ festation::InstructionTypeVariant festation::MIPS_R3000A_Core::decodeIFormat(uin
         assert(false);
         return InstructionTypeVariant();
     default:
-        printf("Unimplemented or invalid I-type instruction! Instruction opcode: %02X - from hex MIPS instruction encoding (%08X)\n", opcode, instruction);
+        LOG_ERROR("Unimplemented or invalid I-type instruction! Instruction opcode: %02X - from hex MIPS instruction encoding (%08X)\n", opcode, instruction);
         assert(false);
         return InstructionTypeVariant();
     }

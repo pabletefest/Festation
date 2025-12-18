@@ -6,20 +6,12 @@
 #include <assert.h>
 
 festation::PSXSystem::PSXSystem()
-    : cpu(this), mainRAM(allocVirtMemForMainRAM()), bios(KernelBIOS(cpu))
+    : cpu(this), bios(KernelBIOS(cpu))
 {
-    if (!mainRAM)
-        mainRAM = (uint8_t*)malloc(2 * 1024 * 1024);
 }
 
 festation::PSXSystem::~PSXSystem()
 {
-    if (deallocVirtMemForMainRAM(mainRAM) == -1)
-    {
-        free(mainRAM);
-    }
-
-    mainRAM = nullptr;
 }
 
 void festation::PSXSystem::reset()

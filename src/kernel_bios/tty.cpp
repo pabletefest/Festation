@@ -1,7 +1,7 @@
 #include "tty.hpp"
 #include "psx_cpu_state.hpp"
 
-#include <stdio.h>
+#include <print>
 #include <vector>
 
 namespace festation
@@ -17,7 +17,7 @@ namespace festation
 
         bufferedOutputStream.push_back('\0');
 
-        printf("%s", bufferedOutputStream.data());
+        std::print("%s", bufferedOutputStream.data());
 
         bufferedOutputStream.clear();
     }
