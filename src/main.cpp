@@ -52,7 +52,7 @@ int main(int, char**)
 
     if (!gladLoadGL(glfwGetProcAddress))
     {
-        std::println("Failed to initialize GLAD");
+        LOG_ERROR("Failed to initialize GLAD");
         return -1;
     }
 

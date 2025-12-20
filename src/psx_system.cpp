@@ -1,12 +1,13 @@
 #include "psx_system.hpp"
 #include "virtual_mem_allocator_utils.hpp"
 #include "memory_map_masks.hpp"
+#include "utils/logger.hpp"
 
 #include <stdlib.h>
 #include <assert.h>
 
 festation::PSXSystem::PSXSystem()
-    : cpu(this), bios(KernelBIOS(cpu))
+    : cpu(this), mainRAM(MAIN_RAM_SIZE), bios(KernelBIOS(cpu))
 {
 }
 
@@ -28,14 +29,37 @@ uint8_t festation::PSXSystem::read8(uint32_t address)
 
     if (masked_address <= MAIN_RAM_END)
     {
-        return mainRAM[address & MAIN_RAM_SIZE];
+        return mainRAM[masked_address & MAIN_RAM_SIZE_MASK];
+    }
+    else if (masked_address >= EXPANSION_REGION1_START && masked_address <= EXPANSION_REGION1_END)
+    {
+        LOG_WARN("Not implemented read on expansion region 1!");
+        assert(false);
+    }
+    else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
+    {
+        LOG_DEBUG("Read from I/O port address 0x{:08X}", address);
+        //assert(false && "Not implemented read on I/O Ports!");
+        return 0xFF;
+    }
+    else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
+    {
+        LOG_WARN("Not implemented read on expansion region 2!");
+        assert(false);
+    }
+    else if (masked_address >= EXPANSION_REGION3_START && masked_address <= EXPANSION_REGION3_END)
+    {
+        LOG_WARN("Not implemented read on expansion region 3!");
+        assert(false);
     }
     else if (masked_address >= BIOS_ROM_START && masked_address <= BIOS_ROM_END)
     {
-        return bios.read8(address & BIOS_ROM_SIZE);
-    }else {
-        if ((masked_address & 0x1FF00000) == 0x1F800000)
-            assert(false);
+        return bios.read8(masked_address & BIOS_ROM_SIZE_MASK);
+    } 
+    else if ((address & 0xFFFE0000) == 0xFFFE0000)
+    {
+        LOG_WARN("Not implemented read on internal CPU control registers!");
+        assert(false);
     }
 
     return 0;
@@ -75,11 +99,36 @@ void festation::PSXSystem::write8(uint32_t address, uint8_t value)
 
     if (masked_address <= MAIN_RAM_END)
     {
-        mainRAM[address & MAIN_RAM_SIZE] = value;
+        mainRAM[masked_address & MAIN_RAM_SIZE_MASK] = value;
+    }
+    else if (masked_address >= EXPANSION_REGION1_START && masked_address <= EXPANSION_REGION1_END)
+    {
+        LOG_WARN("Not implemented write on expansion region 1!");
+        assert(false);
+    }
+    else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
+    {
+        LOG_DEBUG("Write to I/O port address 0x{:08X}", address);
+        //assert(false && "Not implemented write on I/O Ports!");
+    }
+    else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
+    {
+        LOG_WARN("Not implemented write on expansion region 2!");
+        assert(false);
+    }
+    else if (masked_address >= EXPANSION_REGION3_START && masked_address <= EXPANSION_REGION3_END)
+    {
+        LOG_WARN("Not implemented write on expansion region 3!");
+        assert(false);
     }
     else if (masked_address >= BIOS_ROM_START && masked_address <= BIOS_ROM_END)
     {
-        bios.write8(address & BIOS_ROM_SIZE, value);
+        bios.write8(masked_address & BIOS_ROM_SIZE_MASK, value);
+    }
+    else if ((address & 0xFFFE0000) == 0xFFFE0000)
+    {
+        LOG_WARN("Not implemented write to internal CPU control registers!");
+        assert(false);
     }
 }
 
