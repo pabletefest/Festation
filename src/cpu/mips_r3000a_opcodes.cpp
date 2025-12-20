@@ -7,9 +7,6 @@
 
 namespace festation
 {
-    static constexpr const uint8_t HALF_WORD_BOUNDARY = 2;
-    static constexpr const uint8_t WORD_BOUNDARY = 4;
-
     static constexpr int32_t signExtend(uint8_t value) {
         return static_cast<int32_t>(static_cast<int16_t>(static_cast<int8_t>(value)));
     }
@@ -69,7 +66,7 @@ namespace festation
         uint32_t address = cpu.getCPURegs().gpr_regs[rs] + signExtend(imm);
 
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
-        if (handleAndSetBadVaddrReg(cpu, address, HALF_WORD_BOUNDARY))
+        if (handleAndSetBadVaddrReg(cpu, address, AddressBoundary::HALF_WORD_BOUNDARY))
         {
             setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::AdEL, false);
             return;
@@ -85,7 +82,7 @@ namespace festation
         uint32_t address = cpu.getCPURegs().gpr_regs[rs] + imm;
 
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
-        if (handleAndSetBadVaddrReg(cpu, address, HALF_WORD_BOUNDARY))
+        if (handleAndSetBadVaddrReg(cpu, address, AddressBoundary::HALF_WORD_BOUNDARY))
         {
             setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::AdEL, false);
             return;
@@ -101,7 +98,7 @@ namespace festation
         uint32_t address = cpu.getCPURegs().gpr_regs[rs] + signExtend(imm);
 
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
-        if (handleAndSetBadVaddrReg(cpu, address, WORD_BOUNDARY))
+        if (handleAndSetBadVaddrReg(cpu, address, AddressBoundary::WORD_BOUNDARY))
         {
             setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::AdEL, false);
             return;
@@ -123,7 +120,7 @@ namespace festation
     {
         uint32_t address = cpu.getCPURegs().gpr_regs[rs] + signExtend(imm);
 
-        if (handleAndSetBadVaddrReg(cpu, address, HALF_WORD_BOUNDARY))
+        if (handleAndSetBadVaddrReg(cpu, address, AddressBoundary::HALF_WORD_BOUNDARY))
         {
             setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::AdES, false);
             return;
@@ -136,7 +133,7 @@ namespace festation
     {
         uint32_t address = cpu.getCPURegs().gpr_regs[rs] + signExtend(imm);
 
-        if (handleAndSetBadVaddrReg(cpu, address, WORD_BOUNDARY))
+        if (handleAndSetBadVaddrReg(cpu, address, AddressBoundary::WORD_BOUNDARY))
         {
             setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::AdES, false);
             return;
