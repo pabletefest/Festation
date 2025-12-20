@@ -3,6 +3,7 @@
 #include "cpu_masks_types_utils.hpp"
 
 #include <cstdint>
+#include <array>
 
 namespace festation
 {
@@ -46,5 +47,7 @@ namespace festation
 
         PSXRegs r3000a_regs;
         COP0SystemControlRegs cop0_state;
+
+        std::array<uint8_t, 1024> scratchpadCache;
     };
 };

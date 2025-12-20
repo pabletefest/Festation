@@ -4,14 +4,15 @@
 #include "coprocessor_cp0_opcodes.hpp"
 #include "exceptions_handling.hpp"
 #include "utils/logger.hpp"
+#include "memory_map_masks.hpp"
 
 #include <cstring>
 #include <cassert>
 
 namespace festation
 {
-    #define INSTRUCTION_SIZE 4
-    #define RESET_VECTOR 0xBCF00000
+    static constexpr uint32_t INSTRUCTION_SIZE = 4;
+    static constexpr uintptr_t RESET_VECTOR = 0xBCF00000;
 };
 
 festation::MIPS_R3000A_Core::MIPS_R3000A_Core(PSXSystem* device)
@@ -29,6 +30,13 @@ void festation::MIPS_R3000A_Core::reset()
 
 uint8_t festation::MIPS_R3000A_Core::read8(uint32_t address)
 {
+    uint32_t masked_address = address & PHYSICAL_MEMORY_MASK;
+    
+    if (masked_address >= SCRATCHPAD_START && masked_address <= SCRATCHPAD_END)
+    {
+        return scratchpadCache[masked_address & SCRATCHPAD_SIZE];
+    }
+
     return system->read8(address);
 }
 
@@ -44,6 +52,14 @@ uint32_t festation::MIPS_R3000A_Core::read32(uint32_t address)
 
 void festation::MIPS_R3000A_Core::write8(uint32_t address, uint8_t value)
 {
+    uint32_t masked_address = address & PHYSICAL_MEMORY_MASK;
+
+    if (masked_address >= SCRATCHPAD_START && masked_address <= SCRATCHPAD_END)
+    {
+        scratchpadCache[masked_address & SCRATCHPAD_SIZE] = value;
+        return;
+    }
+
     system->write8(address, value);
 }
 
@@ -64,7 +80,7 @@ void festation::MIPS_R3000A_Core::executeInstruction()
 
     uint32_t instruction = fetchInstruction();
 
-    LOG_DEBUG("\n* Executing instruction: 0x{:08X}  at address 0x{:08X} *", instruction, r3000a_regs.pc - 4);
+    //LOG_DEBUG("\n* Executing instruction: 0x{:08X}  at address 0x{:08X} *", instruction, r3000a_regs.pc - 4);
 
     InstructionType instructionType = decodeInstruction(instruction);
 
