@@ -17,7 +17,7 @@ namespace festation
 
         bufferedOutputStream.push_back('\0');
 
-        std::print("%s", bufferedOutputStream.data());
+        std::println("%s", bufferedOutputStream.data());
 
         bufferedOutputStream.clear();
     }
