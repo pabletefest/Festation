@@ -6,7 +6,8 @@ namespace festation
 {
     void mfc0(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rd)
     {
-        cpu.getCPURegs().gpr_regs[rt] = cpu.getCOP0Regs().cop0_regs[rd];
+        //cpu.getCPURegs().gpr_regs[rt] = cpu.getCOP0Regs().cop0_regs[rd];
+        cpu.getCPURegs().storeDelayedData(cpu.getCOP0Regs().cop0_regs[rd], rt);
     }
 
     void cfc0(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rd)
