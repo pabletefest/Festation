@@ -33,8 +33,8 @@ uint8_t festation::PSXSystem::read8(uint32_t address)
     }
     else if (masked_address >= EXPANSION_REGION1_START && masked_address <= EXPANSION_REGION1_END)
     {
-        LOG_WARN("Not implemented read on expansion region 1!");
-        assert(false);
+        LOG_WARN("Not implemented read at 0x{:08X} on expansion region 1!", address);
+        return 0xFF; // Stub
     }
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
@@ -44,12 +44,11 @@ uint8_t festation::PSXSystem::read8(uint32_t address)
     }
     else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
     {
-        LOG_WARN("Not implemented read on expansion region 2!");
-        assert(false);
+        LOG_WARN("Not implemented read at 0x{:08X} on expansion region 2!", address);
     }
     else if (masked_address >= EXPANSION_REGION3_START && masked_address <= EXPANSION_REGION3_END)
     {
-        LOG_WARN("Not implemented read on expansion region 3!");
+        LOG_WARN("Not implemented read at 0x{:08X} on expansion region 3!", address);
         assert(false);
     }
     else if (masked_address >= BIOS_ROM_START && masked_address <= BIOS_ROM_END)
@@ -58,8 +57,7 @@ uint8_t festation::PSXSystem::read8(uint32_t address)
     } 
     else if ((address & 0xFFFE0000) == 0xFFFE0000)
     {
-        LOG_WARN("Not implemented read on internal CPU control registers!");
-        assert(false);
+        LOG_WARN("Not implemented read on internal CPU control registers at address 0x{:08X}!", address);
     }
 
     return 0;
@@ -95,6 +93,9 @@ uint32_t festation::PSXSystem::read32(uint32_t address)
 
 void festation::PSXSystem::write8(uint32_t address, uint8_t value)
 {
+    if (cpu.isCacheIsolated())
+        return;
+
     uint32_t masked_address = address & PHYSICAL_MEMORY_MASK;
 
     if (masked_address <= MAIN_RAM_END)
@@ -103,7 +104,7 @@ void festation::PSXSystem::write8(uint32_t address, uint8_t value)
     }
     else if (masked_address >= EXPANSION_REGION1_START && masked_address <= EXPANSION_REGION1_END)
     {
-        LOG_WARN("Not implemented write on expansion region 1!");
+        LOG_WARN("Not implemented write to 0x{:08X} on expansion region 1!", address);
         assert(false);
     }
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
@@ -113,12 +114,11 @@ void festation::PSXSystem::write8(uint32_t address, uint8_t value)
     }
     else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
     {
-        LOG_WARN("Not implemented write on expansion region 2!");
-        assert(false);
+        LOG_WARN("Not implemented write to 0x{:08X} on expansion region 2!", address);
     }
     else if (masked_address >= EXPANSION_REGION3_START && masked_address <= EXPANSION_REGION3_END)
     {
-        LOG_WARN("Not implemented write on expansion region 3!");
+        LOG_WARN("Not implemented write to 0x{:08X} on expansion region 3!", address);
         assert(false);
     }
     else if (masked_address >= BIOS_ROM_START && masked_address <= BIOS_ROM_END)
@@ -127,8 +127,7 @@ void festation::PSXSystem::write8(uint32_t address, uint8_t value)
     }
     else if ((address & 0xFFFE0000) == 0xFFFE0000)
     {
-        LOG_WARN("Not implemented write to internal CPU control registers!");
-        assert(false);
+        LOG_WARN("Not implemented write to internal CPU control registers 0x{:08X}!", address);
     }
 }
 

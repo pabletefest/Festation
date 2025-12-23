@@ -11,5 +11,6 @@ target_sources(kernel_bios
 target_include_directories(kernel_bios
   PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}
+    ${CMAKE_CURRENT_LIST_DIR}/..
     ${CMAKE_CURRENT_LIST_DIR}/../cpu
   )

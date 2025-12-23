@@ -38,9 +38,9 @@ namespace festation
     {
         // We remove "+ 4" from the ecuation as PC already points to the address of the instructuon in the delay slot
         // In order to add 4, we should sub 4 before, so removing "+ 4" effectively leads to the same result
-        int32_t branchAddr = signExtend(cpu.getCPURegs().pc) + /*4 +*/ (signExtend(dest) * 4);
+        int32_t branchAddress = signExtend(cpu.getCPURegs().pc) + /*4 +*/ (signExtend(dest) * 4);
         // r3000a_regs.pc = (uint32_t)branchAddr;
-        cpu.getCPURegs().storeDelayedJump((uint32_t)branchAddr);
+        cpu.getCPURegs().storeDelayedJump((uint32_t)branchAddress);
     }
 
     void lb(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)

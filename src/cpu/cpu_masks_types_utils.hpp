@@ -202,4 +202,8 @@ namespace festation
         Ov,
         UNUSED
     };
+
+    enum Cop0SrBitMasks {
+        CACHE_ISOLATION_BIT_MASK = 0x10000
+    };
 };

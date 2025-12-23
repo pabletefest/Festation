@@ -1,5 +1,6 @@
 #include "tty.hpp"
 #include "psx_cpu_state.hpp"
+#include "utils/logger.hpp"
 
 #include <print>
 #include <vector>
@@ -17,7 +18,7 @@ namespace festation
 
         bufferedOutputStream.push_back('\0');
 
-        std::println("%s", bufferedOutputStream.data());
+        LOG_INFO("(KERNEL): {}", bufferedOutputStream.data());
 
         bufferedOutputStream.clear();
     }

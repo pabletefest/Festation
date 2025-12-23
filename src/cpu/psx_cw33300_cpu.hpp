@@ -34,6 +34,8 @@ namespace festation
         PSXRegs& getCPURegs();
         COP0SystemControlRegs& getCOP0Regs();
 
+        bool isCacheIsolated() const;
+
     private:        
         uint32_t fetchInstruction();
         InstructionType decodeInstruction(uint32_t instruction);
