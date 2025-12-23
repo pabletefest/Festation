@@ -78,6 +78,10 @@ void festation::MIPS_R3000A_Core::executeInstruction()
     const bool isLoadDelayPending = r3000a_regs.isLoadDelaySlot();
     const bool isBranchDelayPending = r3000a_regs.isBranchDelaySlot();
 
+    // Load Delay Slot should not be performed here but temporal patch
+    if (isLoadDelayPending)
+        r3000a_regs.consumeLoadedData();
+
     uint32_t instruction = fetchInstruction();
 
     //LOG_DEBUG(  "* Executing instruction: 0x{:08X}  at address 0x{:08X} *", instruction, r3000a_regs.pc - 4);
@@ -127,9 +131,6 @@ void festation::MIPS_R3000A_Core::executeInstruction()
     }
 
     r3000a_regs.gpr_regs[0] = 0; // $0 or $zero is always zero
-
-    if (isLoadDelayPending)
-        r3000a_regs.consumeLoadedData();
 
     if (isBranchDelayPending)
         r3000a_regs.performDelayedJump();

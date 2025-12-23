@@ -11,10 +11,10 @@ namespace festation
 
     static void _putchar(char chr)
     {
-        bufferedOutputStream.push_back(chr);
-
-        if (chr != '\n')
+        if (chr != '\n' && chr != '\0') {
+            bufferedOutputStream.push_back(chr);
             return;
+        }
 
         bufferedOutputStream.push_back('\0');
 
