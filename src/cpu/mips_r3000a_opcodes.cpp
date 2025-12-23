@@ -514,11 +514,11 @@ namespace festation
     {
         if (rd == 0) // rd omitted in the assembly instruction
         {
-            cpu.getCPURegs().gpr_regs[ra] = cpu.getCPURegs().pc + 8;
+            cpu.getCPURegs().gpr_regs[ra] = cpu.getCPURegs().pc + 4;
         }
         else
         {
-            cpu.getCPURegs().gpr_regs[rd] = cpu.getCPURegs().pc + 8;
+            cpu.getCPURegs().gpr_regs[rd] = cpu.getCPURegs().pc + 4;
         }
 
         // TODO: arise address error (AdEL) exception if jumping to unaligned address
