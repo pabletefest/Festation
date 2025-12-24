@@ -18,7 +18,7 @@ namespace festation
 
         bufferedOutputStream.push_back('\0');
 
-        LOG_INFO("(KERNEL): {}", bufferedOutputStream.data());
+        LOG_KERNEL("{}", bufferedOutputStream.data());
 
         bufferedOutputStream.clear();
     }

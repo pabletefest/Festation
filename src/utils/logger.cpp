@@ -7,6 +7,7 @@ static std::mutex s_loggerMutex;
 
 enum class OutputColor {
 	DEFAULT,
+	LIGHT_BLUE,
 	YELLOW,
 	RED
 };
@@ -15,6 +16,9 @@ static void printColoredLine(OutputColor color, std::string& message) {
 	switch (color) {
 	case OutputColor::DEFAULT:
 		std::println("{}", message);
+		break;
+	case OutputColor::LIGHT_BLUE:
+		std::println("\033[96m{}\033[0m", message);
 		break;
 	case OutputColor::YELLOW:
 		std::println("\033[33m{}\033[0m", message);
@@ -30,7 +34,7 @@ static void printColoredLine(OutputColor color, std::string& message) {
 
 //static Logger::LogLevel s_logLevel = Logger::LogLevel::DEBUG;
 
-void Logger::log(Logger::LogLevel level, const std::string& message)
+void festation::Logger::log(festation::Logger::LogLevel level, const std::string& message)
 {
     std::lock_guard<std::mutex> lk(s_loggerMutex);
 
@@ -40,19 +44,40 @@ void Logger::log(Logger::LogLevel level, const std::string& message)
 	switch (level)
 	{
 	case LogLevel::DEBUG:
-		printColoredLine(OutputColor::DEFAULT, std::string("[DEBUG] - ").append(message));
+		{
+			std::string res = std::format("{:8} - {}", "[DEBUG]", message);
+			printColoredLine(OutputColor::DEFAULT, res);
+		}
 		break;
 	case LogLevel::INFO:
-		printColoredLine(OutputColor::DEFAULT, std::string("[INFO] - ").append(message));
+		{
+			std::string res = std::format("{:8} - {}", "[INFO]", message);
+			printColoredLine(OutputColor::DEFAULT, res);
+		}
 		break;
 	case LogLevel::WARN:
-		printColoredLine(OutputColor::YELLOW, std::string("[WARN] - ").append(message));
+		{
+			std::string res = std::format("{:8} - {}", "[WARN]", message);
+			printColoredLine(OutputColor::YELLOW, res);
+		}
 		break;
 	case LogLevel::ERROR:
-		printColoredLine(OutputColor::RED, std::string("[ERROR] - ").append(message));
+		{
+			std::string res = std::format("{:8} - {}", "[ERROR]", message);
+			printColoredLine(OutputColor::RED, res);
+		}		
 		break;
 	case LogLevel::CRITICAL:
-		printColoredLine(OutputColor::RED, std::string("[CRITICAL] - ").append(message));
+		{
+			std::string res = std::format("{:8} - {}", "[CRITICAL]", message);
+			printColoredLine(OutputColor::RED, res);
+		}		
+		break;
+	case LogLevel::KERNEL:
+		{
+			std::string res = std::format("{:8} - {}", "[KERNEL]", message);
+			printColoredLine(OutputColor::LIGHT_BLUE, res);
+		}		
 		break;
 	default:
 		std::println("UNSUPPORTED LOG LEVEL!");
