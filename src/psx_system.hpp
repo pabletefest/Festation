@@ -23,6 +23,7 @@ namespace festation
         void write32(uint32_t address, uint32_t value);
 
         void runWholeFrame();
+        void sideloadExeFile();
 
     private:
         MIPS_R3000A_Core cpu;

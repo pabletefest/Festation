@@ -56,6 +56,8 @@ int main(int, char**)
         return -1;
     }
 
+    festation::psxSystem.sideloadExeFile();
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -65,7 +67,7 @@ int main(int, char**)
             continue;
         }
 
-        festation::psxSystem.runWholeFrame();
+        //festation::psxSystem.runWholeFrame();
 
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);

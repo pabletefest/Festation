@@ -165,3 +165,16 @@ void festation::PSXSystem::runWholeFrame()
         bios.checkKernerlTTYOutput();
     }
 }
+
+void festation::PSXSystem::sideloadExeFile()
+{
+    uint32_t& pcRef = cpu.getCPURegs().pc;
+
+    while (pcRef != 0x80030000)
+    {
+        cpu.executeInstruction();
+        bios.checkKernerlTTYOutput();
+    }
+
+    LOG_INFO("READY TO SIDELOAD EXEs!");
+}
