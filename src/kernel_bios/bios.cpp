@@ -2,12 +2,14 @@
 #include "tty.hpp"
 #include "psx_cw33300_cpu.hpp"
 #include "cpu_masks_types_utils.hpp"
+#include "utils/file_reader.hpp"
 
 #include <filesystem>
 #include <fstream>
 #include <cassert>
 
-#define R9 9
+static constexpr size_t R9 = festation::GprRegs::t1;
+static constexpr size_t R4 = festation::GprRegs::a0;
 
 namespace festation
 {
@@ -20,7 +22,7 @@ festation::KernelBIOS::KernelBIOS(MIPS_R3000A_Core& _cpu)
 
 }
 
-festation::KernelBIOS::KernelBIOS(MIPS_R3000A_Core& _cpu, const std::string &filename)
+festation::KernelBIOS::KernelBIOS(MIPS_R3000A_Core& _cpu, const std::filesystem::path &filename)
     : cpu(_cpu)
 {
     loadBIOSROMFile(filename);
@@ -56,7 +58,7 @@ void festation::KernelBIOS::write32(uint32_t address, uint32_t value)
     *(uint32_t*)&biosROM[address] = value;
 }
 
-bool festation::KernelBIOS::loadBIOSROMFile(const std::string &filename)
+bool festation::KernelBIOS::loadBIOSROMFile(const std::filesystem::path &filename)
 {
     std::ifstream file;
 
@@ -64,18 +66,9 @@ bool festation::KernelBIOS::loadBIOSROMFile(const std::string &filename)
 
     if (file.is_open())
     {
-        // file.seekg(std::ios::end);
-        // std::size_t fileSize = file.tellg();
-        // file.seekg(std::ios::beg);
+        biosROM = readFile<uint8_t>(std::filesystem::path(filename));
 
-        // C++17 way
-        std::uintmax_t fileSize = std::filesystem::file_size(filename);
-
-        assert((fileSize == BIOS_SIZE) && "Provided BIOS ROM file doesn't match proper PSX BIOS file size (512KB)!");
-
-        biosROM.resize(fileSize);
-
-        file.read((char*)biosROM.data(), fileSize);
+        assert((biosROM.size() == BIOS_SIZE) && "Provided BIOS ROM file doesn't match proper PSX BIOS file size (512KB)!");
 
         return true;
     } 
@@ -90,7 +83,6 @@ void festation::KernelBIOS::checkKernerlTTYOutput()
 
     if ((masked_pc == 0x000000A0 && r9FunctNumber == 0x3C) || (masked_pc == 0x000000B0 && r9FunctNumber == 0x3D))
     {
-        constexpr size_t R4 = GprRegs::a0;
         kernel_putchar(cpu.getCPURegs().gpr_regs[R4] & 0x000000FF);
     }
 }

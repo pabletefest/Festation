@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <filesystem>
 
 namespace festation
 {
@@ -12,7 +13,7 @@ namespace festation
     {
     public:
         KernelBIOS(MIPS_R3000A_Core& cpu);
-        KernelBIOS(MIPS_R3000A_Core& cpu, const std::string& filename);
+        KernelBIOS(MIPS_R3000A_Core& cpu, const std::filesystem::path& filename);
         ~KernelBIOS() = default;
 
         uint8_t read8(uint32_t address);
@@ -23,7 +24,7 @@ namespace festation
         void write16(uint32_t address, uint16_t value);
         void write32(uint32_t address, uint32_t value);
 
-        bool loadBIOSROMFile(const std::string& filename);
+        bool loadBIOSROMFile(const std::filesystem::path& filename);
 
         inline std::vector<uint8_t>& getBIOSData() { return biosROM; }
 
