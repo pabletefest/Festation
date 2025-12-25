@@ -56,7 +56,7 @@ int main(int, char**)
         return -1;
     }
 
-    festation::psxSystem.sideloadExeFile();
+    festation::psxSystem.sideloadExeFile(std::filesystem::current_path().concat("/../../../../res/tests/psxtest_cpu.exe"));
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -67,7 +67,7 @@ int main(int, char**)
             continue;
         }
 
-        //festation::psxSystem.runWholeFrame();
+        festation::psxSystem.runWholeFrame();
 
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);

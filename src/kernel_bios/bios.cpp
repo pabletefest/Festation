@@ -17,7 +17,7 @@ namespace festation
 };
 
 festation::KernelBIOS::KernelBIOS(MIPS_R3000A_Core& _cpu)
-    : KernelBIOS(_cpu, std::filesystem::path(std::filesystem::current_path().string() + "/../../../../res/bios/SCPH1001.BIN").string())
+    : KernelBIOS(_cpu, std::filesystem::path(std::filesystem::current_path().string() + "/../../../../res/bios/SCPH1001.BIN"))
 {
 
 }

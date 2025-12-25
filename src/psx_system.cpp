@@ -2,6 +2,7 @@
 #include "virtual_mem_allocator_utils.hpp"
 #include "memory_map_masks.hpp"
 #include "utils/logger.hpp"
+#include "utils/file_reader.hpp"
 
 #include <stdlib.h>
 #include <assert.h>
@@ -166,7 +167,7 @@ void festation::PSXSystem::runWholeFrame()
     }
 }
 
-void festation::PSXSystem::sideloadExeFile()
+void festation::PSXSystem::sideloadExeFile(const std::filesystem::path& path)
 {
     uint32_t& pcRef = cpu.getCPURegs().pc;
 
@@ -177,4 +178,26 @@ void festation::PSXSystem::sideloadExeFile()
     }
 
     LOG_INFO("READY TO SIDELOAD EXEs!");
+
+    std::vector<uint8_t> exe = festation::readFile<uint8_t>(path);
+    
+    constexpr size_t HEADER_SIZE = 2048;
+
+    uint32_t initialPC = *reinterpret_cast<uint32_t*>(&exe[0x10]);
+    uint32_t initialR28 = *reinterpret_cast<uint32_t*>(&exe[0x14]);
+    uint32_t startExeRamAddress = *reinterpret_cast<uint32_t*>(&exe[0x18]) & MAIN_RAM_SIZE_MASK;
+    uint32_t exeSize = *reinterpret_cast<uint32_t*>(&exe[0x1C]); // 2KB multiples
+    uint32_t initialR29_R30 = *reinterpret_cast<uint32_t*>(&exe[0x30]);
+
+    cpu.getCPURegs().gpr_regs[28] = initialR28;
+
+    if (initialR29_R30 != 0) {
+        cpu.getCPURegs().gpr_regs[29] = initialR29_R30;
+        cpu.getCPURegs().gpr_regs[30] = initialR29_R30;
+    }
+
+    std::memcpy(mainRAM.data() + startExeRamAddress, 
+        exe.data() + HEADER_SIZE, exeSize);
+
+    cpu.getCPURegs().pc = initialPC;
 }

@@ -3,6 +3,7 @@
 #include "kernel_bios/bios.hpp"
 
 #include <vector>
+#include <filesystem>
 
 namespace festation
 {
@@ -23,7 +24,7 @@ namespace festation
         void write32(uint32_t address, uint32_t value);
 
         void runWholeFrame();
-        void sideloadExeFile();
+        void sideloadExeFile(const std::filesystem::path& path);
 
     private:
         MIPS_R3000A_Core cpu;

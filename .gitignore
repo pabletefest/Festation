@@ -61,3 +61,4 @@ __cmake*
 .vs
 
 third-party/
+tests/
