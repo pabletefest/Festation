@@ -49,8 +49,16 @@ __cmake*
 
 # Build dir
 [Bb]uild/
+[Oo]ut/
+
+# BIOS dir
+[Bb]ios/
 
 # VSCode dir
 .vscode
 
+# VS dir
+.vs
+
 third-party/
+tests/

@@ -1,5 +1,9 @@
 #pragma once
 #include "psx_cw33300_cpu.hpp"
+#include "kernel_bios/bios.hpp"
+
+#include <vector>
+#include <filesystem>
 
 namespace festation
 {
@@ -20,9 +24,12 @@ namespace festation
         void write32(uint32_t address, uint32_t value);
 
         void runWholeFrame();
+        void sideloadExeFile(const std::filesystem::path& path);
 
     private:
         MIPS_R3000A_Core cpu;
-        uint8_t* mainRAM = nullptr;
+        //uint8_t* mainRAM = nullptr;
+        std::vector<uint8_t> mainRAM;
+        KernelBIOS bios;
     };
 };

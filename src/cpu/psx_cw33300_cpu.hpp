@@ -3,6 +3,7 @@
 #include "cpu_masks_types_utils.hpp"
 
 #include <cstdint>
+#include <array>
 
 namespace festation
 {
@@ -30,6 +31,11 @@ namespace festation
         void executeInstruction();
         void clockCycles(uint32_t cycles);
 
+        PSXRegs& getCPURegs();
+        COP0SystemControlRegs& getCOP0Regs();
+
+        bool isCacheIsolated() const;
+
     private:        
         uint32_t fetchInstruction();
         InstructionType decodeInstruction(uint32_t instruction);
@@ -40,5 +46,10 @@ namespace festation
     private:
         uint64_t totalCyclesElapsed;
         PSXSystem* system = nullptr;
+
+        PSXRegs r3000a_regs;
+        COP0SystemControlRegs cop0_state;
+
+        std::array<uint8_t, 1024> scratchpadCache;
     };
 };

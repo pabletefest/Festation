@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include "psx_system.hpp"
+#include "utils/logger.hpp"
 
 /* Sets constants */
 #define WIDTH 800
@@ -19,12 +20,12 @@ namespace festation
 };
 
 static void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
-  glViewport(0, 0, width, height);
+    glViewport(0, 0, width, height);
 }
 
 int main(int, char**)
 {
-    std::println("Hello, from Festation!");
+    LOG_INFO("Hello, from Festation!");
 
     GLFWwindow* window;
 
@@ -51,13 +52,11 @@ int main(int, char**)
 
     if (!gladLoadGL(glfwGetProcAddress))
     {
-        std::println("Failed to initialize GLAD");
+        LOG_ERROR("Failed to initialize GLAD");
         return -1;
     }
 
-    std::println("Vendor: {}", (const char *)glGetString(GL_VENDOR));
-    std::println("Renderer: {}", (const char *)glGetString(GL_RENDERER));
-    std::println("Version: {}", (const char *)glGetString(GL_VERSION));
+    festation::psxSystem.sideloadExeFile(std::filesystem::current_path().concat("/../../../../res/tests/psxtest_cpu.exe"));
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -67,6 +66,8 @@ int main(int, char**)
         {
             continue;
         }
+
+        festation::psxSystem.runWholeFrame();
 
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);

@@ -4,80 +4,80 @@
 namespace festation
 {
     // Load instructions
-    void lb(reg_t rt, reg_t rs, immed16_t imm);
-    void lbu(reg_t rt, reg_t rs, immed16_t imm);
-    void lh(reg_t rt, reg_t rs, immed16_t imm);
-    void lhu(reg_t rt, reg_t rs, immed16_t imm);
-    void lw(reg_t rt, reg_t rs, immed16_t imm);
+    void lb(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm);
+    void lbu(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm);
+    void lh(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm);
+    void lhu(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm);
+    void lw(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm);
 
     // Store instructions
-    void sb(reg_t rt, reg_t rs, immed16_t imm);
-    void sh(reg_t rt, reg_t rs, immed16_t imm);
-    void sw(reg_t rt, reg_t rs, immed16_t imm);
+    void sb(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm);
+    void sh(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm);
+    void sw(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm);
 
     // Load/Store Alignment
-    void lwr(reg_t rt, reg_t rs, immed16_t imm);
-    void lwl(reg_t rt, reg_t rs, immed16_t imm);
-    void swr(reg_t rt, reg_t rs, immed16_t imm);
-    void swl(reg_t rt, reg_t rs, immed16_t imm);
+    void lwr(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm);
+    void lwl(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm);
+    void swr(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm);
+    void swl(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm);
 
     // Arithmetic instructions
-    void add(reg_t rd, reg_t rs, reg_t rt);
-    void addu(reg_t rd, reg_t rs, reg_t rt);
-    void sub(reg_t rd, reg_t rs, reg_t rt);
-    void subu(reg_t rd, reg_t rs, reg_t rt);
-    void addi(reg_t rt, reg_t rs, immed16_t imm);
-    void addiu(reg_t rt, reg_t rs, immed16_t imm);
+    void add(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt);
+    void addu(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt);
+    void sub(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt);
+    void subu(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt);
+    void addi(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm);
+    void addiu(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm);
 
     // Comparison instructions
-    void slt(reg_t rd, reg_t rs, reg_t rt);
-    void sltu(reg_t rd, reg_t rs, reg_t rt);
-    void slti(reg_t rt, reg_t rs, immed16_t imm);
-    void sltiu(reg_t rt, reg_t rs, immed16_t imm);
+    void slt(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt);
+    void sltu(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt);
+    void slti(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm);
+    void sltiu(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm);
 
     // Logical instructions
-    void _and(reg_t rd, reg_t rs, reg_t rt);
-    void _or(reg_t rd, reg_t rs, reg_t rt);
-    void _xor(reg_t rd, reg_t rs, reg_t rt);
-    void nor(reg_t rd, reg_t rs, reg_t rt);
-    void andi(reg_t rt, reg_t rs, immed16_t imm);
-    void ori(reg_t rt, reg_t rs, immed16_t imm);
-    void xori(reg_t rt, reg_t rs, immed16_t imm);
+    void _and(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt);
+    void _or(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt);
+    void _xor(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt);
+    void nor(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt);
+    void andi(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm);
+    void ori(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm);
+    void xori(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm);
 
     // Shifting instructions
-    void sllv(reg_t rd, reg_t rt, reg_t rs);
-    void srlv(reg_t rd, reg_t rt, reg_t rs);
-    void srav(reg_t rd, reg_t rt, reg_t rs);
-    void sll(reg_t rd, reg_t rt, shift_t shift_imm);
-    void srl(reg_t rd, reg_t rt, shift_t shift_imm);
-    void sra(reg_t rd, reg_t rt, shift_t shift_imm);
-    void lui(reg_t rt, immed16_t imm);
+    void sllv(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rt, reg_t rs);
+    void srlv(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rt, reg_t rs);
+    void srav(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rt, reg_t rs);
+    void sll(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rt, shift_t shift_imm);
+    void srl(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rt, shift_t shift_imm);
+    void sra(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rt, shift_t shift_imm);
+    void lui(MIPS_R3000A_Core& cpu, reg_t rt, immed16_t imm);
 
     // Multiply/Divide instructions
-    void mult(reg_t rs, reg_t rt);
-    void multu(reg_t rs, reg_t rt);
-    void div(reg_t rs, reg_t rt);
-    void divu(reg_t rs, reg_t rt);
-    void mfhi(reg_t rd);
-    void mflo(reg_t rd);
-    void mthi(reg_t rs);
-    void mtlo(reg_t rs);
+    void mult(MIPS_R3000A_Core& cpu, reg_t rs, reg_t rt);
+    void multu(MIPS_R3000A_Core& cpu, reg_t rs, reg_t rt);
+    void div(MIPS_R3000A_Core& cpu, reg_t rs, reg_t rt);
+    void divu(MIPS_R3000A_Core& cpu, reg_t rs, reg_t rt);
+    void mfhi(MIPS_R3000A_Core& cpu, reg_t rd);
+    void mflo(MIPS_R3000A_Core& cpu, reg_t rd);
+    void mthi(MIPS_R3000A_Core& cpu, reg_t rs);
+    void mtlo(MIPS_R3000A_Core& cpu, reg_t rs);
 
     // Jump and Branches instructions
-    void j(j_immed26_t dest);
-    void jal(j_immed26_t dest);
-    void jr(reg_t rs);
-    void jalr(reg_t rs, reg_t rd);
-    void beq(reg_t rs, reg_t rt, immed16_t dest);
-    void bne(reg_t rs, reg_t rt, immed16_t dest);
-    void bltz(reg_t rs, immed16_t dest);
-    void bgez(reg_t rs, immed16_t dest);
-    void bgtz(reg_t rs, immed16_t dest);
-    void blez(reg_t rs, immed16_t dest);
-    void bltzal(reg_t rs, immed16_t dest);
-    void bgezal(reg_t rs, immed16_t dest);
+    void j(MIPS_R3000A_Core& cpu, j_immed26_t dest);
+    void jal(MIPS_R3000A_Core& cpu, j_immed26_t dest);
+    void jr(MIPS_R3000A_Core& cpu, reg_t rs);
+    void jalr(MIPS_R3000A_Core& cpu, reg_t rs, reg_t rd);
+    void beq(MIPS_R3000A_Core& cpu, reg_t rs, reg_t rt, immed16_t dest);
+    void bne(MIPS_R3000A_Core& cpu, reg_t rs, reg_t rt, immed16_t dest);
+    void bltz(MIPS_R3000A_Core& cpu, reg_t rs, immed16_t dest);
+    void bgez(MIPS_R3000A_Core& cpu, reg_t rs, immed16_t dest);
+    void bgtz(MIPS_R3000A_Core& cpu, reg_t rs, immed16_t dest);
+    void blez(MIPS_R3000A_Core& cpu, reg_t rs, immed16_t dest);
+    void bltzal(MIPS_R3000A_Core& cpu, reg_t rs, immed16_t dest);
+    void bgezal(MIPS_R3000A_Core& cpu, reg_t rs, immed16_t dest);
 
     // Exceptions opcodes
-    void syscall(uint32_t imm20);
-    void _break(uint32_t imm20);
+    void syscall(MIPS_R3000A_Core& cpu, uint32_t imm20);
+    void _break(MIPS_R3000A_Core& cpu, uint32_t imm20);
 };

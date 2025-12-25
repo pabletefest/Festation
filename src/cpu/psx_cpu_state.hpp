@@ -7,10 +7,10 @@ namespace festation
 {
     struct PSXRegs
     {
-        uint32_t gpr_regs[32];  // General Porpouse Registers
-        uint32_t pc;            // Program Counter
-        uint32_t hi;            // High part of mult/div opcodes results
-        uint32_t lo;            // Low part of mult/div opcodes results
+        uint32_t gpr_regs[32]{ 0 };  // General Porpouse Registers
+        uint32_t pc{ 0 };            // Program Counter
+        uint32_t hi{ 0 };            // High part of mult/div opcodes results
+        uint32_t lo{ 0 };            // Low part of mult/div opcodes results
 
     private:
         class LoadDelaySlot // Struct containing last latched loaded value from memory due to delay slot (cleared after being consumed) and corresponding register

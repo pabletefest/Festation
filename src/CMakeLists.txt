@@ -3,17 +3,26 @@ find_package(OpenGL REQUIRED)
 # set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 add_subdirectory(cpu)
+add_subdirectory(kernel_bios)
 add_subdirectory(memory)
 
 add_executable(${PROJECT_NAME} main.cpp)
 
 target_sources(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/psx_system.cpp 
+
     ${CMAKE_CURRENT_SOURCE_DIR}/cpu/psx_cw33300_cpu.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/cpu/mips_r3000a_opcodes.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/cpu/coprocessor_cp0_opcodes.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/cpu/exceptions_handling.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/memory/virtual_mem_allocator_utils.cpp)
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/kernel_bios/bios.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/kernel_bios/tty.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/memory/virtual_mem_allocator_utils.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/utils/logger.cpp
+)
 
 # find_package(SDL2 REQUIRED)
 
@@ -22,7 +31,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     ${PROJECT_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}/cpu
     ${PROJECT_SOURCE_DIR}/memory
+    ${PROJECT_SOURCE_DIR}/utils
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw OpenGL::GL glad glm::glm)
-target_link_libraries(${PROJECT_NAME} PRIVATE cpu memory)
+target_link_libraries(${PROJECT_NAME} PRIVATE cpu kernel_bios memory)
