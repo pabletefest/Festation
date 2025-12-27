@@ -48,7 +48,7 @@ namespace festation
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
 
         // r3000a_regs.gpr_regs[rt] = (uint32_t)(int32_t)(int8_t)psxSystem.read8(r3000a_regs.gpr_regs[rs] + imm);
-        uint32_t cachedLoad = (uint32_t)signExtend(cpu.read8(cpu.getCPURegs().gpr_regs[rs] + (int32_t)(int16_t)imm));
+        uint32_t cachedLoad = (uint32_t)signExtend(cpu.read8(cpu.getCPURegs().gpr_regs[rs] + signExtend(imm)));
         cpu.getCPURegs().storeDelayedData(cachedLoad, rt);
     }
 
@@ -57,7 +57,7 @@ namespace festation
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception     
 
         // r3000a_regs.gpr_regs[rt] = psxSystem.read8(r3000a_regs.gpr_regs[rs] + imm);
-        uint32_t cachedLoad = cpu.read8(cpu.getCPURegs().gpr_regs[rs] + imm);
+        uint32_t cachedLoad = cpu.read8(cpu.getCPURegs().gpr_regs[rs] + signExtend(imm));
         cpu.getCPURegs().storeDelayedData(cachedLoad, rt);
     }
 
@@ -79,7 +79,7 @@ namespace festation
 
     void lhu(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
-        uint32_t address = cpu.getCPURegs().gpr_regs[rs] + imm;
+        uint32_t address = cpu.getCPURegs().gpr_regs[rs] + signExtend(imm);
 
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
         if (handleAndSetBadVaddrReg(cpu, address, AddressBoundary::HALF_WORD_BOUNDARY))
