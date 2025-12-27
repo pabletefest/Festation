@@ -28,7 +28,7 @@ namespace festation
         void write16(uint32_t address, uint16_t value);
         void write32(uint32_t address, uint32_t value);
 
-        void executeInstruction();
+        uint8_t executeInstruction();
         void clockCycles(uint32_t cycles);
 
         PSXRegs& getCPURegs();

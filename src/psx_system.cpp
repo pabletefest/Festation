@@ -162,7 +162,7 @@ void festation::PSXSystem::runWholeFrame()
 {
     while(true)
     {
-        cpu.executeInstruction();
+        uint8_t cycles = cpu.executeInstruction();
         bios.checkKernerlTTYOutput();
     }
 }
@@ -173,7 +173,7 @@ void festation::PSXSystem::sideloadExeFile(const std::filesystem::path& path)
 
     while (pcRef != 0x80030000)
     {
-        cpu.executeInstruction();
+        uint8_t cycles = cpu.executeInstruction();
         bios.checkKernerlTTYOutput();
     }
 

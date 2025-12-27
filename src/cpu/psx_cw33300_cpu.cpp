@@ -13,6 +13,7 @@ namespace festation
 {
     static constexpr uint32_t INSTRUCTION_SIZE = 4;
     static constexpr uintptr_t RESET_VECTOR = 0xBCF00000;
+    static constexpr uint8_t INSTRUCTION_CYCLES_AVERAGE = 2;
 };
 
 festation::MIPS_R3000A_Core::MIPS_R3000A_Core(PSXSystem* device)
@@ -34,7 +35,7 @@ uint8_t festation::MIPS_R3000A_Core::read8(uint32_t address)
     
     if (masked_address >= SCRATCHPAD_START && masked_address <= SCRATCHPAD_END)
     {
-        return scratchpadCache[masked_address & SCRATCHPAD_SIZE];
+        return scratchpadCache[masked_address & SCRATCHPAD_SIZE_MASK];
     }
 
     return system->read8(address);
@@ -42,11 +43,29 @@ uint8_t festation::MIPS_R3000A_Core::read8(uint32_t address)
 
 uint16_t festation::MIPS_R3000A_Core::read16(uint32_t address)
 {
+    uint32_t masked_address = address & PHYSICAL_MEMORY_MASK;
+
+    if (masked_address >= SCRATCHPAD_START && masked_address <= SCRATCHPAD_END)
+    {
+        return scratchpadCache[masked_address & SCRATCHPAD_SIZE_MASK] |
+            (scratchpadCache[(masked_address + 1) & SCRATCHPAD_SIZE_MASK] << 8);
+    }
+
     return system->read16(address);
 }
 
 uint32_t festation::MIPS_R3000A_Core::read32(uint32_t address)
 {
+    uint32_t masked_address = address & PHYSICAL_MEMORY_MASK;
+
+    if (masked_address >= SCRATCHPAD_START && masked_address <= SCRATCHPAD_END)
+    {
+        return scratchpadCache[masked_address & SCRATCHPAD_SIZE_MASK] |
+            (scratchpadCache[(masked_address + 1) & SCRATCHPAD_SIZE_MASK] << 8) |
+            (scratchpadCache[(masked_address + 2) & SCRATCHPAD_SIZE_MASK] << 16) |
+            (scratchpadCache[(masked_address + 3) & SCRATCHPAD_SIZE_MASK] << 24);
+    }
+
     return system->read32(address);
 }
 
@@ -56,7 +75,7 @@ void festation::MIPS_R3000A_Core::write8(uint32_t address, uint8_t value)
 
     if (masked_address >= SCRATCHPAD_START && masked_address <= SCRATCHPAD_END)
     {
-        scratchpadCache[masked_address & SCRATCHPAD_SIZE] = value;
+        scratchpadCache[masked_address & SCRATCHPAD_SIZE_MASK] = value;
         return;
     }
 
@@ -65,15 +84,35 @@ void festation::MIPS_R3000A_Core::write8(uint32_t address, uint8_t value)
 
 void festation::MIPS_R3000A_Core::write16(uint32_t address, uint16_t value)
 {
+    uint32_t masked_address = address & PHYSICAL_MEMORY_MASK;
+
+    if (masked_address >= SCRATCHPAD_START && masked_address <= SCRATCHPAD_END)
+    {
+        scratchpadCache[masked_address & SCRATCHPAD_SIZE_MASK] = value & 0xFF;
+        scratchpadCache[(masked_address + 1) & SCRATCHPAD_SIZE_MASK] = value >> 8;
+        return;
+    }
+
     system->write16(address, value);
 }
 
 void festation::MIPS_R3000A_Core::write32(uint32_t address, uint32_t value)
 {
+    uint32_t masked_address = address & PHYSICAL_MEMORY_MASK;
+
+    if (masked_address >= SCRATCHPAD_START && masked_address <= SCRATCHPAD_END)
+    {
+        scratchpadCache[masked_address & SCRATCHPAD_SIZE_MASK] = value & 0xFF;
+        scratchpadCache[(masked_address + 1) & SCRATCHPAD_SIZE_MASK] = (value >> 8) & 0xFF;
+        scratchpadCache[(masked_address + 2) & SCRATCHPAD_SIZE_MASK] = (value >> 16) & 0xFF;
+        scratchpadCache[(masked_address + 3) & SCRATCHPAD_SIZE_MASK] = (value >> 24) & 0xFF;
+        return;
+    }
+
     system->write32(address, value);
 }
 
-void festation::MIPS_R3000A_Core::executeInstruction()
+uint8_t festation::MIPS_R3000A_Core::executeInstruction()
 {
     const bool isLoadDelayPending = r3000a_regs.isLoadDelaySlot();
     const bool isBranchDelayPending = r3000a_regs.isBranchDelaySlot();
@@ -134,6 +173,8 @@ void festation::MIPS_R3000A_Core::executeInstruction()
 
     if (isBranchDelayPending)
         r3000a_regs.performDelayedJump();
+
+    return INSTRUCTION_CYCLES_AVERAGE;
 }
 
 void festation::MIPS_R3000A_Core::clockCycles(uint32_t cycles)
