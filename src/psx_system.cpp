@@ -46,11 +46,12 @@ uint8_t festation::PSXSystem::read8(uint32_t address)
     else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
     {
         LOG_WARN("Not implemented read at 0x{:08X} on expansion region 2!", address);
+        return 0xFF;
     }
     else if (masked_address >= EXPANSION_REGION3_START && masked_address <= EXPANSION_REGION3_END)
     {
         LOG_WARN("Not implemented read at 0x{:08X} on expansion region 3!", address);
-        assert(false);
+        return 0xFF;
     }
     else if (masked_address >= BIOS_ROM_START && masked_address <= BIOS_ROM_END)
     {
