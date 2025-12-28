@@ -352,7 +352,7 @@ namespace festation
 
     void sltiu(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
-        if (cpu.getCPURegs().gpr_regs[rs] < (uint32_t)imm)
+        if (cpu.getCPURegs().gpr_regs[rs] < (uint32_t)signExtend(imm))
             cpu.getCPURegs().gpr_regs[rt] = 1;
         else
             cpu.getCPURegs().gpr_regs[rt] = 0;
