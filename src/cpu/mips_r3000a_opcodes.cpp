@@ -4,6 +4,7 @@
 
 #include <limits>
 // #include <stdckdint.h>
+#include <bit>
 
 namespace festation
 {
@@ -150,22 +151,28 @@ namespace festation
         uint32_t loadedWord = cpu.read32(address);
 
         uint32_t properValue = loadedWord >> (8 * offset);
-        prevRT &= (0xFFFFFFFFu << (8 * (4 - offset)));
+        prevRT &= (0xFFFFFFFFu << (8 * (3 - offset)));
 
         cpu.getCPURegs().gpr_regs[rt] = prevRT | properValue;
     }
 
     void lwl(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
+        constexpr size_t WORD_SIZE = sizeof(uint32_t);
+        
         uint32_t prevRT = cpu.getCPURegs().gpr_regs[rt];
         uint32_t address = cpu.getCPURegs().gpr_regs[rs] + signExtend(imm);
-        uint8_t offset = address % 4;
-        uint32_t loadedWord = cpu.read32(address);
+        
+        uint8_t offset = address % WORD_SIZE;
+        uint32_t loadedValue = cpu.read32(address & ~offset);
+        uint32_t test = cpu.read32((address + 4) & ~offset);
+        const uint8_t shiftAmount = ((3 - offset) * 8);
 
-        uint32_t properValue = loadedWord >> (8 * (4 - offset));
-        prevRT &= (0xFFFFFFFFu >> (8 * offset));
+        loadedValue &= (0xFFFFFFFFu >> shiftAmount);
+        loadedValue <<= shiftAmount;
+        prevRT &= ~(0xFFFFFFFFu << shiftAmount);
 
-        cpu.getCPURegs().gpr_regs[rt] = prevRT | properValue;
+        cpu.getCPURegs().gpr_regs[rt] = prevRT | loadedValue;
     }
 
     void swr(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)

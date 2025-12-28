@@ -71,6 +71,9 @@ uint32_t festation::MIPS_R3000A_Core::read32(uint32_t address)
 
 void festation::MIPS_R3000A_Core::write8(uint32_t address, uint8_t value)
 {
+    if (isCacheIsolated())
+        return;
+
     uint32_t masked_address = address & PHYSICAL_MEMORY_MASK;
 
     if (masked_address >= SCRATCHPAD_START && masked_address <= SCRATCHPAD_END)
@@ -84,6 +87,9 @@ void festation::MIPS_R3000A_Core::write8(uint32_t address, uint8_t value)
 
 void festation::MIPS_R3000A_Core::write16(uint32_t address, uint16_t value)
 {
+    if (isCacheIsolated())
+        return;
+
     uint32_t masked_address = address & PHYSICAL_MEMORY_MASK;
 
     if (masked_address >= SCRATCHPAD_START && masked_address <= SCRATCHPAD_END)
@@ -98,6 +104,9 @@ void festation::MIPS_R3000A_Core::write16(uint32_t address, uint16_t value)
 
 void festation::MIPS_R3000A_Core::write32(uint32_t address, uint32_t value)
 {
+    if (isCacheIsolated())
+        return;
+
     uint32_t masked_address = address & PHYSICAL_MEMORY_MASK;
 
     if (masked_address >= SCRATCHPAD_START && masked_address <= SCRATCHPAD_END)
