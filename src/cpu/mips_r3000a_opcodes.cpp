@@ -208,9 +208,9 @@ namespace festation
         uint32_t loadedValue = cpu.read32(address & ~offset);
         const uint8_t shiftAmount = ((3 - offset) * 8);
 
-        loadedValue &= (0xFFFFFFFFu >> shiftAmount);
-        loadedValue <<= shiftAmount;
-        prevRT &= ~(0xFFFFFFFFu << shiftAmount);
+        prevRT &= (0xFFFFFFFFu << shiftAmount);
+        prevRT >>= shiftAmount;
+        loadedValue &= ~(0xFFFFFFFFu >> shiftAmount);
 
         cpu.write32(address & ~offset, prevRT | loadedValue);
     }
