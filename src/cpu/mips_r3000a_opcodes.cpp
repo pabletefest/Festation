@@ -165,7 +165,6 @@ namespace festation
         
         uint8_t offset = address % WORD_SIZE;
         uint32_t loadedValue = cpu.read32(address & ~offset);
-        uint32_t test = cpu.read32((address + 4) & ~offset);
         const uint8_t shiftAmount = ((3 - offset) * 8);
 
         loadedValue &= (0xFFFFFFFFu >> shiftAmount);
