@@ -181,28 +181,38 @@ namespace festation
 
     void swr(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
+        constexpr size_t WORD_SIZE = sizeof(uint32_t);
+
+        uint32_t prevRT = cpu.getCPURegs().gpr_regs[rt];
         uint32_t address = cpu.getCPURegs().gpr_regs[rs] + signExtend(imm);
-        uint32_t prevStored = cpu.read32(address);
-        uint8_t offset = address % 4;
-        uint32_t storedRT = cpu.getCPURegs().gpr_regs[rt];
 
-        uint32_t properValue = storedRT >> (8 * offset);
-        prevStored &= (0xFFFFFFFFu << (8 * (4 - offset)));
+        uint8_t offset = address % WORD_SIZE;
+        uint32_t loadedValue = cpu.read32(address & ~offset);
+        const uint8_t shiftAmount = (offset * 8);
 
-        cpu.write32(address, prevStored | properValue);
+        prevRT &= (0xFFFFFFFFu >> shiftAmount);
+        prevRT <<= shiftAmount;
+        loadedValue &= ~(0xFFFFFFFFu << shiftAmount);
+
+        cpu.write32(address & ~offset, prevRT | loadedValue);
     }
 
     void swl(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
+        constexpr size_t WORD_SIZE = sizeof(uint32_t);
+
+        uint32_t prevRT = cpu.getCPURegs().gpr_regs[rt];
         uint32_t address = cpu.getCPURegs().gpr_regs[rs] + signExtend(imm);
-        uint32_t prevStored = cpu.read32(address);
-        uint8_t offset = address % 4;
-        uint32_t storedRT = cpu.getCPURegs().gpr_regs[rt];
 
-        uint32_t properValue = storedRT >> (8 * (4 - offset));
-        prevStored &= (0xFFFFFFFFu >> (8 * offset));
+        uint8_t offset = address % WORD_SIZE;
+        uint32_t loadedValue = cpu.read32(address & ~offset);
+        const uint8_t shiftAmount = ((3 - offset) * 8);
 
-        cpu.write32(address, prevStored | properValue);
+        loadedValue &= (0xFFFFFFFFu >> shiftAmount);
+        loadedValue <<= shiftAmount;
+        prevRT &= ~(0xFFFFFFFFu << shiftAmount);
+
+        cpu.write32(address & ~offset, prevRT | loadedValue);
     }
 
     void add(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt)
