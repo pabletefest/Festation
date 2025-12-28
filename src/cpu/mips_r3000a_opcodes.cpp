@@ -40,24 +40,17 @@ namespace festation
         // We remove "+ 4" from the ecuation as PC already points to the address of the instructuon in the delay slot
         // In order to add 4, we should sub 4 before, so removing "+ 4" effectively leads to the same result
         int32_t branchAddress = signExtend(cpu.getCPURegs().pc) + /*4 +*/ (signExtend(dest) * 4);
-        // r3000a_regs.pc = (uint32_t)branchAddr;
         cpu.getCPURegs().storeDelayedJump((uint32_t)branchAddress);
     }
 
     void lb(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
-        // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
-
-        // r3000a_regs.gpr_regs[rt] = (uint32_t)(int32_t)(int8_t)psxSystem.read8(r3000a_regs.gpr_regs[rs] + imm);
         uint32_t cachedLoad = (uint32_t)signExtend(cpu.read8(cpu.getCPURegs().gpr_regs[rs] + signExtend(imm)));
         cpu.getCPURegs().storeDelayedData(cachedLoad, rt);
     }
 
     void lbu(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
-        // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception     
-
-        // r3000a_regs.gpr_regs[rt] = psxSystem.read8(r3000a_regs.gpr_regs[rs] + imm);
         uint32_t cachedLoad = cpu.read8(cpu.getCPURegs().gpr_regs[rs] + signExtend(imm));
         cpu.getCPURegs().storeDelayedData(cachedLoad, rt);
     }
@@ -73,7 +66,6 @@ namespace festation
             return;
         }
 
-        // r3000a_regs.gpr_regs[rt] = (uint32_t)(int32_t)(int16_t)psxSystem.read16(r3000a_regs.gpr_regs[rs] + imm);
         uint32_t cachedLoad = (uint32_t)signExtend(cpu.read16(address));
         cpu.getCPURegs().storeDelayedData(cachedLoad, rt);
     }
@@ -89,7 +81,6 @@ namespace festation
             return;
         }
 
-        // r3000a_regs.gpr_regs[rt] = psxSystem.read16(r3000a_regs.gpr_regs[rs] + imm);
         uint32_t cachedLoad = cpu.read16(address);
         cpu.getCPURegs().storeDelayedData(cachedLoad, rt);
     }
@@ -105,7 +96,6 @@ namespace festation
             return;
         }
 
-        // r3000a_regs.gpr_regs[rt] = psxSystem.read32(r3000a_regs.gpr_regs[rs] + imm);
         uint32_t cachedLoad = cpu.read32(address);
         cpu.getCPURegs().storeDelayedData(cachedLoad, rt);
     }
@@ -511,7 +501,6 @@ namespace festation
 
     void j(MIPS_R3000A_Core& cpu, j_immed26_t dest)
     {
-        // r3000a_regs.pc = (r3000a_regs.pc & 0xF0000000) | (dest << 2); // High 4 bits of PC (delay slot instruction) + 26-bit address * 4 (4 bytes multiples so lower 2 bits not addressable)
         calculateAndPerformJumpAddress(cpu, dest);
     }
 
@@ -520,14 +509,12 @@ namespace festation
         // Skip branch delay slot instruction so it's 8 bytes next instruction when returning
         // We only add "+ 4" because PC was already incremented by 4 after fetching the instruction
         cpu.getCPURegs().gpr_regs[ra] = cpu.getCPURegs().pc + 4; // Effectively instruction address + 8
-        // r3000a_regs.pc = (r3000a_regs.pc & 0xF0000000) | (dest << 2);
         calculateAndPerformJumpAddress(cpu, dest);
     }
 
     void jr(MIPS_R3000A_Core& cpu, reg_t rs)
     {
         // TODO: arise address error (AdEL) exception if jumping to unaligned address
-        // r3000a_regs.pc = r3000a_regs.gpr_regs[rs];
         cpu.getCPURegs().storeDelayedJump(cpu.getCPURegs().gpr_regs[rs]);
     }
 
@@ -543,7 +530,6 @@ namespace festation
         }
 
         // TODO: arise address error (AdEL) exception if jumping to unaligned address
-        // r3000a_regs.pc = r3000a_regs.gpr_regs[rs];
         cpu.getCPURegs().storeDelayedJump(cpu.getCPURegs().gpr_regs[rs]);
     }
 
