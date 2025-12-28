@@ -145,15 +145,20 @@ namespace festation
 
     void lwr(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
+        constexpr size_t WORD_SIZE = sizeof(uint32_t);
+
         uint32_t prevRT = cpu.getCPURegs().gpr_regs[rt];
         uint32_t address = cpu.getCPURegs().gpr_regs[rs] + signExtend(imm);
-        uint8_t offset = address % 4;
-        uint32_t loadedWord = cpu.read32(address);
 
-        uint32_t properValue = loadedWord >> (8 * offset);
-        prevRT &= (0xFFFFFFFFu << (8 * (3 - offset)));
+        uint8_t offset = address % WORD_SIZE;
+        uint32_t loadedValue = cpu.read32(address & ~offset);
+        const uint8_t shiftAmount = (offset * 8);
 
-        cpu.getCPURegs().gpr_regs[rt] = prevRT | properValue;
+        loadedValue &= (0xFFFFFFFFu << shiftAmount);
+        loadedValue >>= shiftAmount;
+        prevRT &= ~(0xFFFFFFFFu >> shiftAmount);
+
+        cpu.getCPURegs().gpr_regs[rt] = prevRT | loadedValue;
     }
 
     void lwl(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
