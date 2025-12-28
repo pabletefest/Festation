@@ -31,5 +31,6 @@ namespace festation
         //uint8_t* mainRAM = nullptr;
         std::vector<uint8_t> mainRAM;
         KernelBIOS bios;
+        uint64_t totalElapsedCycles;
     };
 };

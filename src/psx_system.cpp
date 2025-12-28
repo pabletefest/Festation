@@ -164,6 +164,7 @@ void festation::PSXSystem::runWholeFrame()
     {
         uint8_t cycles = cpu.executeInstruction();
         bios.checkKernerlTTYOutput();
+        totalElapsedCycles += cycles;
     }
 }
 
@@ -175,6 +176,7 @@ void festation::PSXSystem::sideloadExeFile(const std::filesystem::path& path)
     {
         uint8_t cycles = cpu.executeInstruction();
         bios.checkKernerlTTYOutput();
+        totalElapsedCycles += cycles;
     }
 
     LOG_INFO("READY TO SIDELOAD EXEs!");
