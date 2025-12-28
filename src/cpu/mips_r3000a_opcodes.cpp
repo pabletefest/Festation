@@ -45,19 +45,34 @@ namespace festation
 
     void lb(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
-        uint32_t cachedLoad = (uint32_t)signExtend(cpu.read8(cpu.getCPURegs().gpr_regs[rs] + signExtend(imm)));
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        uint32_t cachedLoad = (uint32_t)signExtend(cpu.read8(rsValue + signExtend(imm)));
         cpu.getCPURegs().storeDelayedData(cachedLoad, rt);
     }
 
     void lbu(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
-        uint32_t cachedLoad = cpu.read8(cpu.getCPURegs().gpr_regs[rs] + signExtend(imm));
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        uint32_t cachedLoad = cpu.read8(rsValue + signExtend(imm));
         cpu.getCPURegs().storeDelayedData(cachedLoad, rt);
     }
 
     void lh(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
-        uint32_t address = cpu.getCPURegs().gpr_regs[rs] + signExtend(imm);
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        uint32_t address = rsValue + signExtend(imm);
 
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
         if (handleAndSetBadVaddrReg(cpu, address, AddressBoundary::HALF_WORD_BOUNDARY))
@@ -72,7 +87,12 @@ namespace festation
 
     void lhu(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
-        uint32_t address = cpu.getCPURegs().gpr_regs[rs] + signExtend(imm);
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        uint32_t address = rsValue + signExtend(imm);
 
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
         if (handleAndSetBadVaddrReg(cpu, address, AddressBoundary::HALF_WORD_BOUNDARY))
@@ -87,7 +107,12 @@ namespace festation
 
     void lw(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
-        uint32_t address = cpu.getCPURegs().gpr_regs[rs] + signExtend(imm);
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        uint32_t address = rsValue + signExtend(imm);
 
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
         if (handleAndSetBadVaddrReg(cpu, address, AddressBoundary::WORD_BOUNDARY))
@@ -104,12 +129,24 @@ namespace festation
 
     void sb(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
-        cpu.write8(cpu.getCPURegs().gpr_regs[rs] + signExtend(imm), cpu.getCPURegs().gpr_regs[rt] & 0xFF);
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+        uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        cpu.write8(rsValue + signExtend(imm), rtValue & 0xFF);
     }
 
     void sh(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
-        uint32_t address = cpu.getCPURegs().gpr_regs[rs] + signExtend(imm);
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+        uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        uint32_t address = rsValue + signExtend(imm);
 
         if (handleAndSetBadVaddrReg(cpu, address, AddressBoundary::HALF_WORD_BOUNDARY))
         {
@@ -117,12 +154,18 @@ namespace festation
             return;
         }
 
-        cpu.write16(address, cpu.getCPURegs().gpr_regs[rt] & 0xFFFF);
+        cpu.write16(address, rtValue & 0xFFFF);
     }
 
     void sw(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
-        uint32_t address = cpu.getCPURegs().gpr_regs[rs] + signExtend(imm);
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+        uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
+
+        uint32_t address = rsValue + signExtend(imm);
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
 
         if (handleAndSetBadVaddrReg(cpu, address, AddressBoundary::WORD_BOUNDARY))
         {
@@ -130,7 +173,7 @@ namespace festation
             return;
         }
 
-        cpu.write32(address, cpu.getCPURegs().gpr_regs[rt]);
+        cpu.write32(address, rtValue);
     }
 
     void lwr(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
@@ -139,6 +182,9 @@ namespace festation
 
         uint32_t prevRT = cpu.getCPURegs().gpr_regs[rt];
         uint32_t address = cpu.getCPURegs().gpr_regs[rs] + signExtend(imm);
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
 
         uint8_t offset = address % WORD_SIZE;
         uint32_t loadedValue = cpu.read32(address & ~offset);
@@ -158,6 +204,9 @@ namespace festation
         uint32_t prevRT = cpu.getCPURegs().gpr_regs[rt];
         uint32_t address = cpu.getCPURegs().gpr_regs[rs] + signExtend(imm);
         
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
         uint8_t offset = address % WORD_SIZE;
         uint32_t loadedValue = cpu.read32(address & ~offset);
         const uint8_t shiftAmount = ((3 - offset) * 8);
@@ -175,6 +224,9 @@ namespace festation
 
         uint32_t prevRT = cpu.getCPURegs().gpr_regs[rt];
         uint32_t address = cpu.getCPURegs().gpr_regs[rs] + signExtend(imm);
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
 
         uint8_t offset = address % WORD_SIZE;
         uint32_t loadedValue = cpu.read32(address & ~offset);
@@ -194,6 +246,9 @@ namespace festation
         uint32_t prevRT = cpu.getCPURegs().gpr_regs[rt];
         uint32_t address = cpu.getCPURegs().gpr_regs[rs] + signExtend(imm);
 
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
         uint8_t offset = address % WORD_SIZE;
         uint32_t loadedValue = cpu.read32(address & ~offset);
         const uint8_t shiftAmount = ((3 - offset) * 8);
@@ -211,6 +266,9 @@ namespace festation
         int32_t operand_rs =  signExtend(cpu.getCPURegs().gpr_regs[rs]);
         int32_t operand_rt =  signExtend(cpu.getCPURegs().gpr_regs[rt]);
         
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
         result = operand_rs + operand_rt;
 
         // #ifdef __GNUC__
@@ -239,7 +297,13 @@ namespace festation
 
     void addu(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt)
     {
-        cpu.getCPURegs().gpr_regs[rd] = cpu.getCPURegs().gpr_regs[rs] + cpu.getCPURegs().gpr_regs[rt];
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+        uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        cpu.getCPURegs().gpr_regs[rd] = rsValue + rtValue;
     }
 
     void sub(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt)
@@ -248,6 +312,9 @@ namespace festation
         int32_t operand_rs =  signExtend(cpu.getCPURegs().gpr_regs[rs]);
         int32_t operand_rt =  signExtend(cpu.getCPURegs().gpr_regs[rt]);
         
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
         result = operand_rs - operand_rt;
 
         // #ifdef __GNUC__
@@ -276,7 +343,13 @@ namespace festation
 
     void subu(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt)
     {
-        cpu.getCPURegs().gpr_regs[rd] = cpu.getCPURegs().gpr_regs[rs] - cpu.getCPURegs().gpr_regs[rt];
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+        uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        cpu.getCPURegs().gpr_regs[rd] = rsValue - rtValue;
     }
     
     void addi(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
@@ -284,6 +357,9 @@ namespace festation
         int32_t result = 0;
         int32_t operand_rs =  signExtend(cpu.getCPURegs().gpr_regs[rs]);
         int32_t operand_imm =  signExtend(imm);
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
         
         result = operand_rs + operand_imm;
 
@@ -313,12 +389,23 @@ namespace festation
 
     void addiu(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
-        cpu.getCPURegs().gpr_regs[rt] = cpu.getCPURegs().gpr_regs[rs] + signExtend(imm);
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        cpu.getCPURegs().gpr_regs[rt] = rsValue + signExtend(imm);
     }
 
     void slt(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt)
     {
-        if (signExtend(cpu.getCPURegs().gpr_regs[rs]) < signExtend(cpu.getCPURegs().gpr_regs[rt]))
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+        uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        if (signExtend(rsValue) < signExtend(rtValue))
             cpu.getCPURegs().gpr_regs[rd] = 1;
         else
             cpu.getCPURegs().gpr_regs[rd] = 0;
@@ -326,7 +413,13 @@ namespace festation
 
     void sltu(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt)
     {
-        if (cpu.getCPURegs().gpr_regs[rs] < cpu.getCPURegs().gpr_regs[rt])
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+        uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        if (rsValue < rtValue)
             cpu.getCPURegs().gpr_regs[rd] = 1;
         else
             cpu.getCPURegs().gpr_regs[rd] = 0;
@@ -334,7 +427,12 @@ namespace festation
 
     void slti(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
-        if (signExtend(cpu.getCPURegs().gpr_regs[rs]) < signExtend(imm))
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        if (signExtend(rsValue) < signExtend(imm))
             cpu.getCPURegs().gpr_regs[rt] = 1;
         else
             cpu.getCPURegs().gpr_regs[rt] = 0;
@@ -342,7 +440,12 @@ namespace festation
 
     void sltiu(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
-        if (cpu.getCPURegs().gpr_regs[rs] < (uint32_t)signExtend(imm))
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        if (rsValue < (uint32_t)signExtend(imm))
             cpu.getCPURegs().gpr_regs[rt] = 1;
         else
             cpu.getCPURegs().gpr_regs[rt] = 0;
@@ -350,77 +453,158 @@ namespace festation
 
     void _and(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt)
     {
-        cpu.getCPURegs().gpr_regs[rd] = cpu.getCPURegs().gpr_regs[rs] & cpu.getCPURegs().gpr_regs[rt];
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+        uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        cpu.getCPURegs().gpr_regs[rd] = rsValue & rtValue;
     }
 
     void _or(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt)
     {
-        cpu.getCPURegs().gpr_regs[rd] = cpu.getCPURegs().gpr_regs[rs] | cpu.getCPURegs().gpr_regs[rt];
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+        uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        cpu.getCPURegs().gpr_regs[rd] = rsValue | rtValue;
     }
 
     void _xor(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt)
     {
-        cpu.getCPURegs().gpr_regs[rd] = cpu.getCPURegs().gpr_regs[rs] ^ cpu.getCPURegs().gpr_regs[rt];
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+        uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        cpu.getCPURegs().gpr_regs[rd] = rsValue ^ rtValue;
     }
 
     void nor(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt)
     {
-        cpu.getCPURegs().gpr_regs[rd] = 0xFFFFFFFF ^ (cpu.getCPURegs().gpr_regs[rs] | cpu.getCPURegs().gpr_regs[rt]);
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+        uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        cpu.getCPURegs().gpr_regs[rd] = 0xFFFFFFFF ^ (rsValue | rtValue);
     }
 
     void andi(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
-        cpu.getCPURegs().gpr_regs[rt] = cpu.getCPURegs().gpr_regs[rs] & imm;
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        cpu.getCPURegs().gpr_regs[rt] = rsValue & imm;
     }
 
     void ori(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
-        cpu.getCPURegs().gpr_regs[rt] = cpu.getCPURegs().gpr_regs[rs] | imm;
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        cpu.getCPURegs().gpr_regs[rt] = rsValue | imm;
     }
 
     void xori(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
-        cpu.getCPURegs().gpr_regs[rt] = cpu.getCPURegs().gpr_regs[rs] ^ imm;
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        cpu.getCPURegs().gpr_regs[rt] = rsValue ^ imm;
     }
 
     void sllv(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rt, reg_t rs)
     {
-        cpu.getCPURegs().gpr_regs[rd] = cpu.getCPURegs().gpr_regs[rt] << (cpu.getCPURegs().gpr_regs[rs] & 0x1F);
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+        uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        cpu.getCPURegs().gpr_regs[rd] = rtValue << (rsValue & 0x1F);
     }
 
     void srlv(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rt, reg_t rs)
     {
-        cpu.getCPURegs().gpr_regs[rd] = cpu.getCPURegs().gpr_regs[rt] >> (cpu.getCPURegs().gpr_regs[rs] & 0x1F);
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+        uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        cpu.getCPURegs().gpr_regs[rd] = rtValue >> (rsValue & 0x1F);
     }
 
     void srav(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rt, reg_t rs)
     {
-        cpu.getCPURegs().gpr_regs[rd] = (int32_t)cpu.getCPURegs().gpr_regs[rt] >> (int8_t)(cpu.getCPURegs().gpr_regs[rs] & 0x1F);
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+        uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        cpu.getCPURegs().gpr_regs[rd] = signExtend(rtValue) >> (int8_t)(rsValue  & 0x1F);
     }
 
     void sll(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rt, shift_t imm)
     {
-        cpu.getCPURegs().gpr_regs[rd] = cpu.getCPURegs().gpr_regs[rt] << imm;
+        uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        cpu.getCPURegs().gpr_regs[rd] = rtValue << imm;
     }
 
     void srl(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rt, shift_t imm)
     {
-        cpu.getCPURegs().gpr_regs[rd] = cpu.getCPURegs().gpr_regs[rt] >> imm;
+        uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        cpu.getCPURegs().gpr_regs[rd] = rtValue >> imm;
     }
 
     void sra(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rt, shift_t imm)
     {
-        cpu.getCPURegs().gpr_regs[rd] = (int32_t)cpu.getCPURegs().gpr_regs[rt] >> (int8_t)imm;
+        uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        cpu.getCPURegs().gpr_regs[rd] = signExtend(rtValue) >> (int8_t)imm;
     }
 
     void lui(MIPS_R3000A_Core& cpu, reg_t rt, immed16_t imm)
     {
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
         cpu.getCPURegs().gpr_regs[rt] = imm << 16;
     }
 
     void mult(MIPS_R3000A_Core& cpu, reg_t rs, reg_t rt)
     {
-        int64_t result = (int64_t)signExtend(cpu.getCPURegs().gpr_regs[rs]) * (int64_t)signExtend(cpu.getCPURegs().gpr_regs[rt]);
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+        uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        int64_t result = (int64_t)signExtend(rsValue) * (int64_t)signExtend(rtValue);
 
         cpu.getCPURegs().hi = (uint64_t)(result >> 32) & 0xFFFFFFFF;
         cpu.getCPURegs().lo = (uint64_t)result & 0xFFFFFFFF;
@@ -428,7 +612,13 @@ namespace festation
 
     void multu(MIPS_R3000A_Core& cpu, reg_t rs, reg_t rt)
     {
-        uint64_t result = (uint64_t)cpu.getCPURegs().gpr_regs[rs] * (uint64_t)cpu.getCPURegs().gpr_regs[rt];
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+        uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        uint64_t result = (uint64_t)rsValue * (uint64_t)rtValue;
 
         cpu.getCPURegs().hi = (result >> 32) & 0xFFFFFFFF;
         cpu.getCPURegs().lo = result & 0xFFFFFFFF;
@@ -436,8 +626,14 @@ namespace festation
 
     void div(MIPS_R3000A_Core& cpu, reg_t rs, reg_t rt)
     {
-        int32_t rsOperand = signExtend(cpu.getCPURegs().gpr_regs[rs]);
-        int32_t rtOperand = signExtend(cpu.getCPURegs().gpr_regs[rt]);
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+        uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        int32_t rsOperand = signExtend(rsValue);
+        int32_t rtOperand = signExtend(rtValue);
 
         if (rtOperand == 0)
         {
@@ -466,6 +662,9 @@ namespace festation
     {
         uint32_t rsOperand = cpu.getCPURegs().gpr_regs[rs];
         uint32_t rtOperand = cpu.getCPURegs().gpr_regs[rt];
+        
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
 
         if (rtOperand == 0)
         {
@@ -481,31 +680,53 @@ namespace festation
 
     void mfhi(MIPS_R3000A_Core& cpu, reg_t rd)
     {
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
         cpu.getCPURegs().gpr_regs[rd] = cpu.getCPURegs().hi;
     }
 
     void mflo(MIPS_R3000A_Core& cpu, reg_t rd)
     {
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
         cpu.getCPURegs().gpr_regs[rd] = cpu.getCPURegs().lo;
     }
 
     void mthi(MIPS_R3000A_Core& cpu, reg_t rs)
     {
-        cpu.getCPURegs().hi = cpu.getCPURegs().gpr_regs[rs];
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        cpu.getCPURegs().hi = rsValue;
     }
 
     void mtlo(MIPS_R3000A_Core& cpu, reg_t rs)
     {
-        cpu.getCPURegs().lo = cpu.getCPURegs().gpr_regs[rs];
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        cpu.getCPURegs().lo = rsValue;
     }
 
     void j(MIPS_R3000A_Core& cpu, j_immed26_t dest)
     {
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
         calculateAndPerformJumpAddress(cpu, dest);
     }
 
     void jal(MIPS_R3000A_Core& cpu, j_immed26_t dest)
     {
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
         // Skip branch delay slot instruction so it's 8 bytes next instruction when returning
         // We only add "+ 4" because PC was already incremented by 4 after fetching the instruction
         cpu.getCPURegs().gpr_regs[ra] = cpu.getCPURegs().pc + 4; // Effectively instruction address + 8
@@ -514,12 +735,18 @@ namespace festation
 
     void jr(MIPS_R3000A_Core& cpu, reg_t rs)
     {
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
         // TODO: arise address error (AdEL) exception if jumping to unaligned address
         cpu.getCPURegs().storeDelayedJump(cpu.getCPURegs().gpr_regs[rs]);
     }
 
     void jalr(MIPS_R3000A_Core& cpu, reg_t rs, reg_t rd)
     {
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
         if (rd == 0) // rd omitted in the assembly instruction
         {
             cpu.getCPURegs().gpr_regs[ra] = cpu.getCPURegs().pc + 4;
@@ -535,7 +762,13 @@ namespace festation
 
     void beq(MIPS_R3000A_Core& cpu, reg_t rs, reg_t rt, immed16_t dest)
     {
-        if (cpu.getCPURegs().gpr_regs[rs] == cpu.getCPURegs().gpr_regs[rt])
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+        uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        if (rsValue == rtValue)
         {
             calculateAndPerformBranchAddress(cpu, dest);
         }
@@ -543,7 +776,13 @@ namespace festation
 
     void bne(MIPS_R3000A_Core& cpu, reg_t rs, reg_t rt, immed16_t dest)
     {
-        if (cpu.getCPURegs().gpr_regs[rs] != cpu.getCPURegs().gpr_regs[rt])
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+        uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        if (rsValue != rtValue)
         {
             calculateAndPerformBranchAddress(cpu, dest);
         }
@@ -551,7 +790,12 @@ namespace festation
 
     void bltz(MIPS_R3000A_Core& cpu, reg_t rs, immed16_t dest)
     {
-        if (signExtend(cpu.getCPURegs().gpr_regs[rs]) < 0)
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        if (signExtend(rsValue) < 0)
         {
             calculateAndPerformBranchAddress(cpu, dest);
         }
@@ -559,7 +803,12 @@ namespace festation
 
     void bgez(MIPS_R3000A_Core& cpu, reg_t rs, immed16_t dest)
     {
-        if (signExtend(cpu.getCPURegs().gpr_regs[rs]) >= 0)
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        if (signExtend(rsValue) >= 0)
         {
             calculateAndPerformBranchAddress(cpu, dest);
         }
@@ -567,7 +816,12 @@ namespace festation
 
     void bgtz(MIPS_R3000A_Core& cpu, reg_t rs, immed16_t dest)
     {
-        if (signExtend(cpu.getCPURegs().gpr_regs[rs]) > 0)
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        if (signExtend(rsValue) > 0)
         {
             calculateAndPerformBranchAddress(cpu, dest);
         }
@@ -575,7 +829,12 @@ namespace festation
     
     void blez(MIPS_R3000A_Core& cpu, reg_t rs, immed16_t dest)
     {
-        if (signExtend(cpu.getCPURegs().gpr_regs[rs]) <= 0)
+        uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
+        if (signExtend(rsValue) <= 0)
         {
             calculateAndPerformBranchAddress(cpu, dest);
         }
@@ -584,6 +843,9 @@ namespace festation
     void bltzal(MIPS_R3000A_Core& cpu, reg_t rs, immed16_t dest)
     {
         uint32_t cmpReg = cpu.getCPURegs().gpr_regs[rs];
+
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
 
         if (rs == ra)
             cmpReg = cpu.getCPURegs().gpr_regs[ra]; // We compare against prev $ra reg before linking and modify its value
@@ -600,6 +862,9 @@ namespace festation
     {
         uint32_t cmpReg = cpu.getCPURegs().gpr_regs[rs];
 
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
         if (rs == ra)
             cmpReg = cpu.getCPURegs().gpr_regs[ra]; // We compare against prev $ra reg before linking and modify its value
 
@@ -613,12 +878,18 @@ namespace festation
 
     void syscall(MIPS_R3000A_Core& cpu, uint32_t imm20)
     {
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
         setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::Syscall, false);
         jumpToExceptionVector(cpu, ExceptionVectorType::General);
     }
 
     void _break(MIPS_R3000A_Core& cpu, uint32_t imm20)
     {
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
+
         setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::BP, false);
         jumpToExceptionVector(cpu, ExceptionVectorType::General);
     }
