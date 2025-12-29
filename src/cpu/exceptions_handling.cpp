@@ -31,11 +31,57 @@ namespace festation
         cpu.getCOP0Regs().cop0_regs[EPC] = address;
     }
 
-    void setExceptionExcodeOnRegCAUSE(MIPS_R3000A_Core& cpu, COP0ExeptionExcodes excode, bool isInterrupt)
+    static void setExceptionExcodeOnRegCAUSE(MIPS_R3000A_Core& cpu, COP0ExeptionCodes excode, bool isInterrupt)
     {
         cpu.getCOP0Regs().cop0_regs[CAUSE] = (cpu.getCOP0Regs().cop0_regs[CAUSE] & 0xFFFFFF00) | (excode << 2);
 
         setEPCReg(cpu, isInterrupt);
+    }
+
+    static void jumpToExceptionVector(MIPS_R3000A_Core& cpu, ExceptionVectorType exceptionVectorType)
+    {
+        uint8_t BEVbit = (cpu.getCOP0Regs().cop0_regs[SR] >> 22) & 1;
+
+        switch (exceptionVectorType)
+        {
+        case ExceptionVectorType::Reset:
+            cpu.getCPURegs().pc = (BEVbit) ? Reset_BEV1 : Reset_BEV0;
+            break;
+        case ExceptionVectorType::UTLB_Miss:
+            cpu.getCPURegs().pc = (BEVbit) ? UTLB_Miss_BEV1 : UTLB_Miss_BEV0;
+            break;
+        case ExceptionVectorType::COP0_Break:
+            cpu.getCPURegs().pc = (BEVbit) ? COP0_Break_BEV1 : COP0_Break_BEV0;
+            break;
+        case ExceptionVectorType::General:
+            cpu.getCPURegs().pc = (BEVbit) ? General_BEV1 : General_BEV0;
+            break;
+        default:
+            break;
+        }
+    }
+
+    void handleException(MIPS_R3000A_Core& cpu, COP0ExeptionCodes excCode)
+    {
+        const uint32_t cause = cpu.getCOP0Regs().cop0_regs[CAUSE];
+        uint32_t sr = cpu.getCOP0Regs().cop0_regs[SR];
+
+        // Disable current interrrupt enable
+        uint8_t srInterruptBits = sr & 0x3F;
+        sr &= ~0x3F;
+        sr |= ((srInterruptBits << 2) & 0x3F);
+
+        /* Move this later to interrupts module */
+        bool isInterrupt = false;
+
+        if ((cause & 0xFF00) && (sr & 0xFF00) && (cause & 1)
+            && excCode == COP0ExeptionCodes::INT) {
+            isInterrupt = true;
+        }
+        /* ------------------------------------ */
+
+        setExceptionExcodeOnRegCAUSE(cpu, excCode, isInterrupt);
+        jumpToExceptionVector(cpu, ExceptionVectorType::General);
     }
 
     bool handleAndSetBadVaddrReg(MIPS_R3000A_Core& cpu, uint32_t badAddr, AddressBoundary boundary)
@@ -53,28 +99,7 @@ namespace festation
         return false;
     }
 
-    void jumpToExceptionVector(MIPS_R3000A_Core& cpu, ExceptionVectorType exceptionVectorType)
-    {
-        uint8_t BEVbit = (cpu.getCOP0Regs().cop0_regs[SR] >> 22) & 1;
 
-        switch (exceptionVectorType)
-        {
-        case ExceptionVectorType::Reset:
-            cpu.getCPURegs().pc = (BEVbit) ? Reset_BEV1 : Reset_BEV0;
-            break;
-        case ExceptionVectorType::UTLB_Miss:
-            cpu.getCPURegs().pc = (BEVbit) ? UTLB_Miss_BEV1 : UTLB_Miss_BEV0;
-            break;
-        case ExceptionVectorType::COP0_Break:
-            cpu.getCPURegs().pc = (BEVbit) ? COP0_Break_BEV1 : COP0_Break_BEV0;
-            break;
-        case ExceptionVectorType::General:
-            cpu.getCPURegs().pc = (BEVbit) ? General_BEV1 : General_BEV0;
-            break;  
-        default:
-            break;
-        }
-    }
 
     void handleReset(MIPS_R3000A_Core& cpu)
     {

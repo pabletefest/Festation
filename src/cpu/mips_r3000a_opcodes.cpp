@@ -77,7 +77,7 @@ namespace festation
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
         if (handleAndSetBadVaddrReg(cpu, address, AddressBoundary::HALF_WORD_BOUNDARY))
         {
-            setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::AdEL, false);
+            //setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::AdEL, false);
             return;
         }
 
@@ -97,7 +97,7 @@ namespace festation
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
         if (handleAndSetBadVaddrReg(cpu, address, AddressBoundary::HALF_WORD_BOUNDARY))
         {
-            setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::AdEL, false);
+            //setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::AdEL, false);
             return;
         }
 
@@ -117,7 +117,7 @@ namespace festation
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
         if (handleAndSetBadVaddrReg(cpu, address, AddressBoundary::WORD_BOUNDARY))
         {
-            setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::AdEL, false);
+            //setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::AdEL, false);
             return;
         }
 
@@ -150,7 +150,7 @@ namespace festation
 
         if (handleAndSetBadVaddrReg(cpu, address, AddressBoundary::HALF_WORD_BOUNDARY))
         {
-            setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::AdES, false);
+            //setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::AdES, false);
             return;
         }
 
@@ -169,7 +169,7 @@ namespace festation
 
         if (handleAndSetBadVaddrReg(cpu, address, AddressBoundary::WORD_BOUNDARY))
         {
-            setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::AdES, false);
+            //setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::AdES, false);
             return;
         }
 
@@ -881,8 +881,8 @@ namespace festation
         if (cpu.getCPURegs().isLoadDelaySlot())
             cpu.getCPURegs().consumeLoadedData();
 
-        setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::Syscall, false);
-        jumpToExceptionVector(cpu, ExceptionVectorType::General);
+        //setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::Syscall, false);
+        //jumpToExceptionVector(cpu, ExceptionVectorType::General);
     }
 
     void _break(MIPS_R3000A_Core& cpu, uint32_t imm20)
@@ -890,7 +890,7 @@ namespace festation
         if (cpu.getCPURegs().isLoadDelaySlot())
             cpu.getCPURegs().consumeLoadedData();
 
-        setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::BP, false);
-        jumpToExceptionVector(cpu, ExceptionVectorType::General);
+        //setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::BP, false);
+        //jumpToExceptionVector(cpu, ExceptionVectorType::General);
     }
 };

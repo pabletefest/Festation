@@ -185,7 +185,7 @@ namespace festation
 
     using cop0_command_t = uint32_t;
 
-    enum COP0ExeptionExcodes
+    enum COP0ExeptionCodes
     {
         INT,
         MOD,
