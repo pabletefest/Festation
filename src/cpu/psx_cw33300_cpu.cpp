@@ -197,11 +197,13 @@ festation::COP0SystemControlRegs& festation::MIPS_R3000A_Core::getCOP0Regs()
 
 bool festation::MIPS_R3000A_Core::isCacheIsolated() const
 {
-    return (cop0_state.cop0_regs[SR] & CACHE_ISOLATION_BIT_MASK) != 0;
+    return (cop0_state.getCop0RegisterValue(SR) & CACHE_ISOLATION_BIT_MASK) != 0;
 }
 
 uint32_t festation::MIPS_R3000A_Core::fetchInstruction()
 {
+    r3000a_regs.currentPC = r3000a_regs.pc;
+
     uint32_t instruction = read32(r3000a_regs.pc);
 
     r3000a_regs.pc += INSTRUCTION_SIZE;

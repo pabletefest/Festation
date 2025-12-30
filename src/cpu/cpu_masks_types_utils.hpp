@@ -185,25 +185,28 @@ namespace festation
 
     using cop0_command_t = uint32_t;
 
-    enum COP0ExeptionCodes
-    {
-        INT,
-        MOD,
-        TLBL,
-        TLBS,
-        AdEL,
-        AdES,
-        IBE,
-        DBE,
-        Syscall,
-        BP,
-        RI,
-        CpU,
-        Ov,
-        UNUSED
-    };
-
     enum Cop0SrBitMasks {
         CACHE_ISOLATION_BIT_MASK = 0x10000
     };
+
+    static constexpr int32_t signExtend(uint8_t value) {
+        return static_cast<int32_t>(static_cast<int16_t>(static_cast<int8_t>(value)));
+    }
+
+    static constexpr int32_t signExtend(uint16_t value) {
+        return static_cast<int32_t>(static_cast<int16_t>(value));
+    }
+
+    static constexpr int32_t signExtend(uint32_t value) {
+        return static_cast<int32_t>(value);
+    }
+
+    static constexpr int64_t signExtend(uint64_t value) {
+        return static_cast<int64_t>(value);
+    }
+
+    template<typename T, typename R>
+    static constexpr R signExtend(T value) {
+        return static_cast<R>(value);
+    }
 };

@@ -1,5 +1,6 @@
 #include "exceptions_handling.hpp"
 #include "psx_cw33300_cpu.hpp"
+#include "utils/logger.hpp"
 
 #include <cassert>
 
@@ -23,24 +24,26 @@ namespace festation
 
     static void setEPCReg(MIPS_R3000A_Core& cpu, bool isInterrupt)
     {
-        uint32_t address = cpu.getCPURegs().pc;
+        uint32_t address = cpu.getCPURegs().currentPC;
 
-        if ((cpu.getCOP0Regs().cop0_regs[CAUSE] & 0x80000000) && !isInterrupt)
+        if ((cpu.getCOP0Regs().CAUSE & 0x80000000) && !isInterrupt)
             address -= 4;
 
-        cpu.getCOP0Regs().cop0_regs[EPC] = address;
+        cpu.getCOP0Regs().EPC = address;
+
+        LOG_DEBUG("New EPC COP0 reg value is 0x{:08X}", cpu.getCOP0Regs().EPC);
+
     }
 
-    static void setExceptionExcodeOnRegCAUSE(MIPS_R3000A_Core& cpu, COP0ExeptionCodes excode, bool isInterrupt)
+    static void setExceptionExcCodeOnRegCAUSE(MIPS_R3000A_Core& cpu, COP0ExceptionCodes excCode)
     {
-        cpu.getCOP0Regs().cop0_regs[CAUSE] = (cpu.getCOP0Regs().cop0_regs[CAUSE] & 0xFFFFFF00) | (excode << 2);
-
-        setEPCReg(cpu, isInterrupt);
+        cpu.getCOP0Regs().CAUSE = /*(cpu.getCOP0Regs().CAUSE & 0xFFFFFF83) |*/ (excCode << 2);
+        LOG_DEBUG("New CAUSE COP0 reg value is 0x{:08X}", cpu.getCOP0Regs().CAUSE);
     }
 
     static void jumpToExceptionVector(MIPS_R3000A_Core& cpu, ExceptionVectorType exceptionVectorType)
     {
-        uint8_t BEVbit = (cpu.getCOP0Regs().cop0_regs[SR] >> 22) & 1;
+        uint8_t BEVbit = (cpu.getCOP0Regs().SR >> 22) & 1;
 
         switch (exceptionVectorType)
         {
@@ -61,26 +64,32 @@ namespace festation
         }
     }
 
-    void handleException(MIPS_R3000A_Core& cpu, COP0ExeptionCodes excCode)
+    void handleException(MIPS_R3000A_Core& cpu, COP0ExceptionCodes excCode)
     {
-        const uint32_t cause = cpu.getCOP0Regs().cop0_regs[CAUSE];
-        uint32_t sr = cpu.getCOP0Regs().cop0_regs[SR];
+        const uint32_t cause = cpu.getCOP0Regs().CAUSE;
+        uint32_t sr = cpu.getCOP0Regs().SR;
 
         // Disable current interrrupt enable
         uint8_t srInterruptBits = sr & 0x3F;
         sr &= ~0x3F;
         sr |= ((srInterruptBits << 2) & 0x3F);
 
+        cpu.getCOP0Regs().SR = sr;
+
+        LOG_DEBUG("New SR COP0 reg value is 0x{:08X}", cpu.getCOP0Regs().SR);
+
+
         /* Move this later to interrupts module */
         bool isInterrupt = false;
 
         if ((cause & 0xFF00) && (sr & 0xFF00) && (cause & 1)
-            && excCode == COP0ExeptionCodes::INT) {
+            && excCode == ExcCode_INT) {
             isInterrupt = true;
         }
         /* ------------------------------------ */
 
-        setExceptionExcodeOnRegCAUSE(cpu, excCode, isInterrupt);
+        setExceptionExcCodeOnRegCAUSE(cpu, excCode);
+        setEPCReg(cpu, isInterrupt);
         jumpToExceptionVector(cpu, ExceptionVectorType::General);
     }
 
@@ -92,7 +101,7 @@ namespace festation
         // We don't take into account MMU exceptions (not present on PS1) and outside kuseg in User mode (PS1 always runs kernel mode)
         if (badAddr % static_cast<uint32_t>(boundary) != 0)
         {
-            cpu.getCOP0Regs().cop0_regs[BadVaddr] = badAddr;
+            cpu.getCOP0Regs().BadVaddr = badAddr;
             return true;
         }
 
@@ -104,10 +113,10 @@ namespace festation
     void handleReset(MIPS_R3000A_Core& cpu)
     {
         // For a Playstation with CXD8606CQ CPU, the PRID value is 00000002h. (psx-spx)
-        cpu.getCOP0Regs().cop0_regs[PRID] = 0x00000002;
+        cpu.getCOP0Regs().PRID = 0x00000002;
 
         // Reason unknown for the moment but it appears to be the initial register value.
-        cpu.getCOP0Regs().cop0_regs[SR] = 0x10900000;
+        cpu.getCOP0Regs().SR = 0x10900000;
 
         jumpToExceptionVector(cpu, ExceptionVectorType::Reset);
     }

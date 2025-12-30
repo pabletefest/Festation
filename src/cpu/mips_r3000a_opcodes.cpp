@@ -8,27 +8,6 @@
 
 namespace festation
 {
-    static constexpr int32_t signExtend(uint8_t value) {
-        return static_cast<int32_t>(static_cast<int16_t>(static_cast<int8_t>(value)));
-    }
-
-    static constexpr int32_t signExtend(uint16_t value) {
-        return static_cast<int32_t>(static_cast<int16_t>(value));
-    }
-
-    static constexpr int32_t signExtend(uint32_t value) {
-        return static_cast<int32_t>(value);
-    }
-
-    static constexpr int64_t signExtend(uint64_t value) {
-        return static_cast<int64_t>(value);
-    }
-
-    template<typename T, typename R>
-    static constexpr R signExtend(T value) {
-        return static_cast<R>(value);
-    }
-
     static void calculateAndPerformJumpAddress(MIPS_R3000A_Core& cpu, j_immed26_t dest)
     {
         uint32_t jumpAddress = (cpu.getCPURegs().pc & 0xF0000000) | (dest << 2);
@@ -77,7 +56,7 @@ namespace festation
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
         if (handleAndSetBadVaddrReg(cpu, address, AddressBoundary::HALF_WORD_BOUNDARY))
         {
-            //setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::AdEL, false);
+            handleException(cpu, ExcCode_AdEL);
             return;
         }
 
@@ -97,7 +76,7 @@ namespace festation
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
         if (handleAndSetBadVaddrReg(cpu, address, AddressBoundary::HALF_WORD_BOUNDARY))
         {
-            //setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::AdEL, false);
+            handleException(cpu, ExcCode_AdEL);
             return;
         }
 
@@ -117,7 +96,7 @@ namespace festation
         // TODO: handle misaligned address error exceptions and invalid memory locations bus error exception
         if (handleAndSetBadVaddrReg(cpu, address, AddressBoundary::WORD_BOUNDARY))
         {
-            //setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::AdEL, false);
+            handleException(cpu, ExcCode_AdEL);
             return;
         }
 
@@ -150,7 +129,7 @@ namespace festation
 
         if (handleAndSetBadVaddrReg(cpu, address, AddressBoundary::HALF_WORD_BOUNDARY))
         {
-            //setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::AdES, false);
+            handleException(cpu, ExcCode_AdES);
             return;
         }
 
@@ -169,7 +148,7 @@ namespace festation
 
         if (handleAndSetBadVaddrReg(cpu, address, AddressBoundary::WORD_BOUNDARY))
         {
-            //setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::AdES, false);
+            handleException(cpu, ExcCode_AdES);
             return;
         }
 
@@ -286,9 +265,7 @@ namespace festation
         // #endif
 
         if ((operand_rs ^ result) & (operand_rt ^ result) & 0x80000000) {
-            // TODO: Overflow Exception
-            // setExceptionExcodeOnRegCAUSE(COP0ExeptionExcodes::Ov, false);
-            // jumpToExceptionVector(ExceptionVectorType::General);
+            handleException(cpu, ExcCode_Ov);
             return;
         } 
 
@@ -332,9 +309,7 @@ namespace festation
         // #endif
 
         if ((operand_rs ^ operand_rt) & (operand_rs ^ result) & 0x80000000) {
-            // TODO: Overflow Exception
-            // setExceptionExcodeOnRegCAUSE(COP0ExeptionExcodes::Ov, false);
-            // jumpToExceptionVector(ExceptionVectorType::General);
+            handleException(cpu, ExcCode_Ov);
             return;
         } 
 
@@ -378,9 +353,7 @@ namespace festation
         // #endif
 
         if ((operand_rs ^ result) & (operand_imm ^ result) & 0x80000000) {
-            // TODO: Overflow Exception
-            // setExceptionExcodeOnRegCAUSE(COP0ExeptionExcodes::Ov, false);
-            // jumpToExceptionVector(ExceptionVectorType::General);
+            handleException(cpu, ExcCode_Ov);
             return;
         } 
 
@@ -878,11 +851,10 @@ namespace festation
 
     void syscall(MIPS_R3000A_Core& cpu, uint32_t imm20)
     {
-        if (cpu.getCPURegs().isLoadDelaySlot())
-            cpu.getCPURegs().consumeLoadedData();
+        /*if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();*/
 
-        //setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::Syscall, false);
-        //jumpToExceptionVector(cpu, ExceptionVectorType::General);
+        handleException(cpu, ExcCode_Syscall);
     }
 
     void _break(MIPS_R3000A_Core& cpu, uint32_t imm20)
@@ -890,7 +862,6 @@ namespace festation
         if (cpu.getCPURegs().isLoadDelaySlot())
             cpu.getCPURegs().consumeLoadedData();
 
-        //setExceptionExcodeOnRegCAUSE(cpu, COP0ExeptionExcodes::BP, false);
-        //jumpToExceptionVector(cpu, ExceptionVectorType::General);
+        handleException(cpu, ExcCode_BP);
     }
 };
