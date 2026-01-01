@@ -173,7 +173,7 @@ namespace festation
         loadedValue >>= shiftAmount;
         prevRT &= ~(0xFFFFFFFFu >> shiftAmount);
 
-        cpu.getCPURegs().gpr_regs[rt] = prevRT | loadedValue;
+        cpu.getCPURegs().storeDelayedData(prevRT | loadedValue, rt);
     }
 
     void lwl(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
@@ -194,7 +194,7 @@ namespace festation
         loadedValue <<= shiftAmount;
         prevRT &= ~(0xFFFFFFFFu << shiftAmount);
 
-        cpu.getCPURegs().gpr_regs[rt] = prevRT | loadedValue;
+        cpu.getCPURegs().storeDelayedData(prevRT | loadedValue, rt);
     }
 
     void swr(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
