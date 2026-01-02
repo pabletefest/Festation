@@ -11,15 +11,27 @@ namespace festation
     static void calculateAndPerformJumpAddress(MIPS_R3000A_Core& cpu, j_immed26_t dest)
     {
         uint32_t jumpAddress = (cpu.getCPURegs().pc & 0xF0000000) | (dest << 2);
-        cpu.getCPURegs().storeDelayedJump(jumpAddress);
+        
+        if (!cpu.getCPURegs().isBranchDelaySlot()) {
+            cpu.getCPURegs().storeDelayedJump(jumpAddress);
+        }
+        else {
+            cpu.getCPURegs().performDelayedJump();
+        }
     }
 
     static void calculateAndPerformBranchAddress(MIPS_R3000A_Core& cpu, immed16_t dest)
     {
         // We remove "+ 4" from the ecuation as PC already points to the address of the instructuon in the delay slot
         // In order to add 4, we should sub 4 before, so removing "+ 4" effectively leads to the same result
-        int32_t branchAddress = signExtend(cpu.getCPURegs().pc) + /*4 +*/ (signExtend(dest) * 4);
-        cpu.getCPURegs().storeDelayedJump((uint32_t)branchAddress);
+        int32_t branchAddress = signExtend(cpu.getCPURegs().pc) + (signExtend(dest) * 4);
+        
+        if (!cpu.getCPURegs().isBranchDelaySlot()) {
+            cpu.getCPURegs().storeDelayedJump((uint32_t)branchAddress);
+        }
+        else {
+            cpu.getCPURegs().performDelayedJump();
+        }
     }
 
     void lb(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
@@ -162,8 +174,14 @@ namespace festation
         uint32_t prevRT = cpu.getCPURegs().gpr_regs[rt];
         uint32_t address = cpu.getCPURegs().gpr_regs[rs] + signExtend(imm);
 
-        if (cpu.getCPURegs().isLoadDelaySlot())
+        if (cpu.getCPURegs().getLoadReg() == rt)
+        {
+            prevRT = cpu.getCPURegs().getLoadValue();
+        }
+        else
+        {
             cpu.getCPURegs().consumeLoadedData();
+        }
 
         uint8_t offset = address % WORD_SIZE;
         uint32_t loadedValue = cpu.read32(address & ~offset);
@@ -183,8 +201,14 @@ namespace festation
         uint32_t prevRT = cpu.getCPURegs().gpr_regs[rt];
         uint32_t address = cpu.getCPURegs().gpr_regs[rs] + signExtend(imm);
         
-        if (cpu.getCPURegs().isLoadDelaySlot())
+        if (cpu.getCPURegs().getLoadReg() == rt)
+        {
+            prevRT = cpu.getCPURegs().getLoadValue();
+        }
+        else
+        {
             cpu.getCPURegs().consumeLoadedData();
+        }
 
         uint8_t offset = address % WORD_SIZE;
         uint32_t loadedValue = cpu.read32(address & ~offset);
@@ -702,35 +726,39 @@ namespace festation
 
         // Skip branch delay slot instruction so it's 8 bytes next instruction when returning
         // We only add "+ 4" because PC was already incremented by 4 after fetching the instruction
-        cpu.getCPURegs().gpr_regs[ra] = cpu.getCPURegs().pc + 4; // Effectively instruction address + 8
+        cpu.getCPURegs().gpr_regs[ra] = cpu.getCPURegs().currentPC + 8; // Effectively instruction address + 8
         calculateAndPerformJumpAddress(cpu, dest);
     }
 
     void jr(MIPS_R3000A_Core& cpu, reg_t rs)
     {
+        const uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+
         if (cpu.getCPURegs().isLoadDelaySlot())
             cpu.getCPURegs().consumeLoadedData();
 
         // TODO: arise address error (AdEL) exception if jumping to unaligned address
-        cpu.getCPURegs().storeDelayedJump(cpu.getCPURegs().gpr_regs[rs]);
+        cpu.getCPURegs().storeDelayedJump(rsValue);
     }
 
     void jalr(MIPS_R3000A_Core& cpu, reg_t rs, reg_t rd)
     {
+        const uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
+
         if (cpu.getCPURegs().isLoadDelaySlot())
             cpu.getCPURegs().consumeLoadedData();
 
         if (rd == 0) // rd omitted in the assembly instruction
         {
-            cpu.getCPURegs().gpr_regs[ra] = cpu.getCPURegs().pc + 4;
+            cpu.getCPURegs().gpr_regs[ra] = cpu.getCPURegs().currentPC + 8;
         }
         else
         {
-            cpu.getCPURegs().gpr_regs[rd] = cpu.getCPURegs().pc + 4;
+            cpu.getCPURegs().gpr_regs[rd] = cpu.getCPURegs().currentPC + 8;
         }
 
         // TODO: arise address error (AdEL) exception if jumping to unaligned address
-        cpu.getCPURegs().storeDelayedJump(cpu.getCPURegs().gpr_regs[rs]);
+        cpu.getCPURegs().storeDelayedJump(rsValue);
     }
 
     void beq(MIPS_R3000A_Core& cpu, reg_t rs, reg_t rt, immed16_t dest)
@@ -851,8 +879,8 @@ namespace festation
 
     void syscall(MIPS_R3000A_Core& cpu, uint32_t imm20)
     {
-        /*if (cpu.getCPURegs().isLoadDelaySlot())
-            cpu.getCPURegs().consumeLoadedData();*/
+        if (cpu.getCPURegs().isLoadDelaySlot())
+            cpu.getCPURegs().consumeLoadedData();
 
         handleException(cpu, ExcCode_Syscall);
     }

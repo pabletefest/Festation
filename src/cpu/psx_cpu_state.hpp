@@ -53,6 +53,16 @@ namespace festation
             loadDelaySlotLatch.isDelay = true;
         }
 
+        constexpr inline uint8_t getLoadReg() const
+        {
+            return loadDelaySlotLatch.destReg;
+        }
+        
+        constexpr inline uint32_t getLoadValue() const
+        {
+            return loadDelaySlotLatch.loadedValue;
+        }
+
         constexpr inline bool isBranchDelaySlot() const
         {
             return branchDelaySlotLatch.isDelay;

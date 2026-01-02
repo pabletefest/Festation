@@ -125,6 +125,11 @@ uint8_t festation::MIPS_R3000A_Core::executeInstruction()
 {
     const bool isBranchDelayPending = r3000a_regs.isBranchDelaySlot();
 
+    if (r3000a_regs.currentPC & 3)
+    {
+        handleException(*this, ExcCode_AdEL);
+    }
+
     uint32_t instruction = fetchInstruction();
 
     //LOG_DEBUG(  "* Executing instruction: 0x{:08X}  at address 0x{:08X} *", instruction, r3000a_regs.pc - 4);
@@ -203,7 +208,7 @@ bool festation::MIPS_R3000A_Core::isCacheIsolated() const
 uint32_t festation::MIPS_R3000A_Core::fetchInstruction()
 {
     r3000a_regs.currentPC = r3000a_regs.pc;
-
+    
     uint32_t instruction = read32(r3000a_regs.pc);
 
     r3000a_regs.pc += INSTRUCTION_SIZE;
@@ -410,9 +415,10 @@ festation::InstructionTypeVariant festation::MIPS_R3000A_Core::decodeIFormat(uin
                 bgezal(cpu, _rs, dest);
             }, rt, rs, imm16) };
         default:
-            LOG_ERROR("Unimplemented or invalid I-type BcondZ instruction! rt bits: {:02} - from hex MIPS instruction encoding ({:08X})\n", rt, instruction);
-            assert(false);
-            return InstructionTypeVariant();
+            //LOG_ERROR("Unimplemented or invalid I-type BcondZ instruction! rt bits: {:02} - from hex MIPS instruction encoding ({:08X})\n", rt, instruction);
+            //assert(false);
+            return { std::make_tuple([](MIPS_R3000A_Core& cpu, reg_t _rt, reg_t _rs, immed16_t dest) {
+            }, rt, rs, imm16) };
         }
     case 0x04:
         return { std::make_tuple([](MIPS_R3000A_Core& cpu, reg_t _rt, reg_t _rs, immed16_t dest){
