@@ -11,13 +11,8 @@ namespace festation
     static void calculateAndPerformJumpAddress(MIPS_R3000A_Core& cpu, j_immed26_t dest)
     {
         uint32_t jumpAddress = (cpu.getCPURegs().pc & 0xF0000000) | (dest << 2);
-        
-        if (!cpu.getCPURegs().isBranchDelaySlot()) {
-            cpu.getCPURegs().storeDelayedJump(jumpAddress);
-        }
-        else {
-            cpu.getCPURegs().performDelayedJump();
-        }
+
+        cpu.getCPURegs().storeDelayedJump(jumpAddress);
     }
 
     static void calculateAndPerformBranchAddress(MIPS_R3000A_Core& cpu, immed16_t dest)
@@ -26,12 +21,7 @@ namespace festation
         // In order to add 4, we should sub 4 before, so removing "+ 4" effectively leads to the same result
         int32_t branchAddress = signExtend(cpu.getCPURegs().pc) + (signExtend(dest) * 4);
         
-        if (!cpu.getCPURegs().isBranchDelaySlot()) {
-            cpu.getCPURegs().storeDelayedJump((uint32_t)branchAddress);
-        }
-        else {
-            cpu.getCPURegs().performDelayedJump();
-        }
+        cpu.getCPURegs().storeDelayedJump((uint32_t)branchAddress);
     }
 
     void lb(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
