@@ -26,6 +26,9 @@ namespace festation
 
     void lb(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tlb\t{}, {:-X}h({})", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rt], signExtend(imm), g_registerNames[rs]);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
 
         if (cpu.getCPURegs().isLoadDelaySlot())
@@ -37,6 +40,9 @@ namespace festation
 
     void lbu(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tlbu\t{}, {:-X}h({})", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rt], signExtend(imm), g_registerNames[rs]);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
 
         if (cpu.getCPURegs().isLoadDelaySlot())
@@ -48,6 +54,9 @@ namespace festation
 
     void lh(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tlh\t{}, {:-X}h({})", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rt], signExtend(imm), g_registerNames[rs]);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
 
         if (cpu.getCPURegs().isLoadDelaySlot())
@@ -68,6 +77,9 @@ namespace festation
 
     void lhu(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tlhu\t{}, {:-X}h({})", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rt], signExtend(imm), g_registerNames[rs]);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
 
         if (cpu.getCPURegs().isLoadDelaySlot())
@@ -88,6 +100,9 @@ namespace festation
 
     void lw(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tlw\t{}, {:-X}h({})", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rt], signExtend(imm), g_registerNames[rs]);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
 
         if (cpu.getCPURegs().isLoadDelaySlot())
@@ -110,6 +125,9 @@ namespace festation
 
     void sb(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tsb\t{}, {:-X}h({})", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rt], signExtend(imm), g_registerNames[rs]);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
         uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
 
@@ -121,6 +139,9 @@ namespace festation
 
     void sh(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tsh\t{}, {:-X}h({})", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rt], signExtend(imm), g_registerNames[rs]);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
         uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
 
@@ -140,6 +161,9 @@ namespace festation
 
     void sw(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tsw\t{}, {:-X}h({})", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rt], signExtend(imm), g_registerNames[rs]);
+        
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
         uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
 
@@ -159,6 +183,9 @@ namespace festation
 
     void lwr(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tlwr\t{}, {:-X}h({})", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rt], signExtend(imm), g_registerNames[rs]);
+
         constexpr size_t WORD_SIZE = sizeof(uint32_t);
 
         uint32_t prevRT = cpu.getCPURegs().gpr_regs[rt];
@@ -186,6 +213,9 @@ namespace festation
 
     void lwl(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tlwl\t{}, {:-X}h({})", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rt], signExtend(imm), g_registerNames[rs]);
+
         constexpr size_t WORD_SIZE = sizeof(uint32_t);
         
         uint32_t prevRT = cpu.getCPURegs().gpr_regs[rt];
@@ -213,6 +243,9 @@ namespace festation
 
     void swr(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tswr\t{}, {:-X}h({})", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rt], signExtend(imm), g_registerNames[rs]);
+
         constexpr size_t WORD_SIZE = sizeof(uint32_t);
 
         uint32_t prevRT = cpu.getCPURegs().gpr_regs[rt];
@@ -234,6 +267,9 @@ namespace festation
 
     void swl(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tswl\t{}, {:-X}h({})", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rt], signExtend(imm), g_registerNames[rs]);
+
         constexpr size_t WORD_SIZE = sizeof(uint32_t);
 
         uint32_t prevRT = cpu.getCPURegs().gpr_regs[rt];
@@ -255,6 +291,9 @@ namespace festation
 
     void add(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tadd\t{},{},{}", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rd], g_registerNames[rs], g_registerNames[rt]);
+
         int32_t result = 0;
         int32_t operand_rs =  signExtend(cpu.getCPURegs().gpr_regs[rs]);
         int32_t operand_rt =  signExtend(cpu.getCPURegs().gpr_regs[rt]);
@@ -288,6 +327,9 @@ namespace festation
 
     void addu(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\taddu\t{},{},{}", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rd], g_registerNames[rs], g_registerNames[rt]);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
         uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
 
@@ -299,6 +341,9 @@ namespace festation
 
     void sub(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tsub\t{},{},{}", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rd], g_registerNames[rs], g_registerNames[rt]);
+
         int32_t result = 0;
         int32_t operand_rs =  signExtend(cpu.getCPURegs().gpr_regs[rs]);
         int32_t operand_rt =  signExtend(cpu.getCPURegs().gpr_regs[rt]);
@@ -332,6 +377,9 @@ namespace festation
 
     void subu(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tsubu\t{},{},{}", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rd], g_registerNames[rs], g_registerNames[rt]);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
         uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
 
@@ -343,6 +391,9 @@ namespace festation
     
     void addi(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\taddi\t{},{},{:-X}h", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rt], g_registerNames[rs], signExtend(imm));
+
         int32_t result = 0;
         int32_t operand_rs =  signExtend(cpu.getCPURegs().gpr_regs[rs]);
         int32_t operand_imm =  signExtend(imm);
@@ -376,6 +427,9 @@ namespace festation
 
     void addiu(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\taddiu\t{},{},{:-X}h", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rt], g_registerNames[rs], signExtend(imm));
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
 
         if (cpu.getCPURegs().isLoadDelaySlot())
@@ -386,6 +440,9 @@ namespace festation
 
     void slt(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tslt\t{},{},{}", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rd], g_registerNames[rs], g_registerNames[rt]);
+        
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
         uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
 
@@ -400,6 +457,9 @@ namespace festation
 
     void sltu(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tsltu\t{},{},{}", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rd], g_registerNames[rs], g_registerNames[rt]);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
         uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
 
@@ -414,6 +474,9 @@ namespace festation
 
     void slti(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tslti\t{},{},{:-X}h", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rt], g_registerNames[rs], signExtend(imm));
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
 
         if (cpu.getCPURegs().isLoadDelaySlot())
@@ -427,6 +490,9 @@ namespace festation
 
     void sltiu(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tsltiu\t{},{},{:-X}h", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rt], g_registerNames[rs], signExtend(imm));
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
 
         if (cpu.getCPURegs().isLoadDelaySlot())
@@ -440,6 +506,9 @@ namespace festation
 
     void _and(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tand\t{},{},{}", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rd], g_registerNames[rs], g_registerNames[rt]);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
         uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
 
@@ -451,6 +520,9 @@ namespace festation
 
     void _or(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tor\t{},{},{}", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rd], g_registerNames[rs], g_registerNames[rt]);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
         uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
 
@@ -462,6 +534,9 @@ namespace festation
 
     void _xor(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\txor\t{},{},{}", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rd], g_registerNames[rs], g_registerNames[rt]);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
         uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
 
@@ -473,6 +548,9 @@ namespace festation
 
     void nor(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rs, reg_t rt)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tnor\t{},{},{}", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rd], g_registerNames[rs], g_registerNames[rt]);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
         uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
 
@@ -484,6 +562,9 @@ namespace festation
 
     void andi(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tandi\t{},{},{:-X}h", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rt], g_registerNames[rs], signExtend(imm));
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
 
         if (cpu.getCPURegs().isLoadDelaySlot())
@@ -494,6 +575,9 @@ namespace festation
 
     void ori(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tori\t{},{},{:-X}h", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rt], g_registerNames[rs], signExtend(imm));
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
 
         if (cpu.getCPURegs().isLoadDelaySlot())
@@ -504,6 +588,9 @@ namespace festation
 
     void xori(MIPS_R3000A_Core& cpu, reg_t rt, reg_t rs, immed16_t imm)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\txori\t{},{},{:-X}h", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rt], g_registerNames[rs], signExtend(imm));
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
 
         if (cpu.getCPURegs().isLoadDelaySlot())
@@ -514,6 +601,9 @@ namespace festation
 
     void sllv(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rt, reg_t rs)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tsllv\t{},{},{}", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rd], g_registerNames[rs], g_registerNames[rt]);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
         uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
 
@@ -525,6 +615,9 @@ namespace festation
 
     void srlv(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rt, reg_t rs)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tsrlv\t{},{},{}", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rd], g_registerNames[rs], g_registerNames[rt]);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
         uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
 
@@ -536,6 +629,9 @@ namespace festation
 
     void srav(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rt, reg_t rs)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tsrav\t{},{},{}", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rd], g_registerNames[rs], g_registerNames[rt]);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
         uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
 
@@ -547,6 +643,17 @@ namespace festation
 
     void sll(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rt, shift_t imm)
     {
+        if (rd == 0 && rt == 0 && imm == 0)
+        {
+            LOG_DEBUG("0x{:08X} {:08X}\tnop", \
+                cpu.getCPURegs().currentPC, cpu.getCurrentInstruction());
+        }
+        else
+        {
+            LOG_DEBUG("0x{:08X} {:08X}\tsll\t{},{},{:-X}h", \
+                cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rd], g_registerNames[rt], signExtend(imm));
+        }
+
         uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
 
         if (cpu.getCPURegs().isLoadDelaySlot())
@@ -557,6 +664,9 @@ namespace festation
 
     void srl(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rt, shift_t imm)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tsrl\t{},{},{:-X}h", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rd], g_registerNames[rt], signExtend(imm));
+
         uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
 
         if (cpu.getCPURegs().isLoadDelaySlot())
@@ -567,6 +677,9 @@ namespace festation
 
     void sra(MIPS_R3000A_Core& cpu, reg_t rd, reg_t rt, shift_t imm)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tsra\t{},{},{:-X}h", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rd], g_registerNames[rt], signExtend(imm));
+
         uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
 
         if (cpu.getCPURegs().isLoadDelaySlot())
@@ -577,6 +690,9 @@ namespace festation
 
     void lui(MIPS_R3000A_Core& cpu, reg_t rt, immed16_t imm)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tlui\t{},{:-X}h", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rt], imm);
+        
         if (cpu.getCPURegs().isLoadDelaySlot())
             cpu.getCPURegs().consumeLoadedData();
 
@@ -585,6 +701,9 @@ namespace festation
 
     void mult(MIPS_R3000A_Core& cpu, reg_t rs, reg_t rt)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tmult\t{},{}", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rs], g_registerNames[rt]);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
         uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
 
@@ -599,6 +718,9 @@ namespace festation
 
     void multu(MIPS_R3000A_Core& cpu, reg_t rs, reg_t rt)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tmultu\t{},{}", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rs], g_registerNames[rt]);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
         uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
 
@@ -613,6 +735,9 @@ namespace festation
 
     void div(MIPS_R3000A_Core& cpu, reg_t rs, reg_t rt)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tdiv\t{},{}", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rs], g_registerNames[rt]);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
         uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
 
@@ -647,6 +772,9 @@ namespace festation
 
     void divu(MIPS_R3000A_Core& cpu, reg_t rs, reg_t rt)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tdivu\t{},{}", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rs], g_registerNames[rt]);
+
         uint32_t rsOperand = cpu.getCPURegs().gpr_regs[rs];
         uint32_t rtOperand = cpu.getCPURegs().gpr_regs[rt];
         
@@ -667,6 +795,9 @@ namespace festation
 
     void mfhi(MIPS_R3000A_Core& cpu, reg_t rd)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tmfhi\t{}", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rd]);
+
         if (cpu.getCPURegs().isLoadDelaySlot())
             cpu.getCPURegs().consumeLoadedData();
 
@@ -675,6 +806,9 @@ namespace festation
 
     void mflo(MIPS_R3000A_Core& cpu, reg_t rd)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tmflo\t{}", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rd]);
+
         if (cpu.getCPURegs().isLoadDelaySlot())
             cpu.getCPURegs().consumeLoadedData();
 
@@ -683,6 +817,8 @@ namespace festation
 
     void mthi(MIPS_R3000A_Core& cpu, reg_t rs)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tmthi\t{}", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rs]);
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
 
         if (cpu.getCPURegs().isLoadDelaySlot())
@@ -693,6 +829,9 @@ namespace festation
 
     void mtlo(MIPS_R3000A_Core& cpu, reg_t rs)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tmtlo\t{}", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rs]);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
 
         if (cpu.getCPURegs().isLoadDelaySlot())
@@ -703,6 +842,9 @@ namespace festation
 
     void j(MIPS_R3000A_Core& cpu, j_immed26_t dest)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tj\t{:X}h", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), dest);
+
         if (cpu.getCPURegs().isLoadDelaySlot())
             cpu.getCPURegs().consumeLoadedData();
 
@@ -711,6 +853,9 @@ namespace festation
 
     void jal(MIPS_R3000A_Core& cpu, j_immed26_t dest)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tjal\t{:X}h", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), dest);
+
         if (cpu.getCPURegs().isLoadDelaySlot())
             cpu.getCPURegs().consumeLoadedData();
 
@@ -722,6 +867,9 @@ namespace festation
 
     void jr(MIPS_R3000A_Core& cpu, reg_t rs)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tjr\t{}", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rs]);
+
         const uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
 
         if (cpu.getCPURegs().isLoadDelaySlot())
@@ -733,6 +881,9 @@ namespace festation
 
     void jalr(MIPS_R3000A_Core& cpu, reg_t rs, reg_t rd)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tjalr\t{},{}", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rs], g_registerNames[rd]);
+
         const uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
 
         if (cpu.getCPURegs().isLoadDelaySlot())
@@ -753,6 +904,9 @@ namespace festation
 
     void beq(MIPS_R3000A_Core& cpu, reg_t rs, reg_t rt, immed16_t dest)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tbeq\t{},{},{:X}h", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rs], g_registerNames[rt], dest);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
         uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
 
@@ -767,6 +921,9 @@ namespace festation
 
     void bne(MIPS_R3000A_Core& cpu, reg_t rs, reg_t rt, immed16_t dest)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tbne\t{},{},{:X}h", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rs], g_registerNames[rt], dest);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
         uint32_t rtValue = cpu.getCPURegs().gpr_regs[rt];
 
@@ -781,6 +938,9 @@ namespace festation
 
     void bltz(MIPS_R3000A_Core& cpu, reg_t rs, immed16_t dest)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tbltz\t{},{:X}h", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rs], dest);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
 
         if (cpu.getCPURegs().isLoadDelaySlot())
@@ -794,6 +954,9 @@ namespace festation
 
     void bgez(MIPS_R3000A_Core& cpu, reg_t rs, immed16_t dest)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tbgez\t{},{:X}h", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rs], dest);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
 
         if (cpu.getCPURegs().isLoadDelaySlot())
@@ -807,6 +970,9 @@ namespace festation
 
     void bgtz(MIPS_R3000A_Core& cpu, reg_t rs, immed16_t dest)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tbgtz\t{},{:X}h", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rs], dest);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
 
         if (cpu.getCPURegs().isLoadDelaySlot())
@@ -820,6 +986,9 @@ namespace festation
     
     void blez(MIPS_R3000A_Core& cpu, reg_t rs, immed16_t dest)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tblez\t{},{:X}h", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rs], dest);
+
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
 
         if (cpu.getCPURegs().isLoadDelaySlot())
@@ -833,6 +1002,9 @@ namespace festation
 
     void bltzal(MIPS_R3000A_Core& cpu, reg_t rs, immed16_t dest)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tbltzal\t{},{:X}h", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rs], dest);
+
         uint32_t cmpReg = cpu.getCPURegs().gpr_regs[rs];
 
         if (cpu.getCPURegs().isLoadDelaySlot())
@@ -851,6 +1023,9 @@ namespace festation
 
     void bgezal(MIPS_R3000A_Core& cpu, reg_t rs, immed16_t dest)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tbgezal\t{},{:X}h", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction(), g_registerNames[rs], dest);
+
         uint32_t cmpReg = cpu.getCPURegs().gpr_regs[rs];
 
         if (cpu.getCPURegs().isLoadDelaySlot())
@@ -869,6 +1044,9 @@ namespace festation
 
     void syscall(MIPS_R3000A_Core& cpu, uint32_t imm20)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tsyscall", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction());
+
         if (cpu.getCPURegs().isLoadDelaySlot())
             cpu.getCPURegs().consumeLoadedData();
 
@@ -877,6 +1055,8 @@ namespace festation
 
     void _break(MIPS_R3000A_Core& cpu, uint32_t imm20)
     {
+        LOG_DEBUG("0x{:08X} {:08X}\tbeq", \
+            cpu.getCPURegs().currentPC, cpu.getCurrentInstruction());
         if (cpu.getCPURegs().isLoadDelaySlot())
             cpu.getCPURegs().consumeLoadedData();
 
