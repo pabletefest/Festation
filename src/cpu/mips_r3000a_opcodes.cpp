@@ -6,6 +6,10 @@
 // #include <stdckdint.h>
 #include <bit>
 
+#ifdef NDEBUG
+#define LOG_DEBUG(...)
+#endif
+
 namespace festation
 {
     static void calculateAndPerformJumpAddress(MIPS_R3000A_Core& cpu, j_immed26_t dest)
