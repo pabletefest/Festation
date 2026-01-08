@@ -66,7 +66,15 @@ uint32_t festation::MIPS_R3000A_Core::read32(uint32_t address)
             (scratchpadCache[(masked_address + 3) & SCRATCHPAD_SIZE_MASK] << 24);
     }
 
-    return system->read32(address);
+    uint32_t value = system->read32(address);
+
+    /*if (value == 0x801ff014) {
+        LOG_DEBUG("Reading {:08X}h from 0x{:08X}", value, address);
+        printCPUState();
+        printCOP0State();
+    }*/
+
+    return value;
 }
 
 void festation::MIPS_R3000A_Core::write8(uint32_t address, uint8_t value)
@@ -119,6 +127,12 @@ void festation::MIPS_R3000A_Core::write32(uint32_t address, uint32_t value)
     }
 
     system->write32(address, value);
+
+    /*if (value == 0x801ff014) {
+        LOG_DEBUG("Writting {:08X}h to 0x{:08X}", value, address);
+        printCPUState();
+        printCOP0State();
+    }*/
 }
 
 uint8_t festation::MIPS_R3000A_Core::executeInstruction()
@@ -130,11 +144,11 @@ uint8_t festation::MIPS_R3000A_Core::executeInstruction()
         handleException(*this, ExcCode_AdEL);
     }
 
-    uint32_t instruction = fetchInstruction();
+    currentInstruction = fetchInstruction();
 
-    //LOG_DEBUG(  "* Executing instruction: 0x{:08X}  at address 0x{:08X} *", instruction, r3000a_regs.pc - 4);
+    //LOG_DEBUG("* Executing instruction: 0x{:08X}  at address 0x{:08X} *", instruction, r3000a_regs.pc - 4);
 
-    InstructionType instructionType = decodeInstruction(instruction);
+    InstructionType instructionType = decodeInstruction(currentInstruction);
 
     EncodingType type = std::get<0>(instructionType);
 
@@ -205,11 +219,44 @@ bool festation::MIPS_R3000A_Core::isCacheIsolated() const
     return (cop0_state.getCop0RegisterValue(SR) & CACHE_ISOLATION_BIT_MASK) != 0;
 }
 
+void festation::MIPS_R3000A_Core::printCPUState()
+{
+    const PSXRegs& regs = this->getCPURegs();
+    LOG_DEBUG("R0: {:08X}h - R1: {:08X}h - R2: {:08X}h - R3: {:08X}h - R4: {:08X}h - R5: {:08X}h - R6: {:08X}h R7: {:08X}h",
+        regs.gpr_regs[0], regs.gpr_regs[1], regs.gpr_regs[2], regs.gpr_regs[3], regs.gpr_regs[4], regs.gpr_regs[5], regs.gpr_regs[6], regs.gpr_regs[7]);
+    LOG_DEBUG("R8: {:08X}h - R9: {:08X}h - R10: {:08X}h - R11: {:08X}h - R12: {:08X}h - R13: {:08X}h - R114: {:08X}h R15: {:08X}h",
+        regs.gpr_regs[8], regs.gpr_regs[9], regs.gpr_regs[10], regs.gpr_regs[11], regs.gpr_regs[12], regs.gpr_regs[13], regs.gpr_regs[14], regs.gpr_regs[15]);
+    LOG_DEBUG("R16: {:08X}h - R17: {:08X}h - R18: {:08X}h - R19: {:08X}h - R20: {:08X}h - R21: {:08X}h - R22: {:08X}h R23: {:08X}h",
+        regs.gpr_regs[16], regs.gpr_regs[17], regs.gpr_regs[18], regs.gpr_regs[19], regs.gpr_regs[20], regs.gpr_regs[21], regs.gpr_regs[22], regs.gpr_regs[23]);
+    LOG_DEBUG("R24: {:08X}h - R25: {:08X}h - R26: {:08X}h - R27: {:08X}h - R28: {:08X}h - R29: {:08X}h - R30: {:08X}h R31: {:08X}h",
+        regs.gpr_regs[24], regs.gpr_regs[25], regs.gpr_regs[26], regs.gpr_regs[27], regs.gpr_regs[28], regs.gpr_regs[29], regs.gpr_regs[30], regs.gpr_regs[31]);
+
+    LOG_DEBUG("PC (ahead): {:08X}h - Current PC: {:08X}h - HI: {:08X}h - LO: {:08X}h",
+        regs.pc, regs.currentPC, regs.hi, regs.lo);
+
+    LOG_DEBUG("");
+    LOG_DEBUG("-----------------------------------------------------------------------------------");
+    LOG_DEBUG("");
+}
+
+void festation::MIPS_R3000A_Core::printCOP0State()
+{
+    const COP0SystemControlRegs& cop0Regs = this->getCOP0Regs();
+
+    LOG_DEBUG("BadVaddr: {:08X}h - SR: {:08X}h - CAUSE: {:08X}h - EPC: {:08X}h",
+        cop0Regs.BadVaddr, cop0Regs.SR, cop0Regs.CAUSE, cop0Regs.EPC);
+
+    LOG_DEBUG("");
+    LOG_DEBUG("-----------------------------------------------------------------------------------");
+    LOG_DEBUG("");
+}
+
+
 uint32_t festation::MIPS_R3000A_Core::fetchInstruction()
 {
-    r3000a_regs.currentPC = r3000a_regs.pc;
-    
     uint32_t instruction = read32(r3000a_regs.pc);
+
+    r3000a_regs.currentPC = r3000a_regs.pc;
 
     r3000a_regs.pc += INSTRUCTION_SIZE;
 
@@ -362,8 +409,8 @@ festation::InstructionTypeVariant festation::MIPS_R3000A_Core::decodeRFormat(uin
         }, rd, rt, rs, shift) };
     default:
         LOG_ERROR("Unimplemented or invalid R-type instruction! Function opcode: {:02X} - from hex MIPS instruction encoding ({:08X})\n", function, instruction);
-        assert(false);
-        return InstructionTypeVariant();
+        return { std::make_tuple([](MIPS_R3000A_Core& cpu, reg_t _rd, reg_t _rt, reg_t _rs, shift_t _shift) {
+        }, rd, rt, rs, shift) };
     }
 }
 
@@ -381,8 +428,8 @@ festation::InstructionTypeVariant festation::MIPS_R3000A_Core::decodeJFormat(uin
         }, getInstAddress(instruction)) };
     default:
         LOG_ERROR("Unimplemented or invalid J-type instruction! Instruction opcode: {:02X} - from hex MIPS instruction encoding ({:08X}\n", getInstOpcode(instruction), instruction);
-        assert(false);
-        return InstructionTypeVariant();
+        return { std::make_tuple([](MIPS_R3000A_Core& cpu, j_immed26_t dest) {
+        }, getInstAddress(instruction)) };
     }
 }
 
@@ -415,8 +462,7 @@ festation::InstructionTypeVariant festation::MIPS_R3000A_Core::decodeIFormat(uin
                 bgezal(cpu, _rs, dest);
             }, rt, rs, imm16) };
         default:
-            //LOG_ERROR("Unimplemented or invalid I-type BcondZ instruction! rt bits: {:02} - from hex MIPS instruction encoding ({:08X})\n", rt, instruction);
-            //assert(false);
+            LOG_ERROR("Unimplemented or invalid I-type BcondZ instruction! rt bits: {:02} - from hex MIPS instruction encoding ({:08X})\n", rt, instruction);
             return { std::make_tuple([](MIPS_R3000A_Core& cpu, reg_t _rt, reg_t _rs, immed16_t dest) {
             }, rt, rs, imm16) };
         }
@@ -493,18 +539,22 @@ festation::InstructionTypeVariant festation::MIPS_R3000A_Core::decodeIFormat(uin
                 }, rt, rs, imm16) };
             default:
                 LOG_ERROR("Unimplemented or invalid COP0 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
-                assert(false);
-                return InstructionTypeVariant();
+                return { std::make_tuple([rtcop0, rdcop0](MIPS_R3000A_Core& cpu, reg_t _rt, reg_t _rs, immed16_t _imm16) {
+                }, rt, rs, imm16) };
             }
         }
     case 0x11: // COP1
-        assert(false);
-        return InstructionTypeVariant();
+        LOG_ERROR("Unimplemented or invalid COP1 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
+        return { std::make_tuple([](MIPS_R3000A_Core& cpu, reg_t _rt, reg_t _rs, immed16_t _imm16) {
+        }, rt, rs, imm16) };
     case 0x12: // COP2
-        return InstructionTypeVariant();
+        LOG_ERROR("Unimplemented or invalid COP2 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
+        return { std::make_tuple([](MIPS_R3000A_Core& cpu, reg_t _rt, reg_t _rs, immed16_t _imm16) {
+        }, rt, rs, imm16) };
     case 0x13: // COP3
-        assert(false);
-        return InstructionTypeVariant();
+        LOG_ERROR("Unimplemented or invalid COP3 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
+        return { std::make_tuple([](MIPS_R3000A_Core& cpu, reg_t _rt, reg_t _rs, immed16_t _imm16) {
+        }, rt, rs, imm16) };
     case 0x20:
         return { std::make_tuple([](MIPS_R3000A_Core& cpu, reg_t _rt, reg_t _rs, immed16_t _imm16){
             lb(cpu, _rt, _rs, _imm16);
@@ -558,28 +608,35 @@ festation::InstructionTypeVariant festation::MIPS_R3000A_Core::decodeIFormat(uin
             lwc0(cpu, _rt, _rs, _imm16);
         }, rt, rs, imm16) };
     case 0x31: // COP1
-        assert(false);
-        return InstructionTypeVariant();
-    case 0x32: // COP2
-        return InstructionTypeVariant();
+        LOG_ERROR("Unimplemented or invalid COP1 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
+        return { std::make_tuple([](MIPS_R3000A_Core& cpu, reg_t _rt, reg_t _rs, immed16_t _imm16) {
+        }, rt, rs, imm16) };
+        LOG_ERROR("Unimplemented or invalid COP2 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
+        return { std::make_tuple([](MIPS_R3000A_Core& cpu, reg_t _rt, reg_t _rs, immed16_t _imm16) {
+        }, rt, rs, imm16) };
     case 0x33: // COP3
-        assert(false);
-        return InstructionTypeVariant();
+        LOG_ERROR("Unimplemented or invalid COP3 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
+        return { std::make_tuple([](MIPS_R3000A_Core& cpu, reg_t _rt, reg_t _rs, immed16_t _imm16) {
+        }, rt, rs, imm16) };
     case 0x38: // COP0
         return { std::make_tuple([](MIPS_R3000A_Core& cpu, reg_t _rt, reg_t _rs, immed16_t _imm16){
             swc0(cpu, _rt, _rs, _imm16);
         }, rt, rs, imm16) };
     case 0x39: // COP1
-        assert(false);
-        return InstructionTypeVariant();
+        LOG_ERROR("Unimplemented or invalid COP1 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
+        return { std::make_tuple([](MIPS_R3000A_Core& cpu, reg_t _rt, reg_t _rs, immed16_t _imm16) {
+        }, rt, rs, imm16) };
     case 0x3A: // COP2
-        return InstructionTypeVariant();
+        LOG_ERROR("Unimplemented or invalid COP2 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
+        return { std::make_tuple([](MIPS_R3000A_Core& cpu, reg_t _rt, reg_t _rs, immed16_t _imm16) {
+        }, rt, rs, imm16) };
     case 0x3B: // COP3
-        assert(false);
-        return InstructionTypeVariant();
+        LOG_ERROR("Unimplemented or invalid COP3 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
+        return { std::make_tuple([](MIPS_R3000A_Core& cpu, reg_t _rt, reg_t _rs, immed16_t _imm16) {
+        }, rt, rs, imm16) };
     default:
         LOG_ERROR("Unimplemented or invalid I-type instruction! Instruction opcode: {:02X} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
-        assert(false);
-        return InstructionTypeVariant();
+        return { std::make_tuple([](MIPS_R3000A_Core& cpu, reg_t _rt, reg_t _rs, immed16_t _imm16) {
+        }, rt, rs, imm16) };
     }
 }
