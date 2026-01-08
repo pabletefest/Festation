@@ -33,8 +33,12 @@ namespace festation
 
         PSXRegs& getCPURegs();
         COP0SystemControlRegs& getCOP0Regs();
+        inline uint32_t getCurrentInstruction() const { return currentInstruction; }
 
         bool isCacheIsolated() const;
+
+        void printCPUState();
+        void printCOP0State();
 
     private:        
         uint32_t fetchInstruction();
@@ -49,6 +53,7 @@ namespace festation
 
         PSXRegs r3000a_regs;
         COP0SystemControlRegs cop0_state;
+        uint32_t currentInstruction;
 
         std::array<uint8_t, 1024> scratchpadCache;
     };

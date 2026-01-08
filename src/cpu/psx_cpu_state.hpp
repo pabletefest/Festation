@@ -84,7 +84,7 @@ namespace festation
     struct COP0SystemControlRegs
     {
         void setCop0RegisterValue(size_t index, uint32_t value) {
-            LOG_DEBUG("Setting COP0 reg {} to value 0x{:0X}", index, value);
+            //LOG_DEBUG("Setting COP0 reg {} to value 0x{:0X}", index, value);
             switch (index) {
             case 6:
             case 8:
@@ -103,7 +103,7 @@ namespace festation
             }
                 break;
             default:
-                LOG_DEBUG("Unimplemented write to COP0 register {}!", index);
+                //LOG_DEBUG("Unimplemented write to COP0 register {}!", index);
                 cop0_regs[index] = value; // Generic buffer
                 break;
             }
@@ -112,23 +112,23 @@ namespace festation
         uint32_t getCop0RegisterValue(size_t index) const {
             switch (index) {
             case 6:
-                LOG_DEBUG("Read from COP0 reg TAR: 0x{:08X}", TAR);
+                //LOG_DEBUG("Read from COP0 reg TAR: 0x{:08X}", TAR);
                 return TAR;
             case 8:
-                LOG_DEBUG("Read from COP0 reg BadVaddr: 0x{:08X}", BadVaddr);
+                //LOG_DEBUG("Read from COP0 reg BadVaddr: 0x{:08X}", BadVaddr);
                 return BadVaddr;
             case 12:
                 return SR;
             case 13:
-                LOG_DEBUG("Read from COP0 reg CAUSE: 0x{:08X}", CAUSE);
+                //LOG_DEBUG("Read from COP0 reg CAUSE: 0x{:08X}", CAUSE);
                 return CAUSE;
             case 14:
-                LOG_DEBUG("Read from COP0 reg EPC: 0x{:08X}", EPC);
+                //LOG_DEBUG("Read from COP0 reg EPC: 0x{:08X}", EPC);
                 return EPC;
             case 15:
                 return PRID;
             default:
-                LOG_DEBUG("Unimplemented read from COP0 register {}!", index);
+                //LOG_DEBUG("Unimplemented read from COP0 register {}!", index);
                 return cop0_regs[index]; // Generic buffer
             }
 

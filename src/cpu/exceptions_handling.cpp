@@ -31,14 +31,14 @@ namespace festation
 
         cpu.getCOP0Regs().EPC = address;
 
-        LOG_DEBUG("New EPC COP0 reg value is 0x{:08X}", cpu.getCOP0Regs().EPC);
+        //LOG_DEBUG("New EPC COP0 reg value is 0x{:08X}", cpu.getCOP0Regs().EPC);
 
     }
 
     static void setExceptionExcCodeOnRegCAUSE(MIPS_R3000A_Core& cpu, COP0ExceptionCodes excCode)
     {
         cpu.getCOP0Regs().CAUSE = /*(cpu.getCOP0Regs().CAUSE & 0xFFFFFF83) |*/ (excCode << 2);
-        LOG_DEBUG("New CAUSE COP0 reg value is 0x{:08X}", cpu.getCOP0Regs().CAUSE);
+        //LOG_DEBUG("New CAUSE COP0 reg value is 0x{:08X}", cpu.getCOP0Regs().CAUSE);
     }
 
     static void jumpToExceptionVector(MIPS_R3000A_Core& cpu, ExceptionVectorType exceptionVectorType)
@@ -49,6 +49,7 @@ namespace festation
         {
         case ExceptionVectorType::Reset:
             cpu.getCPURegs().pc = (BEVbit) ? Reset_BEV1 : Reset_BEV0;
+            cpu.getCPURegs().currentPC = cpu.getCPURegs().pc;
             break;
         case ExceptionVectorType::UTLB_Miss:
             cpu.getCPURegs().pc = (BEVbit) ? UTLB_Miss_BEV1 : UTLB_Miss_BEV0;
@@ -76,7 +77,7 @@ namespace festation
 
         cpu.getCOP0Regs().SR = sr;
 
-        LOG_DEBUG("New SR COP0 reg value is 0x{:08X}", cpu.getCOP0Regs().SR);
+        //LOG_DEBUG("New SR COP0 reg value is 0x{:08X}", cpu.getCOP0Regs().SR);
 
 
         /* Move this later to interrupts module */
