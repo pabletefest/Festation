@@ -8,9 +8,9 @@ add_subdirectory(memory)
 
 add_executable(${PROJECT_NAME} main.cpp)
 
-target_compile_definitions(${PROJECT_NAME} PUBLIC
-  "$<$<CONFIG:Debug>:DISASSEMBLY>"
-)
+# target_compile_definitions(${PROJECT_NAME} PUBLIC
+#   "$<$<CONFIG:Debug>:DISASSEMBLY>"
+# )
 
 target_sources(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/psx_system.cpp 
@@ -19,6 +19,8 @@ target_sources(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/cpu/mips_r3000a_opcodes.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/cpu/coprocessor_cp0_opcodes.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/cpu/exceptions_handling.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/gpu/gpu.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/kernel_bios/bios.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/kernel_bios/tty.cpp

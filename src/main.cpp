@@ -56,7 +56,7 @@ int main(int, char**)
         return -1;
     }
 
-    festation::psxSystem.sideloadExeFile(std::filesystem::current_path().concat("/../../../../res/tests/psxtest_cpu.exe"));
+    festation::psxSystem.sideloadExeFile(std::filesystem::current_path().concat("/../../../res/tests/psxtest_cpu.exe"));
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))

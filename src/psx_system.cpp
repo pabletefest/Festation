@@ -122,6 +122,16 @@ uint32_t festation::PSXSystem::read32(uint32_t address)
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
         LOG_DEBUG("Read32 from I/O port address 0x{:08X}", address);
+
+        switch(masked_address) {
+        case 0x1F801810:
+        case 0x1F801814:
+            return gpu.read32(masked_address);
+            break;
+        default:
+            break;
+        }
+
         //assert(false && "Not implemented read on I/O Ports!");
         return 0xFFFFFFFF;
     }
@@ -241,6 +251,16 @@ void festation::PSXSystem::write32(uint32_t address, uint32_t value)
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
         LOG_DEBUG("Write32 to I/O port address 0x{:08X}", address);
+
+        switch(masked_address) {
+        case 0x1F801810:
+        case 0x1F801814:
+            gpu.write32(masked_address, value);
+            break;
+        default:
+            break;
+        }
+
         //assert(false && "Not implemented write on I/O Ports!");
     }
     else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
