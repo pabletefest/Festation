@@ -20,7 +20,31 @@ namespace festation {
 
         union {
             struct {
-
+                uint32_t texturePageXBase : 4;
+                uint32_t texturePageYBase1 : 1;
+                uint32_t semiTransparency : 2;
+                uint32_t texturePageColors : 2;
+                uint32_t dither24bitTo15bit: 1;
+                uint32_t drawingToDisplayArea : 1;
+                uint32_t setMaskbitWhenDrawing : 1;
+                uint32_t drawPixels : 1;
+                uint32_t interlaceFIeld : 1;
+                uint32_t flipScreenHorizontally : 1;
+                uint32_t texturePageYBase2 : 1;
+                uint32_t horizontalResolution2 : 1;
+                uint32_t horizontalResolution1 : 2;
+                uint32_t verticalResolution : 1;
+                uint32_t videoMode : 1;
+                uint32_t displayAreaColorDepth : 1;
+                uint32_t verticalInterlace : 1;
+                uint32_t displayEnable : 1;
+                uint32_t interruptRequest : 1;
+                uint32_t dmaDataRequest : 1;
+                uint32_t readyToReceiveCmdWord : 1;
+                uint32_t readyToSendVRAMtoCPU : 1;
+                uint32_t readyToReceiveDMABlock : 1;
+                uint32_t dmaDirection : 2;
+                uint32_t drawingEvenOddLinesInInterlaceMode : 1;
             };
             
             uint32_t raw;
