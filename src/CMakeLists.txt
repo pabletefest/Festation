@@ -23,6 +23,8 @@ target_sources(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/gpu/gpu.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/gpu/renderer/texture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/gpu/renderer/hw/OpenGL/ogl_texture.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gpu/renderer/shader.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gpu/renderer/hw/OpenGL/ogl_shader.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/kernel_bios/bios.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/kernel_bios/tty.cpp
@@ -30,6 +32,7 @@ target_sources(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/memory/virtual_mem_allocator_utils.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/utils/logger.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/utils/file_reader.cpp
 )
 
 # find_package(SDL2 REQUIRED)
