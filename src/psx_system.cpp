@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <assert.h>
 
+static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = 897619;
+
 festation::PSXSystem::PSXSystem()
     : cpu(this), mainRAM(MAIN_RAM_SIZE), bios(KernelBIOS(cpu))
 {
@@ -283,11 +285,13 @@ void festation::PSXSystem::write32(uint32_t address, uint32_t value)
 
 void festation::PSXSystem::runWholeFrame()
 {
-    while(true)
-    {
+    int32_t totalFrameCycles = CYCLES_FER_FRAME_NTSC;
+
+    while (totalFrameCycles > 0) {
         uint8_t cycles = cpu.executeInstruction();
         bios.checkKernerlTTYOutput();
         totalElapsedCycles += cycles;
+        totalFrameCycles -= cycles;
     }
 }
 
