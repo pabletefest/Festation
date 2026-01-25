@@ -123,14 +123,16 @@ uint32_t festation::PSXSystem::read32(uint32_t address)
     }
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
-        LOG_DEBUG("Read32 from I/O port address 0x{:08X}", address);
-
         switch(masked_address) {
         case 0x1F801810:
         case 0x1F801814:
-            return gpu.read32(masked_address);
-            break;
+        {
+            uint32_t readValue = gpu.read32(masked_address);
+            LOG_DEBUG("Reading {:08X}h from GPU IO port 0x{:08X}", readValue, address);
+            return readValue;
+        }
         default:
+            LOG_DEBUG("Read32 from I/O port address 0x{:08X}", address);
             break;
         }
 
@@ -176,7 +178,7 @@ void festation::PSXSystem::write8(uint32_t address, uint8_t value)
     }
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
-        LOG_DEBUG("Write8 to I/O port address 0x{:08X}", address);
+        LOG_DEBUG("Write8 ({:02X}h) to I/O port address 0x{:08X}", value, address);
         //assert(false && "Not implemented write on I/O Ports!");
     }
     else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
@@ -214,7 +216,7 @@ void festation::PSXSystem::write16(uint32_t address, uint16_t value)
     }
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
-        LOG_DEBUG("Write16 to I/O port address 0x{:08X}", address);
+        LOG_DEBUG("Write16 ({:04X}h) to I/O port address 0x{:08X}", value, address);
         //assert(false && "Not implemented write on I/O Ports!");
     }
     else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
@@ -252,14 +254,14 @@ void festation::PSXSystem::write32(uint32_t address, uint32_t value)
     }
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
-        LOG_DEBUG("Write32 to I/O port address 0x{:08X}", address);
-
         switch(masked_address) {
         case 0x1F801810:
         case 0x1F801814:
+            LOG_DEBUG("Writting {:08X}h to GPU IO port 0x{:08X}", value, address);
             gpu.write32(masked_address, value);
             break;
         default:
+            LOG_DEBUG("Write32 ({:08X}h) to I/O port address 0x{:08X}", value, address);
             break;
         }
 
