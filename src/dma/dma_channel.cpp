@@ -1,6 +1,7 @@
 #include <dma/dma_channel.hpp>
 
 festation::DmaChannel::DmaChannel()
+    : D_MADR({}), D_BCR({}), D_CHCR({})
 {
 }
 

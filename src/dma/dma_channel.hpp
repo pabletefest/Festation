@@ -19,7 +19,7 @@ namespace festation {
             };
 
             uint32_t raw;
-        } Dx_MADR;
+        } D_MADR;
 
         union DmaBlockControl {
             struct BcrSyncMode0 {
@@ -37,7 +37,7 @@ namespace festation {
             };
             
             uint32_t raw;
-        } Dx_BCR;
+        } D_BCR;
 
         union DmaChannelControl {
             struct {
@@ -60,6 +60,6 @@ namespace festation {
             };
             
             uint32_t raw;
-        } Dx_CHCR;
+        } D_CHCR;
     };
 };
