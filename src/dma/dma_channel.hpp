@@ -14,7 +14,7 @@ namespace festation {
     private:
         union DmaBaseAddress {
             struct {
-                uint32_t startMemAddr : 24;
+                uint32_t startMemoryAddress : 24;
                 uint32_t unused : 8;
             };
 
@@ -44,7 +44,7 @@ namespace festation {
                 uint32_t transferDirection : 1;
                 uint32_t madrIncrementPerStep : 1;
                 uint32_t unused : 6;
-                uint32_t modeEffect : 1;
+                uint32_t modeEffect : 1; /* For more info about bit 8 check https://psx-spx.consoledev.net/dmachannels/ */ 
                 uint32_t transferSyncMode : 2;
                 uint32_t unused2 : 5;
                 uint32_t choppingDmaWindowSize : 3;
@@ -54,7 +54,7 @@ namespace festation {
                 uint32_t startTransfer : 1;
                 uint32_t unused5 : 3;
                 uint32_t forceTransferStartWithoutDREQWaiting : 1;
-                uint32_t modeEffect2 : 1;
+                uint32_t modeEffect2 : 1; /* For more info about bit 29 check https://psx-spx.consoledev.net/dmachannels/ */ 
                 uint32_t performBusSnooping : 1;
                 uint32_t unused6 : 1;
             };
