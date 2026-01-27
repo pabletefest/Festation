@@ -1,6 +1,7 @@
 #pragma once
 #include "psx_cw33300_cpu.hpp"
 #include "kernel_bios/bios.hpp"
+#include "dma/dma_control.hpp"
 #include "gpu/gpu.hpp"
 
 #include <vector>
@@ -32,6 +33,7 @@ namespace festation
         //uint8_t* mainRAM = nullptr;
         std::vector<uint8_t> mainRAM;
         KernelBIOS bios;
+        DmaControl dma;
         PsxGpu gpu;
         uint64_t totalElapsedCycles;
     };
