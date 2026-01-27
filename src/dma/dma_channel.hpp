@@ -22,19 +22,19 @@ namespace festation {
         } D_MADR;
 
         union DmaBlockControl {
-            struct BcrSyncMode0 {
+            struct {
                 uint32_t wordsNumber : 16;
                 uint32_t unused : 16;
-            };
+            } bcrSyncMode0;
 
-            struct BcrSyncMode1 {
+            struct {
                 uint32_t blockSize : 16;
                 uint32_t blocksAmount : 16;
-            };
+            } bcrSyncMode1;
 
-            struct BcrSyncMode2 {
+            struct {
                 uint32_t unused;
-            };
+            } bcrSyncMode2;
             
             uint32_t raw;
         } D_BCR;
