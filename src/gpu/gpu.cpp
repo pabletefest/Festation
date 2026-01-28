@@ -3,10 +3,17 @@
 festation::PsxGpu::PsxGpu()
     : GPUREAD({}), GPUSTAT({})
 {
+    reset();
 }
 
 festation::PsxGpu::~PsxGpu()
 {
+}
+
+void festation::PsxGpu::reset()
+{
+    GPUSTAT.raw = 0x14802000;
+    GPUSTAT.readyToSendVRAMtoCPU = 1; // TODO: TEMP
 }
 
 uint32_t festation::PsxGpu::read32(uint32_t address)
@@ -25,9 +32,9 @@ void festation::PsxGpu::write32(uint32_t address, uint32_t value)
 {
     switch(address) {
     case 0x1F801810:
-        GPUREAD.raw = value;
+        break;
     case 0x1F801814:
-        GPUSTAT.raw = value;
+        break;
     default:
         break;
     }
