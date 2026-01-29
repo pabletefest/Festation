@@ -12,6 +12,12 @@ namespace festation {
         void write32(uint32_t address, uint32_t value);
 
     private:
+        void parseCommandGP0(uint32_t commandWord);
+        void processRectangleCommand(uint32_t commandWord);
+        
+        void parseCommandGP1(uint32_t commandWord);
+
+    private:
         union {
             struct {
 
@@ -51,5 +57,8 @@ namespace festation {
             
             uint32_t raw;
         } GPUSTAT;
+
+        GpuCommandsState commandState;
+        size_t currentCmdArg;
     };
 };

@@ -1,7 +1,12 @@
 #include "gpu.hpp"
+#include "gpu_commands.h"
+#include "utils/logger.hpp"
+
+#include <utility>
 
 festation::PsxGpu::PsxGpu()
-    : GPUREAD({}), GPUSTAT({})
+    : GPUREAD({}), GPUSTAT({}), commandState(GpuCommandsState::WaitingForCommand),
+        currentCmdArg(1)
 {
     reset();
 }
@@ -24,7 +29,7 @@ uint32_t festation::PsxGpu::read32(uint32_t address)
     case 0x1F801814:
         return GPUSTAT.raw;
     default:
-        return 0xFFFFFFFF;
+        std::unreachable();
     }
 }
 
@@ -32,10 +37,50 @@ void festation::PsxGpu::write32(uint32_t address, uint32_t value)
 {
     switch(address) {
     case 0x1F801810:
+        switch (commandState)
+        {
+        case GpuCommandsState::WaitingForCommand:
+            parseCommandGP0(value);
+            break;
+        case GpuCommandsState::ProcessingRectangleCommand:
+            processRectangleCommand(value);
+            break;
+        default:
+            break;
+        }
         break;
     case 0x1F801814:
         break;
     default:
+        std::unreachable();
+    }
+}
+
+void festation::PsxGpu::parseCommandGP0(uint32_t commandWord)
+{
+    uint8_t command = commandWord >> 29;
+
+    switch(command)
+    {
+    default:
+        LOG_DEBUG("Unimplemented GP0 GPU command (0b{:b})", command);
+        break;
+    }
+}
+
+void festation::PsxGpu::processRectangleCommand(uint32_t commandWord)
+{
+}
+
+void festation::PsxGpu::parseCommandGP1(uint32_t commandWord)
+{
+    uint8_t command = commandWord >> 24;
+    uint32_t parameter = commandWord & 0x00FFFFFF;
+
+    switch (command)
+    {
+    default:
+        LOG_DEBUG("Unimplemented GP1 GPU command ({:x}h)", command);
         break;
     }
 }
