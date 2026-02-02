@@ -1,4 +1,9 @@
+#pragma once
+
+#include "gpu_commands.h"
+
 #include <cstdint>
+#include <array>
 
 namespace festation {
     class PsxGpu {
@@ -13,9 +18,20 @@ namespace festation {
 
     private:
         void parseCommandGP0(uint32_t commandWord);
-        void processRectangleCommand(uint32_t commandWord);
+        void processGP0RectangleCmd(uint32_t commandWord);
         
         void parseCommandGP1(uint32_t commandWord);
+        void processResetGpuCmd();
+        void processResetCommandBufferCmd();
+        void processAckGpuIntCmd();
+        void processDisplayEnableCmd();
+        void processDmaDirectionDataRequestCmd();
+        void processStartDisplayAreaCmd();
+        void processHorizontalDisplayRangeCmd();
+        void processVerticalDisplayRangeCmd();
+        void processDisplayModeCmd();
+        void processSetVramSizeCmd();
+        void processReadGpuInternalRegCmd();
 
     private:
         union {
@@ -58,7 +74,9 @@ namespace festation {
             uint32_t raw;
         } GPUSTAT;
 
-        GpuCommandsState commandState;
-        size_t currentCmdArg;
+        GpuCommandsState m_commandState;
+        size_t m_currentCmdArg;
+        static constexpr size_t MAX_COMMANDS_BUFFER_SIZE = 16;
+        std::array<uint32_t, MAX_COMMANDS_BUFFER_SIZE> m_commandsFIFO;
     };
 };
