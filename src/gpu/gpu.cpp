@@ -5,8 +5,8 @@
 #include <utility>
 
 festation::PsxGpu::PsxGpu()
-    : GPUREAD({}), GPUSTAT({}), commandState(GpuCommandsState::WaitingForCommand),
-        currentCmdArg(1)
+    : GPUREAD({}), GPUSTAT({}), m_commandState(GpuCommandsState::WaitingForCommand),
+        m_currentCmdArg(1), m_commandsFIFO({})
 {
     reset();
 }
@@ -37,7 +37,7 @@ void festation::PsxGpu::write32(uint32_t address, uint32_t value)
 {
     switch(address) {
     case 0x1F801810:
-        switch (commandState)
+        switch (m_commandState)
         {
         case GpuCommandsState::WaitingForCommand:
             parseCommandGP0(value);
@@ -68,7 +68,7 @@ void festation::PsxGpu::parseCommandGP0(uint32_t commandWord)
     }
 }
 
-void festation::PsxGpu::processRectangleCommand(uint32_t commandWord)
+void festation::PsxGpu::processGP0RectangleCmd(uint32_t commandWord)
 {
 }
 
@@ -83,4 +83,49 @@ void festation::PsxGpu::parseCommandGP1(uint32_t commandWord)
         LOG_DEBUG("Unimplemented GP1 GPU command ({:x}h)", command);
         break;
     }
+}
+
+void festation::PsxGpu::processResetGpuCmd()
+{
+}
+
+void festation::PsxGpu::processResetCommandBufferCmd()
+{
+    std::memset(m_commandsFIFO.data(), 0, m_commandsFIFO.size());
+}
+
+void festation::PsxGpu::processAckGpuIntCmd()
+{
+}
+
+void festation::PsxGpu::processDisplayEnableCmd()
+{
+}
+
+void festation::PsxGpu::processDmaDirectionDataRequestCmd()
+{
+}
+
+void festation::PsxGpu::processStartDisplayAreaCmd()
+{
+}
+
+void festation::PsxGpu::processHorizontalDisplayRangeCmd()
+{
+}
+
+void festation::PsxGpu::processVerticalDisplayRangeCmd()
+{
+}
+
+void festation::PsxGpu::processDisplayModeCmd()
+{
+}
+
+void festation::PsxGpu::processSetVramSizeCmd()
+{
+}
+
+void festation::PsxGpu::processReadGpuInternalRegCmd()
+{
 }
