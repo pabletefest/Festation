@@ -43,7 +43,7 @@ void festation::PsxGpu::write32(uint32_t address, uint32_t value)
             parseCommandGP0(value);
             break;
         case GpuCommandsState::ProcessingRectangleCommand:
-            processRectangleCommand(value);
+            processGP0RectangleCmd(value);
             break;
         default:
             break;
