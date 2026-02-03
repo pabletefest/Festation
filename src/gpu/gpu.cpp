@@ -58,6 +58,18 @@ void festation::PsxGpu::parseCommandGP0(uint32_t commandWord)
 
     switch(command)
     {
+    case Gpu0Commands::PolygonPrimitive:
+        break;
+    case Gpu0Commands::LinePrimitive:
+        break;
+    case Gpu0Commands::RectanglePrimitive:
+        break;
+    case Gpu0Commands::VramToVramBlit:
+        break;
+    case Gpu0Commands::CpuToVramBlit:
+        break;
+    case Gpu0Commands::VramToCpuBlit:
+        break;
     case Gpu0Commands::Misc:
     case Gpu0Commands::Environment:
         switch(fullCmd)
