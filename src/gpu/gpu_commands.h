@@ -10,6 +10,17 @@ namespace festation {
         CpuToVramBlit       = 0b101,
         VramToCpuBlit       = 0b110,
         Environment         = 0b111,
+
+        // Misc/Env
+        ClearCache          = 0x1,
+        QuickRectangleFill  = 0x2,
+        InterruptRequest    = 0x1F,
+        DrawMode            = 0xE1,
+        TextureWindow       = 0xE2,
+        SetDrawingAreaX1Y1  = 0xE3,
+        SetDrawingAreaX2Y2  = 0xE4,
+        SetDrawingOffset    = 0xE5,
+        MaskBitSetting      = 0xE6,
     };
 
     enum Gpu1Commands {
