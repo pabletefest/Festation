@@ -9,7 +9,6 @@ festation::PsxGpu::PsxGpu()
         m_currentCmdArg(1), m_commandsFIFO({})
 {
     processResetGpuCmd();
-    GPUSTAT.readyToSendVRAMtoCPU = 1; // TODO: TEMP
 }
 
 festation::PsxGpu::~PsxGpu()
@@ -45,7 +44,7 @@ void festation::PsxGpu::write32(uint32_t address, uint32_t value)
         }
         break;
     case 0x1F801814:
-        parseCommandGP1(value);
+        // parseCommandGP1(value);
         break;
     default:
         std::unreachable();
@@ -55,9 +54,37 @@ void festation::PsxGpu::write32(uint32_t address, uint32_t value)
 void festation::PsxGpu::parseCommandGP0(uint32_t commandWord)
 {
     uint8_t command = commandWord >> 29;
+    uint8_t fullCmd = commandWord >> 24;
 
     switch(command)
     {
+    case Gpu0Commands::Misc:
+    case Gpu0Commands::Environment:
+        switch(fullCmd)
+        {
+        case Gpu0Commands::ClearCache:
+            break;
+        case Gpu0Commands::QuickRectangleFill:
+            break;
+        case Gpu0Commands::InterruptRequest:
+            break;
+        case Gpu0Commands::DrawMode:
+            break;
+        case Gpu0Commands::TextureWindow:
+            break;
+        case Gpu0Commands::SetDrawingAreaX1Y1:
+            break;
+        case Gpu0Commands::SetDrawingAreaX2Y2:
+            break;
+        case Gpu0Commands::SetDrawingOffset:
+            break;
+        case Gpu0Commands::MaskBitSetting:
+            break;
+        default:
+            LOG_DEBUG("Unimplemented GP0 Misc/Env GPU command ({:x}h)", fullCmd);
+            break;
+        }
+        break;
     default:
         LOG_DEBUG("Unimplemented GP0 GPU command (0b{:b})", command);
         break;
@@ -81,6 +108,33 @@ void festation::PsxGpu::parseCommandGP1(uint32_t commandWord)
     case Gpu1Commands::ResetCommandBuffer:
         processResetCommandBufferCmd();
         break;
+    case Gpu1Commands::AcknowledgeGpuInterrupt:
+        processAckGpuIntCmd();
+        break;
+    case Gpu1Commands::DisplayEnable:
+        processDisplayEnableCmd(parameter);
+        break;
+    case Gpu1Commands::DmaDirectionDataRequest:
+        processDmaDirectionDataRequestCmd(parameter);
+        break;
+    case Gpu1Commands::StartDisplayArea:
+        processStartDisplayAreaCmd(parameter);
+        break;
+    case Gpu1Commands::HorizontalDisplayRange:
+        processHorizontalDisplayRangeCmd(parameter);
+        break;
+    case Gpu1Commands::VerticalDisplayRange:
+        processVerticalDisplayRangeCmd(parameter);
+        break;
+    case Gpu1Commands::DisplayMode:
+        processDisplayModeCmd(parameter);
+        break;
+    case Gpu1Commands::SetVramSize:
+        processSetVramSizeCmd(parameter);
+        break;
+    case Gpu1Commands::ReadGpuInternalRegister:
+        processReadGpuInternalRegCmd(parameter);
+        break;
     default:
         LOG_DEBUG("Unimplemented GP1 GPU command ({:x}h)", command);
         break;
@@ -90,11 +144,13 @@ void festation::PsxGpu::parseCommandGP1(uint32_t commandWord)
 void festation::PsxGpu::processResetGpuCmd()
 {
     GPUSTAT.raw = 0x14802000;
+    GPUSTAT.readyToSendVRAMtoCPU = 1; // TODO: TEMP
 }
 
 void festation::PsxGpu::processResetCommandBufferCmd()
 {
     std::memset(m_commandsFIFO.data(), 0, m_commandsFIFO.size());
+    m_currentCmdArg = 0;
 }
 
 void festation::PsxGpu::processAckGpuIntCmd()
