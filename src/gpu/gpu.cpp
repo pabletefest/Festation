@@ -99,6 +99,7 @@ void festation::PsxGpu::processResetCommandBufferCmd()
 
 void festation::PsxGpu::processAckGpuIntCmd()
 {
+    GPUSTAT.interruptRequest = 0;
 }
 
 void festation::PsxGpu::processDisplayEnableCmd(uint32_t parameter)
