@@ -11,8 +11,6 @@ namespace festation {
         PsxGpu();
         ~PsxGpu();
 
-        void reset();
-
         uint32_t read32(uint32_t address);
         void write32(uint32_t address, uint32_t value);
 
@@ -24,14 +22,14 @@ namespace festation {
         void processResetGpuCmd();
         void processResetCommandBufferCmd();
         void processAckGpuIntCmd();
-        void processDisplayEnableCmd();
-        void processDmaDirectionDataRequestCmd();
-        void processStartDisplayAreaCmd();
-        void processHorizontalDisplayRangeCmd();
-        void processVerticalDisplayRangeCmd();
-        void processDisplayModeCmd();
-        void processSetVramSizeCmd();
-        void processReadGpuInternalRegCmd();
+        void processDisplayEnableCmd(uint32_t parameter);
+        void processDmaDirectionDataRequestCmd(uint32_t parameter);
+        void processStartDisplayAreaCmd(uint32_t parameter);
+        void processHorizontalDisplayRangeCmd(uint32_t parameter);
+        void processVerticalDisplayRangeCmd(uint32_t parameter);
+        void processDisplayModeCmd(uint32_t parameter);
+        void processSetVramSizeCmd(uint32_t parameter);
+        void processReadGpuInternalRegCmd(uint32_t parameter);
 
     private:
         union {
