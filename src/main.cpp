@@ -11,8 +11,6 @@
 #include <glm/vec4.hpp>
 
 /* Sets constants */
-#define WIDTH 800
-#define HEIGHT 600
 #define DELAY 3000
 
 namespace festation
@@ -20,6 +18,8 @@ namespace festation
     PSXSystem psxSystem;
 
     static constexpr const char* EMU_TITLE = "Festation (PSX Emulator)";
+    static constexpr const int EMU_WIDTH = 1024;
+    static constexpr const int EMU_HEIGHT = 512;
 };
 
 static void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
@@ -40,7 +40,7 @@ int main(int, char**)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(WIDTH, HEIGHT, festation::EMU_TITLE, NULL, NULL);
+    window = glfwCreateWindow(festation::EMU_WIDTH, festation::EMU_HEIGHT, festation::EMU_TITLE, NULL, NULL);
     
     if (!window)
     {
