@@ -16,7 +16,8 @@ namespace festation {
 
     private:
         void parseCommandGP0(uint32_t commandWord);
-        void processGP0RectangleCmd(uint32_t commandWord);
+        void processGP0RectangleCmd(uint32_t parameter);
+        void processGP0DrawModeCmd(uint32_t parameter);
         
         void parseCommandGP1(uint32_t commandWord);
         void processResetGpuCmd();

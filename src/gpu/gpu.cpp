@@ -81,6 +81,7 @@ void festation::PsxGpu::parseCommandGP0(uint32_t commandWord)
         case Gpu0Commands::InterruptRequest:
             break;
         case Gpu0Commands::DrawMode:
+            processGP0DrawModeCmd(commandWord);
             break;
         case Gpu0Commands::TextureWindow:
             break;
@@ -103,8 +104,15 @@ void festation::PsxGpu::parseCommandGP0(uint32_t commandWord)
     }
 }
 
-void festation::PsxGpu::processGP0RectangleCmd(uint32_t commandWord)
+void festation::PsxGpu::processGP0RectangleCmd(uint32_t parameter)
 {
+}
+
+void festation::PsxGpu::processGP0DrawModeCmd(uint32_t parameter)
+{
+    GPUSTAT.raw = (GPUSTAT.raw & 0xFFFFFC00) | (parameter & 0x3FF);
+    GPUSTAT.drawingToDisplayArea = (parameter >> 10) & 1;
+    GPUSTAT.texturePageYBase2 = (parameter >> 11) & 1;
 }
 
 void festation::PsxGpu::parseCommandGP1(uint32_t commandWord)
