@@ -244,7 +244,7 @@ void festation::MIPS_R3000A_Core::printCOP0State()
     const COP0SystemControlRegs& cop0Regs = this->getCOP0Regs();
 
     LOG_DEBUG("BadVaddr: {:08X}h - SR: {:08X}h - CAUSE: {:08X}h - EPC: {:08X}h",
-        cop0Regs.BadVaddr, cop0Regs.SR, cop0Regs.CAUSE, cop0Regs.EPC);
+        cop0Regs.BadVaddr, cop0Regs.SR.r, cop0Regs.CAUSE.r, cop0Regs.EPC);
 
     LOG_DEBUG("");
     LOG_DEBUG("-----------------------------------------------------------------------------------");
