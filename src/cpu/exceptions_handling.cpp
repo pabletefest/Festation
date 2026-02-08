@@ -24,23 +24,21 @@ namespace festation
 
     static void jumpToExceptionVector(MIPS_R3000A_Core& cpu, ExceptionVectorType exceptionVectorType)
     {
-        uint8_t BEVbit = (cpu.getCOP0Regs().SR.r >> 22) & 1;
-
         switch (exceptionVectorType)
         {
         case ExceptionVectorType::Reset:
-            cpu.getCPURegs().pc = (BEVbit) ? Reset_BEV1 : Reset_BEV0;
+            cpu.getCPURegs().pc = (cpu.getCOP0Regs().SR.bev) ? Reset_BEV1 : Reset_BEV0;
             cpu.getCPURegs().currentPC = cpu.getCPURegs().pc;
             break;
         case ExceptionVectorType::UTLB_Miss:
-            cpu.getCPURegs().pc = (BEVbit) ? UTLB_Miss_BEV1 : UTLB_Miss_BEV0;
+            cpu.getCPURegs().pc = (cpu.getCOP0Regs().SR.bev) ? UTLB_Miss_BEV1 : UTLB_Miss_BEV0;
             break;
         case ExceptionVectorType::COP0_Break:
-            cpu.getCPURegs().pc = (BEVbit) ? COP0_Break_BEV1 : COP0_Break_BEV0;
+            cpu.getCPURegs().pc = (cpu.getCOP0Regs().SR.bev) ? COP0_Break_BEV1 : COP0_Break_BEV0;
             break;
         case ExceptionVectorType::General:
             // cpu.getCPURegs().currentPC = cpu.getCPURegs().pc;
-            cpu.getCPURegs().pc = (BEVbit) ? General_BEV1 : General_BEV0;
+            cpu.getCPURegs().pc = (cpu.getCOP0Regs().SR.bev) ? General_BEV1 : General_BEV0;
             break;
         default:
             break;
@@ -50,7 +48,9 @@ namespace festation
     void handleException(MIPS_R3000A_Core& cpu, COP0ExceptionCodes excCode)
     {
         if (cpu.getCPURegs().isBranchDelaySlot())
-            cpu.getCOP0Regs().CAUSE.r |= 0x80000000;
+            cpu.getCOP0Regs().CAUSE.bd = 1;
+        else
+            cpu.getCOP0Regs().CAUSE.bd = 0;
 
         const uint32_t cause = cpu.getCOP0Regs().CAUSE.r;
         uint32_t sr = cpu.getCOP0Regs().SR.r;
@@ -68,7 +68,7 @@ namespace festation
         /* Move this later to interrupts module */
         bool isInterrupt = false;
 
-        if ((cause & 0xFF00) && (sr & 0xFF00) && (cause & 1)
+        if ((cause & 0xFF00) && (sr & 0xFF00) && (sr & 1)
             && excCode == ExcCode_INT) {
             isInterrupt = true;
         }
@@ -76,14 +76,14 @@ namespace festation
 
         uint32_t address = cpu.getCPURegs().currentPC;
 
-        if ((cpu.getCOP0Regs().CAUSE.r & 0x80000000) && !isInterrupt)
+        if ((cpu.getCOP0Regs().CAUSE.bd) && !isInterrupt)
             address -= 4;
 
         cpu.getCOP0Regs().EPC = address;
 
         //LOG_DEBUG("New EPC COP0 reg value is 0x{:08X}", cpu.getCOP0Regs().EPC);
 
-        cpu.getCOP0Regs().CAUSE.r = /*(cpu.getCOP0Regs().CAUSE & 0xFFFFFF00) |*/ (excCode << 2);
+        cpu.getCOP0Regs().CAUSE.excCode = excCode;
         //LOG_DEBUG("New CAUSE COP0 reg value is 0x{:08X}", cpu.getCOP0Regs().CAUSE);
 
         jumpToExceptionVector(cpu, ExceptionVectorType::General);
