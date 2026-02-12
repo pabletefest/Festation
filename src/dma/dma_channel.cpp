@@ -24,6 +24,8 @@ uint32_t festation::DmaChannel::read32(uint32_t address)
     default:
         assert(false);
     }
+
+    return 0xFF;
 }
 
 void festation::DmaChannel::write32(uint32_t address, uint32_t value)
