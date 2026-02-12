@@ -8,11 +8,14 @@ namespace festation
 {
     struct PSXRegs
     {
-        uint32_t gpr_regs[32]{ 0 };  // General Porpouse Registers
-        uint32_t pc{ 0 };            // Program Counter (usually ahead after fetching)
-        uint32_t currentPC{ 0 };     // Current instruction PC
-        uint32_t hi{ 0 };            // High part of mult/div opcodes results
-        uint32_t lo{ 0 };            // Low part of mult/div opcodes results
+        uint32_t gpr_regs[32]{ 0 }; // General Porpouse Registers
+        uint32_t currentPC{ 0 };    // PC poiting to current instruction        
+        uint32_t pc{ 0 };           // Program Counter (usually ahead after fetching)
+        uint32_t nextPC{ 0 };       // PC pointing to next instruction
+        uint32_t hi{ 0 };           // High part of mult/div opcodes results
+        uint32_t lo{ 0 };           // Low part of mult/div opcodes results
+        bool isBranch{ false };     // Keep track if a branch/jump instruction was executed
+        bool isDelaySlot{ false };  // Keep track if the instruction is in a delay slot
 
     private:
         class LoadDelaySlot // Struct containing last latched loaded value from memory due to delay slot (cleared after being consumed) and corresponding register
@@ -24,15 +27,6 @@ namespace festation
 
             friend struct PSXRegs;
         }loadDelaySlotLatch;
-
-        class BranchDelaySlot
-        {
-        private:
-            uint32_t destAddr = 0;
-            bool isDelay = false;
-
-            friend struct PSXRegs;
-        }branchDelaySlotLatch;
 
     public:
         constexpr inline bool isLoadDelaySlot() const
@@ -61,23 +55,6 @@ namespace festation
         constexpr inline uint32_t getLoadValue() const
         {
             return loadDelaySlotLatch.loadedValue;
-        }
-
-        constexpr inline bool isBranchDelaySlot() const
-        {
-            return branchDelaySlotLatch.isDelay;
-        }
-
-        constexpr inline void performDelayedJump()
-        {
-            pc = branchDelaySlotLatch.destAddr;
-            branchDelaySlotLatch.isDelay = false;
-        }
-
-        constexpr inline void storeDelayedJump(uint32_t destination)
-        {
-            branchDelaySlotLatch.destAddr = destination;
-            branchDelaySlotLatch.isDelay = true;
         }
     };
 
@@ -137,8 +114,8 @@ namespace festation
 
         // Public only to emulator internal code to avoid the code modify undesired bits
         // Code modifies COP0 regs via instructions using setter/getter
-        uint32_t TAR;
-        uint32_t BadVaddr;
+        uint32_t TAR{ 0 };
+        uint32_t BadVaddr { 0 };
 
         union {
             struct {
@@ -167,7 +144,7 @@ namespace festation
             };
 
             uint32_t r;
-        } SR;
+        } SR{ 0 };
 
         union {
             struct {
@@ -183,12 +160,12 @@ namespace festation
             };
 
             uint32_t r;
-        } CAUSE;
+        } CAUSE{ 0 };
 
-        uint32_t EPC;
-        uint32_t PRID;
+        uint32_t EPC{ 0 };
+        uint32_t PRID{ 0 };
 
-        uint32_t cop0_regs[32];
+        uint32_t cop0_regs[32]{ 0 };
         //uint32_t NA_control_regs[32]; // None such
     };
 };

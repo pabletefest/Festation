@@ -29,6 +29,7 @@ namespace festation
         case ExceptionVectorType::Reset:
             cpu.getCPURegs().pc = (cpu.getCOP0Regs().SR.bev) ? Reset_BEV1 : Reset_BEV0;
             cpu.getCPURegs().currentPC = cpu.getCPURegs().pc;
+            cpu.getCPURegs().nextPC = cpu.getCPURegs().pc + 4;
             break;
         case ExceptionVectorType::UTLB_Miss:
             cpu.getCPURegs().pc = (cpu.getCOP0Regs().SR.bev) ? UTLB_Miss_BEV1 : UTLB_Miss_BEV0;
@@ -37,8 +38,8 @@ namespace festation
             cpu.getCPURegs().pc = (cpu.getCOP0Regs().SR.bev) ? COP0_Break_BEV1 : COP0_Break_BEV0;
             break;
         case ExceptionVectorType::General:
-            // cpu.getCPURegs().currentPC = cpu.getCPURegs().pc;
             cpu.getCPURegs().pc = (cpu.getCOP0Regs().SR.bev) ? General_BEV1 : General_BEV0;
+            cpu.getCPURegs().nextPC = cpu.getCPURegs().pc + 4;
             break;
         default:
             break;
@@ -47,11 +48,6 @@ namespace festation
 
     void handleException(MIPS_R3000A_Core& cpu, COP0ExceptionCodes excCode)
     {
-        if (cpu.getCPURegs().isBranchDelaySlot())
-            cpu.getCOP0Regs().CAUSE.bd = 1;
-        else
-            cpu.getCOP0Regs().CAUSE.bd = 0;
-
         const uint32_t cause = cpu.getCOP0Regs().CAUSE.r;
         uint32_t sr = cpu.getCOP0Regs().SR.r;
 
@@ -60,10 +56,9 @@ namespace festation
         sr &= ~0x3F;
         sr |= ((srInterruptBits << 2) & 0x3F);
 
-        cpu.getCOP0Regs().SR.r = sr;
+        cpu.getCOP0Regs().SR.r |= sr;
 
         //LOG_DEBUG("New SR COP0 reg value is 0x{:08X}", cpu.getCOP0Regs().SR);
-
 
         /* Move this later to interrupts module */
         bool isInterrupt = false;
@@ -76,14 +71,20 @@ namespace festation
 
         uint32_t address = cpu.getCPURegs().currentPC;
 
-        if ((cpu.getCOP0Regs().CAUSE.bd) && !isInterrupt)
+        if (cpu.getCPURegs().isDelaySlot) {
+            cpu.getCOP0Regs().CAUSE.bd = 1;
             address -= 4;
-
+        }
+        else {
+            cpu.getCOP0Regs().CAUSE.bd = 0;
+        }
+            
         cpu.getCOP0Regs().EPC = address;
 
         //LOG_DEBUG("New EPC COP0 reg value is 0x{:08X}", cpu.getCOP0Regs().EPC);
 
         cpu.getCOP0Regs().CAUSE.excCode = excCode;
+        // cpu.getCOP0Regs().CAUSE.r = excCode << 2;
         //LOG_DEBUG("New CAUSE COP0 reg value is 0x{:08X}", cpu.getCOP0Regs().CAUSE);
 
         jumpToExceptionVector(cpu, ExceptionVectorType::General);

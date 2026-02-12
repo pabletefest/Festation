@@ -137,7 +137,9 @@ void festation::MIPS_R3000A_Core::write32(uint32_t address, uint32_t value)
 
 uint8_t festation::MIPS_R3000A_Core::executeInstruction()
 {
-    const bool isBranchDelayPending = r3000a_regs.isBranchDelaySlot();
+    r3000a_regs.currentPC = r3000a_regs.pc;
+    r3000a_regs.isDelaySlot = r3000a_regs.isBranch;
+    r3000a_regs.isBranch = false;
 
     if (r3000a_regs.currentPC & 3)
     {
@@ -194,9 +196,6 @@ uint8_t festation::MIPS_R3000A_Core::executeInstruction()
 
     r3000a_regs.gpr_regs[0] = 0; // $0 or $zero is always zero
 
-    if (isBranchDelayPending)
-        r3000a_regs.performDelayedJump();
-
     return INSTRUCTION_CYCLES_AVERAGE;
 }
 
@@ -231,8 +230,8 @@ void festation::MIPS_R3000A_Core::printCPUState()
     LOG_DEBUG("R24: {:08X}h - R25: {:08X}h - R26: {:08X}h - R27: {:08X}h - R28: {:08X}h - R29: {:08X}h - R30: {:08X}h R31: {:08X}h",
         regs.gpr_regs[24], regs.gpr_regs[25], regs.gpr_regs[26], regs.gpr_regs[27], regs.gpr_regs[28], regs.gpr_regs[29], regs.gpr_regs[30], regs.gpr_regs[31]);
 
-    LOG_DEBUG("PC (ahead): {:08X}h - Current PC: {:08X}h - HI: {:08X}h - LO: {:08X}h",
-        regs.pc, regs.currentPC, regs.hi, regs.lo);
+    LOG_DEBUG("NextPC: {:08X}h - PC (ahead): {:08X}h - Current PC: {:08X}h - HI: {:08X}h - LO: {:08X}h",
+        regs.nextPC, regs.pc, regs.currentPC, regs.hi, regs.lo);
 
     LOG_DEBUG("");
     LOG_DEBUG("-----------------------------------------------------------------------------------");
@@ -251,14 +250,13 @@ void festation::MIPS_R3000A_Core::printCOP0State()
     LOG_DEBUG("");
 }
 
-
 uint32_t festation::MIPS_R3000A_Core::fetchInstruction()
 {
     uint32_t instruction = read32(r3000a_regs.pc);
 
-    r3000a_regs.currentPC = r3000a_regs.pc;
+    r3000a_regs.pc = r3000a_regs.nextPC;
 
-    r3000a_regs.pc += INSTRUCTION_SIZE;
+    r3000a_regs.nextPC += INSTRUCTION_SIZE;
 
     return instruction;
 }

@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = 897619;
+static constexpr const uint32_t CPU_CYCLES_FER_FRAME_NTSC = 565045;
 
 festation::PSXSystem::PSXSystem()
     : cpu(this), mainRAM(MAIN_RAM_SIZE), bios(KernelBIOS(cpu))
@@ -38,7 +38,7 @@ uint8_t festation::PSXSystem::read8(uint32_t address)
     else if (masked_address >= EXPANSION_REGION1_START && masked_address <= EXPANSION_REGION1_END)
     {
         LOG_WARN("Not implemented read8 at 0x{:08X} on expansion region 1!", masked_address);
-        return 0xFF; // Stub
+        return 0; // Stub
     }
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
@@ -48,12 +48,12 @@ uint8_t festation::PSXSystem::read8(uint32_t address)
     else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
     {
         LOG_WARN("Not implemented read8 at 0x{:08X} on expansion region 2!", masked_address);
-        return 0xFF;
+        return 0;
     }
     else if (masked_address >= EXPANSION_REGION3_START && masked_address <= EXPANSION_REGION3_END)
     {
         LOG_WARN("Not implemented read8 at 0x{:08X} on expansion region 3!", masked_address);
-        return 0xFF;
+        return 0;
     }
     else if (masked_address >= BIOS_ROM_START && masked_address <= BIOS_ROM_END)
     {
@@ -78,7 +78,7 @@ uint16_t festation::PSXSystem::read16(uint32_t address)
     else if (masked_address >= EXPANSION_REGION1_START && masked_address <= EXPANSION_REGION1_END)
     {
         LOG_WARN("Not implemented read16 at 0x{:08X} on expansion region 1!", masked_address);
-        return 0xFFFF; // Stub
+        return 0; // Stub
     }
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
@@ -88,12 +88,12 @@ uint16_t festation::PSXSystem::read16(uint32_t address)
     else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
     {
         LOG_WARN("Not implemented read16 at 0x{:08X} on expansion region 2!", masked_address);
-        return 0xFFFF;
+        return 0;
     }
     else if (masked_address >= EXPANSION_REGION3_START && masked_address <= EXPANSION_REGION3_END)
     {
         LOG_WARN("Not implemented read16 at 0x{:08X} on expansion region 3!", masked_address);
-        return 0xFFFF;
+        return 0;
     }
     else if (masked_address >= BIOS_ROM_START && masked_address <= BIOS_ROM_END)
     {
@@ -118,7 +118,7 @@ uint32_t festation::PSXSystem::read32(uint32_t address)
     else if (masked_address >= EXPANSION_REGION1_START && masked_address <= EXPANSION_REGION1_END)
     {
         LOG_WARN("Not implemented read32 at 0x{:08X} on expansion region 1!", masked_address);
-        return 0xFFFFFFFF; // Stub
+        return 0; // Stub
     }
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
@@ -152,12 +152,12 @@ uint32_t festation::PSXSystem::read32(uint32_t address)
     else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
     {
         LOG_WARN("Not implemented read32 at 0x{:08X} on expansion region 2!", masked_address);
-        return 0xFFFFFFFF;
+        return 0;
     }
     else if (masked_address >= EXPANSION_REGION3_START && masked_address <= EXPANSION_REGION3_END)
     {
         LOG_WARN("Not implemented read32 at 0x{:08X} on expansion region 3!", masked_address);
-        return 0xFFFFFFFF;
+        return 0;
     }
     else if (masked_address >= BIOS_ROM_START && masked_address <= BIOS_ROM_END)
     {
@@ -303,7 +303,7 @@ void festation::PSXSystem::write32(uint32_t address, uint32_t value)
 
 void festation::PSXSystem::runWholeFrame()
 {
-    int32_t totalFrameCycles = CYCLES_FER_FRAME_NTSC;
+    int32_t totalFrameCycles = CPU_CYCLES_FER_FRAME_NTSC;
 
     while (totalFrameCycles > 0) {
         uint8_t cycles = cpu.executeInstruction();
@@ -316,6 +316,7 @@ void festation::PSXSystem::runWholeFrame()
 void festation::PSXSystem::sideloadExeFile(const std::filesystem::path& path)
 {
     uint32_t& pcRef = cpu.getCPURegs().pc;
+    uint32_t& nextPCRef = cpu.getCPURegs().nextPC;
 
     while (pcRef != 0x80030000)
     {
@@ -347,4 +348,5 @@ void festation::PSXSystem::sideloadExeFile(const std::filesystem::path& path)
         exe.data() + HEADER_SIZE, exeSize);
 
     pcRef = initialPC;
+    nextPCRef = initialPC + 4;
 }
