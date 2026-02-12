@@ -1,5 +1,5 @@
 #pragma once
-#include "psx_cw33300_cpu.hpp"
+#include "cpu/psx_cw33300_cpu.hpp"
 #include "kernel_bios/bios.hpp"
 #include "dma/dma_control.hpp"
 #include "gpu/gpu.hpp"

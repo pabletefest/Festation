@@ -43,10 +43,10 @@ target_sources(${PROJECT_NAME} PRIVATE
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_BINARY_DIR} 
     ${PROJECT_SOURCE_DIR}/src
-    ${PROJECT_SOURCE_DIR}/cpu
-    ${PROJECT_SOURCE_DIR}/memory
-    ${PROJECT_SOURCE_DIR}/utils
+    # ${PROJECT_SOURCE_DIR}/cpu
+    # ${PROJECT_SOURCE_DIR}/memory
+    # ${PROJECT_SOURCE_DIR}/utils
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw OpenGL::GL glad glm::glm)
-target_link_libraries(${PROJECT_NAME} PRIVATE cpu kernel_bios memory)
+# target_link_libraries(${PROJECT_NAME} PRIVATE cpu kernel_bios memory)

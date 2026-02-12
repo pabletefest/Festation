@@ -1,7 +1,7 @@
 #include "bios.hpp"
 #include "tty.hpp"
-#include "psx_cw33300_cpu.hpp"
-#include "cpu_masks_types_utils.hpp"
+#include "cpu/psx_cw33300_cpu.hpp"
+#include "cpu/cpu_masks_types_utils.hpp"
 #include "utils/file_reader.hpp"
 
 #include <filesystem>

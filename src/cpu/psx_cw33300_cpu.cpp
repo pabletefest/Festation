@@ -4,7 +4,7 @@
 #include "coprocessor_cp0_opcodes.hpp"
 #include "exceptions_handling.hpp"
 #include "utils/logger.hpp"
-#include "memory_map_masks.hpp"
+#include "memory/memory_map_masks.hpp"
 
 #include <cstring>
 #include <cassert>
