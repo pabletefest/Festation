@@ -1123,7 +1123,7 @@ namespace festation
         if (rs == ra)
             cmpReg = cpu.getCPURegs().gpr_regs[ra]; // We compare against prev $ra reg before linking and modify its value
 
-        cpu.getCPURegs().gpr_regs[ra] = cpu.getCPURegs().pc + 8;
+        cpu.getCPURegs().gpr_regs[ra] = cpu.getCPURegs().currentPC + 8;
 
         if (signExtend(cmpReg) < 0)
         {
@@ -1146,7 +1146,7 @@ namespace festation
         if (rs == ra)
             cmpReg = cpu.getCPURegs().gpr_regs[ra]; // We compare against prev $ra reg before linking and modify its value
 
-        cpu.getCPURegs().gpr_regs[ra] = cpu.getCPURegs().pc + 8;
+        cpu.getCPURegs().gpr_regs[ra] = cpu.getCPURegs().currentPC + 8;
 
         if (signExtend(cmpReg) >= 0)
         {
