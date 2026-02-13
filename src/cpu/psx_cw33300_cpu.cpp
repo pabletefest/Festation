@@ -443,29 +443,42 @@ festation::InstructionTypeVariant festation::MIPS_R3000A_Core::decodeIFormat(uin
     switch (opcode)
     {
     case 0x01:
-        switch (rt) // To be able to know which BcondZ instructions is, we look the encoding in rt reg field bits
+    {
+        // To be able to know which BcondZ instruction is, we look the encoding in rt reg field bits
+        bool ezBit = (rt & 0x01) == 0x01;
+        bool linkBit = ((rt >> 1) & 0x0F) == 0x08;
+
+        if (!ezBit && !linkBit)
         {
-        case 0b00000:
             return { std::make_tuple([](MIPS_R3000A_Core& cpu, reg_t _rt, reg_t _rs, immed16_t dest){
                 bltz(cpu, _rs, dest);
             }, rt, rs, imm16) };
-        case 0b00001:
+        }
+        else if (ezBit && !linkBit)
+        {
             return { std::make_tuple([](MIPS_R3000A_Core& cpu, reg_t _rt, reg_t _rs, immed16_t dest){
                 bgez(cpu, _rs, dest);
-            }, rt, rs, imm16) };
-        case 0b10000:
+            }, rt, rs, imm16) };    
+        }
+        else if (!ezBit && linkBit)
+        {
             return { std::make_tuple([](MIPS_R3000A_Core& cpu, reg_t _rt, reg_t _rs, immed16_t dest){
                 bltzal(cpu, _rs, dest);
             }, rt, rs, imm16) };
-        case 0b10001:
+        }
+        else if (ezBit && linkBit)
+        {
             return { std::make_tuple([](MIPS_R3000A_Core& cpu, reg_t _rt, reg_t _rs, immed16_t dest){
                 bgezal(cpu, _rs, dest);
             }, rt, rs, imm16) };
-        default:
+        }
+        else
+        {
             LOG_ERROR("Unimplemented or invalid I-type BcondZ instruction! rt bits: {:02} - from hex MIPS instruction encoding ({:08X})\n", rt, instruction);
             return { std::make_tuple([](MIPS_R3000A_Core& cpu, reg_t _rt, reg_t _rs, immed16_t dest) {
             }, rt, rs, imm16) };
         }
+    }
     case 0x04:
         return { std::make_tuple([](MIPS_R3000A_Core& cpu, reg_t _rt, reg_t _rs, immed16_t dest){
             beq(cpu, _rs, _rt, dest);

@@ -33,7 +33,7 @@ namespace festation
 
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
 
-        if (cpu.getCPURegs().isLoadDelaySlot())
+        if (cpu.getCPURegs().isLoadDelaySlot() && rt != cpu.getCPURegs().getLoadReg())
             cpu.getCPURegs().consumeLoadedData();
 
         uint32_t cachedLoad = (uint32_t)signExtend(cpu.read8(rsValue + signExtend(imm)));
@@ -49,7 +49,7 @@ namespace festation
 
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
 
-        if (cpu.getCPURegs().isLoadDelaySlot())
+        if (cpu.getCPURegs().isLoadDelaySlot() && rt != cpu.getCPURegs().getLoadReg())
             cpu.getCPURegs().consumeLoadedData();
 
         uint32_t cachedLoad = cpu.read8(rsValue + signExtend(imm));
@@ -65,7 +65,7 @@ namespace festation
 
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
 
-        if (cpu.getCPURegs().isLoadDelaySlot())
+        if (cpu.getCPURegs().isLoadDelaySlot() && rt != cpu.getCPURegs().getLoadReg())
             cpu.getCPURegs().consumeLoadedData();
 
         uint32_t address = rsValue + signExtend(imm);
@@ -90,7 +90,7 @@ namespace festation
 
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
 
-        if (cpu.getCPURegs().isLoadDelaySlot())
+        if (cpu.getCPURegs().isLoadDelaySlot() && rt != cpu.getCPURegs().getLoadReg())
             cpu.getCPURegs().consumeLoadedData();
 
         uint32_t address = rsValue + signExtend(imm);
@@ -115,7 +115,7 @@ namespace festation
 
         uint32_t rsValue = cpu.getCPURegs().gpr_regs[rs];
 
-        if (cpu.getCPURegs().isLoadDelaySlot())
+        if (cpu.getCPURegs().isLoadDelaySlot() && rt != cpu.getCPURegs().getLoadReg())
             cpu.getCPURegs().consumeLoadedData();
 
         uint32_t address = rsValue + signExtend(imm);
