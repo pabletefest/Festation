@@ -2,9 +2,9 @@ find_package(OpenGL REQUIRED)
 
 # set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-add_subdirectory(cpu)
-add_subdirectory(kernel_bios)
-add_subdirectory(memory)
+# add_subdirectory(cpu)
+# add_subdirectory(kernel_bios)
+# add_subdirectory(memory)
 
 add_executable(${PROJECT_NAME} main.cpp)
 
@@ -41,9 +41,12 @@ target_sources(${PROJECT_NAME} PRIVATE
 # find_package(SDL2 REQUIRED)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
-    ${CMAKE_BINARY_DIR} 
+    ${CMAKE_BINARY_DIR}
     ${PROJECT_SOURCE_DIR}/src
     # ${PROJECT_SOURCE_DIR}/cpu
+    # ${PROJECT_SOURCE_DIR}/dma
+    # ${PROJECT_SOURCE_DIR}/gpu
+    # ${PROJECT_SOURCE_DIR}/kernel_bios
     # ${PROJECT_SOURCE_DIR}/memory
     # ${PROJECT_SOURCE_DIR}/utils
 )
