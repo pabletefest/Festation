@@ -12,6 +12,7 @@ namespace festation {
         Environment         = 0b111,
 
         // Misc/Env
+        NOP                 = 0x0,
         ClearCache          = 0x1,
         QuickRectangleFill  = 0x2,
         InterruptRequest    = 0x1F,

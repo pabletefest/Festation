@@ -74,24 +74,34 @@ void festation::PsxGpu::parseCommandGP0(uint32_t commandWord)
     case Gpu0Commands::Environment:
         switch(fullCmd)
         {
+        case Gpu0Commands::NOP:
+            break;
         case Gpu0Commands::ClearCache:
+            processGP0ClearCacheCmd();
             break;
         case Gpu0Commands::QuickRectangleFill:
+            processGP0QuickRectFillCmd(commandWord);
             break;
         case Gpu0Commands::InterruptRequest:
+            processGP0InterruptRequestCmd();
             break;
         case Gpu0Commands::DrawMode:
             processGP0DrawModeCmd(commandWord);
             break;
         case Gpu0Commands::TextureWindow:
+            processGP0TextureWindowCmd(commandWord);
             break;
         case Gpu0Commands::SetDrawingAreaX1Y1:
+            processGP0SetDrawingAreaX1Y1Cmd(commandWord);
             break;
         case Gpu0Commands::SetDrawingAreaX2Y2:
+            processGP0SetDrawingAreaX2Y2Cmd(commandWord);
             break;
         case Gpu0Commands::SetDrawingOffset:
+            processGP0SetDrawingOffsetCmd(commandWord);
             break;
         case Gpu0Commands::MaskBitSetting:
+            processGP0MaskBitSettingCmd(commandWord);
             break;
         default:
             LOG_DEBUG("Unimplemented GP0 Misc/Env GPU command ({:x}h)", fullCmd);
@@ -108,11 +118,44 @@ void festation::PsxGpu::processGP0RectangleCmd(uint32_t parameter)
 {
 }
 
+void festation::PsxGpu::processGP0ClearCacheCmd()
+{
+}
+
+void festation::PsxGpu::processGP0QuickRectFillCmd(uint32_t parameter)
+{
+}
+
+void festation::PsxGpu::processGP0InterruptRequestCmd()
+{
+}
+
 void festation::PsxGpu::processGP0DrawModeCmd(uint32_t parameter)
 {
     GPUSTAT.raw = (GPUSTAT.raw & 0xFFFFFC00) | (parameter & 0x3FF);
     GPUSTAT.drawingToDisplayArea = (parameter >> 10) & 1;
     GPUSTAT.texturePageYBase2 = (parameter >> 11) & 1;
+}
+
+void festation::PsxGpu::processGP0TextureWindowCmd(uint32_t parameter)
+{
+}
+
+void festation::PsxGpu::processGP0SetDrawingAreaX1Y1Cmd(uint32_t parameter)
+{
+    
+}
+
+void festation::PsxGpu::processGP0SetDrawingAreaX2Y2Cmd(uint32_t parameter)
+{
+}
+
+void festation::PsxGpu::processGP0SetDrawingOffsetCmd(uint32_t parameter)
+{
+}
+
+void festation::PsxGpu::processGP0MaskBitSettingCmd(uint32_t parameter)
+{
 }
 
 void festation::PsxGpu::parseCommandGP1(uint32_t commandWord)

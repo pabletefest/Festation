@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <array>
 
+#include <glm/vec2.hpp>
+
 namespace festation {
     class PsxGpu {
     public:
@@ -17,7 +19,15 @@ namespace festation {
     private:
         void parseCommandGP0(uint32_t commandWord);
         void processGP0RectangleCmd(uint32_t parameter);
+        void processGP0ClearCacheCmd();
+        void processGP0QuickRectFillCmd(uint32_t parameter);
+        void processGP0InterruptRequestCmd();
         void processGP0DrawModeCmd(uint32_t parameter);
+        void processGP0TextureWindowCmd(uint32_t parameter);
+        void processGP0SetDrawingAreaX1Y1Cmd(uint32_t parameter);
+        void processGP0SetDrawingAreaX2Y2Cmd(uint32_t parameter);
+        void processGP0SetDrawingOffsetCmd(uint32_t parameter);
+        void processGP0MaskBitSettingCmd(uint32_t parameter);
         
         void parseCommandGP1(uint32_t commandWord);
         void processResetGpuCmd();
@@ -51,7 +61,7 @@ namespace festation {
                 uint32_t drawingToDisplayArea : 1;
                 uint32_t setMaskbitWhenDrawing : 1;
                 uint32_t drawPixels : 1;
-                uint32_t interlaceFIeld : 1;
+                uint32_t interlaceField : 1;
                 uint32_t flipScreenHorizontally : 1;
                 uint32_t texturePageYBase2 : 1;
                 uint32_t horizontalResolution2 : 1;
@@ -72,6 +82,11 @@ namespace festation {
             
             uint32_t raw;
         } GPUSTAT;
+
+        struct DrawingAreaInfo {
+            glm::ivec2 topLeft;
+            glm::ivec2 bottomRight;
+        };
 
         GpuCommandsState m_commandState;
         size_t m_currentCmdArg;
