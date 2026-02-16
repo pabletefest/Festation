@@ -40,6 +40,6 @@ namespace festation {
 
     enum class GpuCommandsState {
         WaitingForCommand,
-        ProcessingRectangleCommand,
+        ProcessingRectCmdParams,
     };
 };

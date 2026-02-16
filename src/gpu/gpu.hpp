@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gpu_commands.h"
+#include "primitives_data.hpp"
 
 #include <cstdint>
 #include <array>
@@ -84,12 +85,16 @@ namespace festation {
         } GPUSTAT;
 
         struct DrawingAreaInfo {
-            glm::ivec2 topLeft;
-            glm::ivec2 bottomRight;
-        };
+            glm::u16vec2 topLeft;
+            glm::u16vec2 bottomRight;
+            glm::i16vec2 offset;
+        } m_drawingAreaInfo;
+
+        RectanglePrimitiveData m_rectData;
 
         GpuCommandsState m_commandState;
-        size_t m_currentCmdArg;
+        size_t m_remainingCmdArg;
+        size_t m_currentCmdParam;
         static constexpr size_t MAX_COMMANDS_BUFFER_SIZE = 16;
         std::array<uint32_t, MAX_COMMANDS_BUFFER_SIZE> m_commandsFIFO;
     };

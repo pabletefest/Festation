@@ -6,7 +6,7 @@
 
 festation::PsxGpu::PsxGpu()
     : GPUREAD({}), GPUSTAT({}), m_commandState(GpuCommandsState::WaitingForCommand),
-        m_currentCmdArg(1), m_commandsFIFO({})
+        m_remainingCmdArg(1), m_currentCmdParam(0), m_commandsFIFO({})
 {
     processResetGpuCmd();
 }
@@ -36,15 +36,15 @@ void festation::PsxGpu::write32(uint32_t address, uint32_t value)
         case GpuCommandsState::WaitingForCommand:
             parseCommandGP0(value);
             break;
-        case GpuCommandsState::ProcessingRectangleCommand:
+        case GpuCommandsState::ProcessingRectCmdParams:
             processGP0RectangleCmd(value);
             break;
         default:
-            break;
+            std::unreachable();
         }
         break;
     case 0x1F801814:
-        // parseCommandGP1(value);
+        parseCommandGP1(value);
         break;
     default:
         std::unreachable();
@@ -63,6 +63,23 @@ void festation::PsxGpu::parseCommandGP0(uint32_t commandWord)
     case Gpu0Commands::LinePrimitive:
         break;
     case Gpu0Commands::RectanglePrimitive:
+        m_rectData.sizeType = RectanglePrimitiveData::RectSizeType((commandWord >> 27) & 0x3);
+        m_rectData.isTextured = (commandWord >> 26) & 0x1;
+        m_rectData.isSemiTransparent = (commandWord >> 25) & 0x1;
+        m_rectData.isRawTexture = (commandWord >> 24) & 0x1;
+
+        m_remainingCmdArg = 1;
+
+        if (m_rectData.isTextured) {
+            m_remainingCmdArg++;
+        }
+
+        if (m_rectData.sizeType == RectanglePrimitiveData::Variable) {
+            m_remainingCmdArg++;
+        }
+
+        m_commandsFIFO[m_currentCmdParam++] = commandWord;
+        m_commandState = GpuCommandsState::ProcessingRectCmdParams;
         break;
     case Gpu0Commands::VramToVramBlit:
         break;
@@ -116,6 +133,54 @@ void festation::PsxGpu::parseCommandGP0(uint32_t commandWord)
 
 void festation::PsxGpu::processGP0RectangleCmd(uint32_t parameter)
 {
+    m_commandsFIFO[m_currentCmdParam++] = parameter;
+    m_remainingCmdArg--;
+
+    if (m_remainingCmdArg == 0) {
+        const auto& color = m_commandsFIFO[COLOR_PARAM_POS];
+        m_rectData.color.a = 1.0f;
+        m_rectData.color.r = color & 0xFF;
+        m_rectData.color.g = (color >> 8) & 0xFF;
+        m_rectData.color.b = (color >> 16) & 0xFF;
+
+        const auto& vertex = m_commandsFIFO[VERTEX_PARAM_POS];
+        m_rectData.vertex1.x = int16_t(vertex & 0x7FF);
+        m_rectData.vertex1.y = int16_t((vertex >> 16) & 0x7FF);
+
+        const auto& clutUV = m_commandsFIFO[UV_PARAM_POS];
+        m_rectData.clutUV.uv.x = clutUV & 0x3F;
+        m_rectData.clutUV.uv.y = (clutUV >> 6) & 0x1FF;
+        m_rectData.clutUV.clut = glm::i16vec2((clutUV >> 16) & 0xFFFF);
+
+        const auto& dimensions = m_commandsFIFO[RECT_SIZE_PARAM_POS];
+
+        switch(m_rectData.sizeType)
+        {
+        case RectanglePrimitiveData::Variable:
+            m_rectData.size.x = dimensions & 0x7FF;
+            m_rectData.size.y = (dimensions >> 16) & 0x7FF;
+            break;
+        case RectanglePrimitiveData::SinglePixel:
+            m_rectData.size.x = 1u;
+            m_rectData.size.y = 1u;
+            break;
+        case RectanglePrimitiveData::Sprite8x8:
+            m_rectData.size.x = 8u;
+            m_rectData.size.y = 8u;
+            break;
+        case RectanglePrimitiveData::Sprite16x16:
+            m_rectData.size.x = 16u;
+            m_rectData.size.y = 16u;
+            break;
+        default:
+            std::unreachable();
+        }
+
+        /** @todo Send primitive data to renderer */
+
+        m_currentCmdParam = 0;
+        m_commandState = GpuCommandsState::WaitingForCommand;
+    }
 }
 
 void festation::PsxGpu::processGP0ClearCacheCmd()
@@ -138,24 +203,31 @@ void festation::PsxGpu::processGP0DrawModeCmd(uint32_t parameter)
 }
 
 void festation::PsxGpu::processGP0TextureWindowCmd(uint32_t parameter)
-{
+{ 
 }
 
 void festation::PsxGpu::processGP0SetDrawingAreaX1Y1Cmd(uint32_t parameter)
 {
-    
+    m_drawingAreaInfo.topLeft.x = parameter & 0x3FF;
+    m_drawingAreaInfo.topLeft.y = (parameter >> 10) & 0x1FF; 
 }
 
 void festation::PsxGpu::processGP0SetDrawingAreaX2Y2Cmd(uint32_t parameter)
 {
+    m_drawingAreaInfo.bottomRight.x = parameter & 0x3FF;
+    m_drawingAreaInfo.bottomRight.y = (parameter >> 10) & 0x1FF; 
 }
 
 void festation::PsxGpu::processGP0SetDrawingOffsetCmd(uint32_t parameter)
 {
+    m_drawingAreaInfo.offset.x = parameter & 0x3FF;
+    m_drawingAreaInfo.offset.y = (parameter >> 10) & 0x3FF; 
 }
 
 void festation::PsxGpu::processGP0MaskBitSettingCmd(uint32_t parameter)
 {
+    GPUSTAT.setMaskbitWhenDrawing = parameter & 1;
+    GPUSTAT.drawPixels = (parameter >> 1) & 1;
 }
 
 void festation::PsxGpu::parseCommandGP1(uint32_t commandWord)
@@ -213,7 +285,7 @@ void festation::PsxGpu::processResetGpuCmd()
 void festation::PsxGpu::processResetCommandBufferCmd()
 {
     std::memset(m_commandsFIFO.data(), 0, m_commandsFIFO.size());
-    m_currentCmdArg = 0;
+    m_remainingCmdArg = 0;
 }
 
 void festation::PsxGpu::processAckGpuIntCmd()
