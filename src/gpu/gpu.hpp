@@ -2,6 +2,7 @@
 
 #include "gpu_commands.h"
 #include "primitives_data.hpp"
+#include "renderer/renderer.hpp"
 
 #include <cstdint>
 #include <array>
@@ -93,5 +94,7 @@ namespace festation {
         size_t m_currentCmdParam;
         static constexpr size_t MAX_COMMANDS_BUFFER_SIZE = 16;
         std::array<uint32_t, MAX_COMMANDS_BUFFER_SIZE> m_commandsFIFO;
+
+        Renderer m_renderer;
     };
 };

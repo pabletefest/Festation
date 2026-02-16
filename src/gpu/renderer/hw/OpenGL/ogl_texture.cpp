@@ -1,6 +1,6 @@
 #include "ogl_texture.hpp"
 
-#include <Glad/gl.h>
+#include <glad/gl.h>
 
 #include <print>
 #include <cassert>

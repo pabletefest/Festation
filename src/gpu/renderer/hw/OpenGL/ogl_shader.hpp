@@ -2,7 +2,7 @@
 
 #include "gpu/renderer/shader.hpp"
 
-#include "Glad/gl.h"
+#include <glad/gl.h>
 
 namespace festation {
     class OGLShader : public IShader {
