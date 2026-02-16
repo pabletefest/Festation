@@ -84,11 +84,7 @@ namespace festation {
             uint32_t raw;
         } GPUSTAT;
 
-        struct DrawingAreaInfo {
-            glm::u16vec2 topLeft;
-            glm::u16vec2 bottomRight;
-            glm::i16vec2 offset;
-        } m_drawingAreaInfo;
+        DrawingAreaInfo m_drawingAreaInfo;
 
         RectanglePrimitiveData m_rectData;
 
