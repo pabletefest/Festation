@@ -10,6 +10,9 @@
 #include <glm/vec2.hpp>
 
 namespace festation {
+    static constexpr size_t VRAM_WIDTH = 1024;
+    static constexpr size_t VRAM_HEIGHT = 512;
+
     class PsxGpu {
     public:
         PsxGpu();
@@ -51,7 +54,7 @@ namespace festation {
             };
 
             uint32_t raw;
-        } GPUREAD;
+        } GPUREAD{};
 
         union {
             struct {
@@ -83,18 +86,20 @@ namespace festation {
             };
             
             uint32_t raw;
-        } GPUSTAT;
+        } GPUSTAT{};
 
-        DrawingAreaInfo m_drawingAreaInfo;
+        DrawingAreaInfo m_drawingAreaInfo{};
 
-        RectanglePrimitiveData m_rectData;
+        RectanglePrimitiveData m_rectData{};
 
-        GpuCommandsState m_commandState;
-        size_t m_remainingCmdArg;
-        size_t m_currentCmdParam;
+        GpuCommandsState m_commandState{};
+        size_t m_remainingCmdArg{};
+        size_t m_currentCmdParam{};
         static constexpr size_t MAX_COMMANDS_BUFFER_SIZE = 16;
-        std::array<uint32_t, MAX_COMMANDS_BUFFER_SIZE> m_commandsFIFO;
+        std::array<uint32_t, MAX_COMMANDS_BUFFER_SIZE> m_commandsFIFO{};
 
-        Renderer m_renderer;
+        std::array<uint16_t, VRAM_WIDTH * VRAM_HEIGHT> vram{};
+
+        Renderer m_renderer{};
     };
 };

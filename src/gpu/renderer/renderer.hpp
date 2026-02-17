@@ -24,8 +24,8 @@ namespace festation {
         void drawRectangle(const RectanglePrimitiveData& rectData);
 
     private:
-        std::unique_ptr<IShader> m_shader;
+        std::unique_ptr<IShader> m_shader{};
 
-        inline static std::filesystem::path SHADERS_PATH = std::filesystem::current_path().concat("/../../../res/shaders/");
+        inline static std::filesystem::path SHADERS_PATH { std::filesystem::current_path().concat("/../../../res/shaders/") };
     };
 };
