@@ -144,8 +144,8 @@ void festation::PsxGpu::processGP0RectangleCmd(uint32_t parameter)
         m_rectData.color.b = (color >> 16) & 0xFF;
 
         const auto& vertex = m_commandsFIFO[VERTEX_PARAM_POS];
-        m_rectData.vertex1.x = int16_t(vertex & 0x7FF);
-        m_rectData.vertex1.y = int16_t((vertex >> 16) & 0x7FF);
+        m_rectData.vertex1.x = int16_t(vertex & 0x7FF) + m_drawingAreaInfo.offset.x;
+        m_rectData.vertex1.y = int16_t((vertex >> 16) & 0x7FF) + m_drawingAreaInfo.offset.y;
 
         const auto& clutUV = m_commandsFIFO[UV_PARAM_POS];
         m_rectData.clutUV.uv.x = clutUV & 0x3F;
