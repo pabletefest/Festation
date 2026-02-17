@@ -2,6 +2,7 @@
 
 #include "shader.hpp"
 #include "texture.hpp"
+#include "gpu/primitives_data.hpp"
 
 #include <memory>
 
@@ -16,8 +17,11 @@ namespace festation {
 
         void setClearColor(const glm::vec4& color);
         void clearDisplay();
+
         void setViewport(const glm::ivec2& startCoord, const glm::ivec2& size);
         void setClipRegion(const glm::ivec2& startCoord, const glm::ivec2& size);
+
+        void drawRectangle(const RectanglePrimitiveData& rectData);
 
     private:
         std::unique_ptr<IShader> m_shader;

@@ -176,7 +176,8 @@ void festation::PsxGpu::processGP0RectangleCmd(uint32_t parameter)
             std::unreachable();
         }
 
-        /** @todo Send primitive data to renderer */
+        m_renderer.setViewport(m_drawingAreaInfo.topLeft, m_drawingAreaInfo.bottomRight - m_drawingAreaInfo.topLeft);
+        m_renderer.drawRectangle(m_rectData);
 
         m_currentCmdParam = 0;
         m_commandState = GpuCommandsState::WaitingForCommand;

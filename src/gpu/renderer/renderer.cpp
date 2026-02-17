@@ -36,3 +36,7 @@ void festation::Renderer::setClipRegion(const glm::ivec2 &startCoord, const glm:
 {
     glScissor(startCoord.x, startCoord.y, size.x, size.y);
 }
+
+void festation::Renderer::drawRectangle(const RectanglePrimitiveData &rectData)
+{
+}
