@@ -15,8 +15,6 @@
 
 namespace festation
 {
-    PSXSystem psxSystem;
-
     static constexpr const char* EMU_TITLE = "Festation (PSX Emulator)";
     static constexpr const int EMU_WIDTH = 1024;
     static constexpr const int EMU_HEIGHT = 512;
@@ -59,43 +57,45 @@ int main(int, char**)
         return -1;
     }
 
-    static const GLfloat g_trianglePositions[] = {
-        -1.0f, -1.0f,
-        0.0f,  1.0f,
-        1.0f, -1.0f
-    };
+    // static const GLfloat g_trianglePositions[] = {
+    //     -1.0f, -1.0f,
+    //     0.0f,  1.0f,
+    //     1.0f, -1.0f
+    // };
 
-    static const GLuint g_triangleIndexes[] = {
-        0, 2, 1
-    };
+    // static const GLuint g_triangleIndexes[] = {
+    //     0, 2, 1
+    // };
 
-    std::filesystem::path vsPath = "./../../../res/shaders/flat_color.glsl.vert";
-    std::filesystem::path fsPath = "./../../../res/shaders/flat_color.glsl.frag";
+    // std::filesystem::path vsPath = "./../../../res/shaders/flat_color.glsl.vert";
+    // std::filesystem::path fsPath = "./../../../res/shaders/flat_color.glsl.frag";
 
-    std::unique_ptr<festation::IShader> m_shader = festation::IShader::createUnique(vsPath, fsPath);
+    // std::unique_ptr<festation::IShader> m_shader = festation::IShader::createUnique(vsPath, fsPath);
 
-    GLuint m_VAO, m_VBO, m_IBO;
+    // GLuint m_VAO, m_VBO, m_IBO;
 
-    glCreateVertexArrays(1, &m_VAO);
+    // glCreateVertexArrays(1, &m_VAO);
 
-    glCreateBuffers(1, &m_VBO);
-    glNamedBufferStorage(m_VBO, sizeof(g_trianglePositions), g_trianglePositions, GL_DYNAMIC_STORAGE_BIT);
+    // glCreateBuffers(1, &m_VBO);
+    // glNamedBufferStorage(m_VBO, sizeof(g_trianglePositions), g_trianglePositions, GL_DYNAMIC_STORAGE_BIT);
     
-    glCreateBuffers(1, &m_IBO);
-    glNamedBufferStorage(m_IBO, sizeof(g_triangleIndexes), g_triangleIndexes, GL_DYNAMIC_STORAGE_BIT);
+    // glCreateBuffers(1, &m_IBO);
+    // glNamedBufferStorage(m_IBO, sizeof(g_triangleIndexes), g_triangleIndexes, GL_DYNAMIC_STORAGE_BIT);
     
-    glVertexArrayVertexBuffer(m_VAO, 0, m_VBO, 0, 2 * sizeof(float));
-    glVertexArrayElementBuffer(m_VAO, m_IBO);
+    // glVertexArrayVertexBuffer(m_VAO, 0, m_VBO, 0, 2 * sizeof(float));
+    // glVertexArrayElementBuffer(m_VAO, m_IBO);
 
-    glEnableVertexArrayAttrib(m_VAO, 0);
+    // glEnableVertexArrayAttrib(m_VAO, 0);
 
-    glVertexArrayAttribFormat(m_VAO, 0, 2, GL_FLOAT, GL_FALSE, 0);
+    // glVertexArrayAttribFormat(m_VAO, 0, 2, GL_FLOAT, GL_FALSE, 0);
 
-    glVertexArrayAttribBinding(m_VAO, 0, 0);
+    // glVertexArrayAttribBinding(m_VAO, 0, 0);
 
-    glBindVertexArray(0);
+    // glBindVertexArray(0);
 
-    festation::psxSystem.sideloadExeFile(std::filesystem::current_path().concat("/../../../res/tests/psxtest_cpu.exe"));
+    festation::PSXSystem psxSystem;
+
+    psxSystem.sideloadExeFile(std::filesystem::current_path().concat("/../../../res/tests/psxtest_cpu.exe"));
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -106,7 +106,7 @@ int main(int, char**)
             continue;
         }
 
-        festation::psxSystem.runWholeFrame();
+        psxSystem.runWholeFrame();
 
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
@@ -114,13 +114,13 @@ int main(int, char**)
 
         glClear(GL_COLOR_BUFFER_BIT);
 
-        m_shader->apply();
-        m_shader->setData<glm::vec4>("uColor", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+        // m_shader->apply();
+        // m_shader->setData<glm::vec4>("uColor", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-        glBindVertexArray(m_VAO);
-        glDrawElements(GL_TRIANGLES, sizeof(g_triangleIndexes)/sizeof(g_triangleIndexes[0]), GL_UNSIGNED_INT, nullptr);
+        // glBindVertexArray(m_VAO);
+        // glDrawElements(GL_TRIANGLES, sizeof(g_triangleIndexes)/sizeof(g_triangleIndexes[0]), GL_UNSIGNED_INT, nullptr);
 
-        glBindVertexArray(0);
+        // glBindVertexArray(0);
         
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -131,11 +131,11 @@ int main(int, char**)
         std::this_thread::sleep_for(std::chrono::milliseconds(DELAY));
     }
 
-    glBindVertexArray(0);
+    // glBindVertexArray(0);
 
-    glDeleteBuffers(1, &m_VBO);
-    glDeleteBuffers(1, &m_IBO);
-    glDeleteVertexArrays(1, &m_VAO);
+    // glDeleteBuffers(1, &m_VBO);
+    // glDeleteBuffers(1, &m_IBO);
+    // glDeleteVertexArrays(1, &m_VAO);
 
     glfwTerminate();
     
