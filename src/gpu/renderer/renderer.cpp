@@ -5,11 +5,9 @@
 
 #include <glad/gl.h>
 
-static std::filesystem::path SHADERS_PATH = "../../../shaders/";
-
 festation::Renderer::Renderer() 
-    : m_shader(std::make_unique<OGLShader>(SHADERS_PATH.concat("flat_color.glsl.vert"),
-        SHADERS_PATH.concat("flat_color.glsl.frag")))
+    : m_shader(IShader::createUnique(SHADERS_PATH / "flat_color.glsl.vert",
+        SHADERS_PATH / "flat_color.glsl.frag"))
 {
     setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
     clearDisplay();
@@ -27,4 +25,14 @@ void festation::Renderer::setClearColor(const glm::vec4 &color)
 void festation::Renderer::clearDisplay()
 {
     glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void festation::Renderer::setViewport(const glm::ivec2 &startCoord, const glm::ivec2 &size)
+{
+    glViewport(startCoord.x, startCoord.y, size.x, size.y);
+}
+
+void festation::Renderer::setClipRegion(const glm::ivec2 &startCoord, const glm::ivec2 &size)
+{
+    glScissor(startCoord.x, startCoord.y, size.x, size.y);
 }
