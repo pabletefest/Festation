@@ -6,7 +6,7 @@
 
 festation::PsxGpu::PsxGpu()
     : GPUREAD({}), GPUSTAT({}), m_commandState(GpuCommandsState::WaitingForCommand),
-        m_remainingCmdArg(1), m_currentCmdParam(0), m_commandsFIFO({})
+        m_remainingCmdArg(1), m_currentCmdParam(0), m_commandsFIFO({}), m_vram(VRAM_WIDTH * VRAM_HEIGHT)
 {
     processResetGpuCmd();
 }

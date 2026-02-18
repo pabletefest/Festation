@@ -6,6 +6,7 @@
 
 #include <cstdint>
 #include <array>
+#include <vector>
 
 #include <glm/vec2.hpp>
 
@@ -98,7 +99,7 @@ namespace festation {
         static constexpr size_t MAX_COMMANDS_BUFFER_SIZE = 16;
         std::array<uint32_t, MAX_COMMANDS_BUFFER_SIZE> m_commandsFIFO{};
 
-        std::array<uint16_t, VRAM_WIDTH * VRAM_HEIGHT> vram{};
+        std::vector<uint16_t> m_vram{};
 
         Renderer m_renderer{};
     };
