@@ -7,11 +7,7 @@
 #include "psx_system.hpp"
 #include "utils/logger.hpp"
 
-#include "gpu/renderer/shader.hpp"
 #include <glm/vec4.hpp>
-
-/* Sets constants */
-#define DELAY 3000
 
 namespace festation
 {
@@ -30,7 +26,6 @@ void APIENTRY GLDebugCallback(GLenum source, GLenum type, GLuint id,
 {
     LOG_ERROR("{}", message);
 }
-
 
 int main(int, char**)
 {
@@ -61,6 +56,8 @@ int main(int, char**)
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
 
+    // glfwSwapInterval(1);
+
     if (!gladLoadGL(glfwGetProcAddress))
     {
         LOG_ERROR("Failed to initialize GLAD");
@@ -80,6 +77,9 @@ int main(int, char**)
     festation::PSXSystem psxSystem;
 
     psxSystem.sideloadExeFile(std::filesystem::current_path().concat("/../../../res/tests/psxtest_cpu.exe"));
+    
+    float time = (float)glfwGetTime();
+    float delta = 0.0f;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -89,6 +89,13 @@ int main(int, char**)
         {
             continue;
         }
+
+        float current = (float)glfwGetTime();
+        delta = current - time;
+        time = current;
+
+        std::string newTitle = festation::EMU_TITLE + std::string(" | ") + std::to_string(1.0f / delta);
+        glfwSetWindowTitle(window, newTitle.c_str());
 
         psxSystem.runWholeFrame();
 
@@ -101,8 +108,6 @@ int main(int, char**)
         
         /* Poll for and process events */
         glfwPollEvents();
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(DELAY));
     }
 
     glfwTerminate();
