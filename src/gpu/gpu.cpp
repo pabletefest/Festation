@@ -4,6 +4,8 @@
 
 #include <utility>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 festation::PsxGpu::PsxGpu()
     : GPUREAD({}), GPUSTAT({}), m_commandState(GpuCommandsState::WaitingForCommand),
         m_remainingCmdArg(1), m_currentCmdParam(0), m_commandsFIFO({}), m_vram(VRAM_WIDTH * VRAM_HEIGHT)
@@ -177,7 +179,12 @@ void festation::PsxGpu::processGP0RectangleCmd(uint32_t parameter)
         }
 
         m_renderer.setViewport(m_drawingAreaInfo.topLeft, m_drawingAreaInfo.bottomRight - m_drawingAreaInfo.topLeft);
-        m_renderer.drawRectangle(m_rectData);
+
+        float width = m_drawingAreaInfo.bottomRight.x - m_drawingAreaInfo.topLeft.x + 1;
+        float height = m_drawingAreaInfo.bottomRight.y - m_drawingAreaInfo.topLeft.y + 1;
+        glm::mat4 projection = glm::ortho(0.0f, width, height, 0.0f);
+        
+        m_renderer.drawRectangle(m_rectData, projection);
 
         m_currentCmdParam = 0;
         m_commandState = GpuCommandsState::WaitingForCommand;

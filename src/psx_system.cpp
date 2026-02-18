@@ -130,7 +130,7 @@ uint32_t festation::PSXSystem::read32(uint32_t address)
         case 0x1F801814:
         {
             readValue = gpu.read32(masked_address);
-            LOG_DEBUG("Reading {:08X}h from GPU IO port 0x{:08X}", readValue, masked_address);
+            // LOG_DEBUG("Reading {:08X}h from GPU IO port 0x{:08X}", readValue, masked_address);
             break;
         }
         default:
@@ -266,7 +266,7 @@ void festation::PSXSystem::write32(uint32_t address, uint32_t value)
         {
         case 0x1F801810:
         case 0x1F801814:
-            LOG_DEBUG("Writting {:08X}h to GPU IO port 0x{:08X}", value, masked_address);
+            // LOG_DEBUG("Writting {:08X}h to GPU IO port 0x{:08X}", value, masked_address);
             gpu.write32(masked_address, value);
             break;
         default:

@@ -8,6 +8,7 @@
 
 #include <glm/vec4.hpp>
 #include <glm/vec2.hpp>
+#include <glm/mat4x4.hpp>
 
 namespace festation {
     class Renderer {
@@ -21,7 +22,7 @@ namespace festation {
         void setViewport(const glm::ivec2& startCoord, const glm::ivec2& size);
         void setClipRegion(const glm::ivec2& startCoord, const glm::ivec2& size);
 
-        void drawRectangle(const RectanglePrimitiveData& rectData);
+        void drawRectangle(const RectanglePrimitiveData& rectData, const glm::mat4& projection);
 
     private:
         std::unique_ptr<IShader> m_shader{};
