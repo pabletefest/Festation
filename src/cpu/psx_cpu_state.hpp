@@ -93,13 +93,13 @@ namespace festation
                 /* These registers are read-only from code POV*/
                 break;
             case 12:
-                SR = value;
+                SR.r = value;
                 break;
             case 13: // Only bits 8-9 are writable
             {
-                uint8_t prevBits = CAUSE & 0x300;
-                CAUSE &= ~0x300;
-                CAUSE |= prevBits | (value & 0x300);
+                uint8_t prevBits = CAUSE.r & 0x300;
+                CAUSE.r &= ~0x300;
+                CAUSE.r |= prevBits | (value & 0x300);
             }
                 break;
             default:
@@ -118,10 +118,10 @@ namespace festation
                 //LOG_DEBUG("Read from COP0 reg BadVaddr: 0x{:08X}", BadVaddr);
                 return BadVaddr;
             case 12:
-                return SR;
+                return SR.r;
             case 13:
                 //LOG_DEBUG("Read from COP0 reg CAUSE: 0x{:08X}", CAUSE);
-                return CAUSE;
+                return CAUSE.r;
             case 14:
                 //LOG_DEBUG("Read from COP0 reg EPC: 0x{:08X}", EPC);
                 return EPC;
@@ -139,8 +139,52 @@ namespace festation
         // Code modifies COP0 regs via instructions using setter/getter
         uint32_t TAR;
         uint32_t BadVaddr;
-        uint32_t SR;
-        uint32_t CAUSE;
+
+        union {
+            struct {
+                uint32_t iec : 1;
+                uint32_t kuc : 1;
+                uint32_t iep : 1;
+                uint32_t kup : 1;
+                uint32_t ieo : 1;
+                uint32_t kuo : 1;
+                uint32_t unused : 2;
+                uint32_t im : 8;
+                uint32_t isc : 1;
+                uint32_t swc : 1;
+                uint32_t pz : 1;
+                uint32_t cm : 1;
+                uint32_t pe : 1;
+                uint32_t ts : 1;
+                uint32_t bev : 1;
+                uint32_t unsued2 : 2;
+                uint32_t re : 1;
+                uint32_t unused3 : 2;
+                uint32_t cu0 : 1;
+                uint32_t cu1 : 1;
+                uint32_t cu2 : 1;
+                uint32_t cu3 : 1;
+            };
+
+            uint32_t r;
+        } SR;
+
+        union {
+            struct {
+                uint32_t unused : 2;
+                uint32_t excCode : 5;
+                uint32_t unused2 : 1;
+                uint32_t sw : 2;
+                uint32_t ip : 6;
+                uint32_t unused3 : 12;
+                uint32_t ce : 2;
+                uint32_t bt : 1;
+                uint32_t bd : 1;
+            };
+
+            uint32_t r;
+        } CAUSE;
+
         uint32_t EPC;
         uint32_t PRID;
 

@@ -1,5 +1,5 @@
 #include "tty.hpp"
-#include "psx_cpu_state.hpp"
+#include "cpu/psx_cpu_state.hpp"
 #include "utils/logger.hpp"
 
 #include <print>

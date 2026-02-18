@@ -7,21 +7,30 @@
 #include "psx_system.hpp"
 #include "utils/logger.hpp"
 
+#include "gpu/renderer/shader.hpp"
+#include <glm/vec4.hpp>
+
 /* Sets constants */
-#define WIDTH 800
-#define HEIGHT 600
 #define DELAY 3000
 
 namespace festation
 {
-    PSXSystem psxSystem;
-
     static constexpr const char* EMU_TITLE = "Festation (PSX Emulator)";
+    static constexpr const int EMU_WIDTH = 1024;
+    static constexpr const int EMU_HEIGHT = 512;
 };
 
 static void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
+
+void APIENTRY GLDebugCallback(GLenum source, GLenum type, GLuint id,
+                              GLenum severity, GLsizei length,
+                              const GLchar* message, const void* userParam)
+{
+    LOG_ERROR("{}", message);
+}
+
 
 int main(int, char**)
 {
@@ -36,8 +45,10 @@ int main(int, char**)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(WIDTH, HEIGHT, festation::EMU_TITLE, NULL, NULL);
+    window = glfwCreateWindow(festation::EMU_WIDTH, festation::EMU_HEIGHT, festation::EMU_TITLE, NULL, NULL);
     
     if (!window)
     {
@@ -56,7 +67,19 @@ int main(int, char**)
         return -1;
     }
 
-    festation::psxSystem.sideloadExeFile(std::filesystem::current_path().concat("/../../../res/tests/psxtest_cpu.exe"));
+    int flags; 
+    glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+
+    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
+        glEnable(GL_DEBUG_OUTPUT);
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        glDebugMessageCallback(GLDebugCallback, nullptr);
+        glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_OTHER, GL_DONT_CARE, 0, nullptr, GL_FALSE);
+    }
+
+    festation::PSXSystem psxSystem;
+
+    psxSystem.sideloadExeFile(std::filesystem::current_path().concat("/../../../res/tests/psxtest_cpu.exe"));
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -67,11 +90,11 @@ int main(int, char**)
             continue;
         }
 
-        festation::psxSystem.runWholeFrame();
+        psxSystem.runWholeFrame();
 
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
-        glViewport(0, 0, display_w, display_h);
+        // int display_w, display_h;
+        // glfwGetFramebufferSize(window, &display_w, &display_h);
+        // glViewport(0, 0, display_w, display_h);
         
         /* Swap front and back buffers */
         glfwSwapBuffers(window);

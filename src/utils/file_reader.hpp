@@ -4,8 +4,11 @@
 #include <fstream>
 #include <iterator>
 #include <vector>
+#include <string>
 
 namespace festation {
+    auto readFileAsString(std::filesystem::path filepath) -> std::string;
+
     template<typename T>
     auto readFile(std::filesystem::path filepath) -> std::vector<T>
     {

@@ -69,7 +69,7 @@ namespace festation
 
     void rfe(MIPS_R3000A_Core& cpu)
     {
-        uint32_t shiftedBitsSR = cpu.getCOP0Regs().SR;
+        uint32_t shiftedBitsSR = cpu.getCOP0Regs().SR.r;
 
         if (cpu.getCPURegs().isLoadDelaySlot()) {
             cpu.getCPURegs().consumeLoadedData();
@@ -77,6 +77,6 @@ namespace festation
 
         shiftedBitsSR >>= 2;
 
-        cpu.getCOP0Regs().SR = (cpu.getCOP0Regs().SR & 0xFFFFFFF0) | (shiftedBitsSR & 0xFu);
+        cpu.getCOP0Regs().SR.r = (cpu.getCOP0Regs().SR.r & 0xFFFFFFF0) | (shiftedBitsSR & 0xFu);
     }
 }
