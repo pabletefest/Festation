@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = 897619;
+static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = 565045;
 
 festation::PSXSystem::PSXSystem()
     : cpu(this), mainRAM(MAIN_RAM_SIZE), bios(KernelBIOS(cpu))
