@@ -24,6 +24,14 @@ static void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
+void APIENTRY GLDebugCallback(GLenum source, GLenum type, GLuint id,
+                              GLenum severity, GLsizei length,
+                              const GLchar* message, const void* userParam)
+{
+    LOG_ERROR("{}", message);
+}
+
+
 int main(int, char**)
 {
     LOG_INFO("Hello, from Festation!");
@@ -36,6 +44,8 @@ int main(int, char**)
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
     /* Create a windowed mode window and its OpenGL context */
     window = glfwCreateWindow(festation::EMU_WIDTH, festation::EMU_HEIGHT, festation::EMU_TITLE, NULL, NULL);
@@ -57,41 +67,15 @@ int main(int, char**)
         return -1;
     }
 
-    // static const GLfloat g_trianglePositions[] = {
-    //     -1.0f, -1.0f,
-    //     0.0f,  1.0f,
-    //     1.0f, -1.0f
-    // };
+    int flags; 
+    glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 
-    // static const GLuint g_triangleIndexes[] = {
-    //     0, 2, 1
-    // };
-
-    // std::filesystem::path vsPath = "./../../../res/shaders/flat_color.glsl.vert";
-    // std::filesystem::path fsPath = "./../../../res/shaders/flat_color.glsl.frag";
-
-    // std::unique_ptr<festation::IShader> m_shader = festation::IShader::createUnique(vsPath, fsPath);
-
-    // GLuint m_VAO, m_VBO, m_IBO;
-
-    // glCreateVertexArrays(1, &m_VAO);
-
-    // glCreateBuffers(1, &m_VBO);
-    // glNamedBufferStorage(m_VBO, sizeof(g_trianglePositions), g_trianglePositions, GL_DYNAMIC_STORAGE_BIT);
-    
-    // glCreateBuffers(1, &m_IBO);
-    // glNamedBufferStorage(m_IBO, sizeof(g_triangleIndexes), g_triangleIndexes, GL_DYNAMIC_STORAGE_BIT);
-    
-    // glVertexArrayVertexBuffer(m_VAO, 0, m_VBO, 0, 2 * sizeof(float));
-    // glVertexArrayElementBuffer(m_VAO, m_IBO);
-
-    // glEnableVertexArrayAttrib(m_VAO, 0);
-
-    // glVertexArrayAttribFormat(m_VAO, 0, 2, GL_FLOAT, GL_FALSE, 0);
-
-    // glVertexArrayAttribBinding(m_VAO, 0, 0);
-
-    // glBindVertexArray(0);
+    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
+        glEnable(GL_DEBUG_OUTPUT);
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        glDebugMessageCallback(GLDebugCallback, nullptr);
+        glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_OTHER, GL_DONT_CARE, 0, nullptr, GL_FALSE);
+    }
 
     festation::PSXSystem psxSystem;
 
@@ -108,19 +92,9 @@ int main(int, char**)
 
         psxSystem.runWholeFrame();
 
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
-        glViewport(0, 0, display_w, display_h);
-
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // m_shader->apply();
-        // m_shader->setData<glm::vec4>("uColor", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-
-        // glBindVertexArray(m_VAO);
-        // glDrawElements(GL_TRIANGLES, sizeof(g_triangleIndexes)/sizeof(g_triangleIndexes[0]), GL_UNSIGNED_INT, nullptr);
-
-        // glBindVertexArray(0);
+        // int display_w, display_h;
+        // glfwGetFramebufferSize(window, &display_w, &display_h);
+        // glViewport(0, 0, display_w, display_h);
         
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -130,12 +104,6 @@ int main(int, char**)
 
         std::this_thread::sleep_for(std::chrono::milliseconds(DELAY));
     }
-
-    // glBindVertexArray(0);
-
-    // glDeleteBuffers(1, &m_VBO);
-    // glDeleteBuffers(1, &m_IBO);
-    // glDeleteVertexArrays(1, &m_VAO);
 
     glfwTerminate();
     
