@@ -121,4 +121,5 @@ void festation::Renderer::renderFrame()
     glDrawElements(GL_TRIANGLES, m_indicesCount, GL_UNSIGNED_INT, nullptr);
 
     m_vertices.clear();
+    m_indicesCount = 0;
 }
