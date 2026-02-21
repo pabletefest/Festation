@@ -57,7 +57,7 @@ int main(int, char**)
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
 
-    // glfwSwapInterval(1);
+    glfwSwapInterval(0);
 
     if (!gladLoadGL(glfwGetProcAddress))
     {
@@ -77,7 +77,8 @@ int main(int, char**)
 
     festation::PSXSystem psxSystem;
 
-    psxSystem.sideloadExeFile(std::filesystem::current_path().concat("/../../../res/tests/psxtest_cpu.exe"));
+    // psxSystem.sideloadExeFile(std::filesystem::current_path().concat("/../../../res/tests/psxtest_cpu.exe"));
+    psxSystem.sideloadExeFile(std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/HelloWorld/16BPP/HelloWorld16BPP.exe"));
     
     float time = (float)glfwGetTime();
     float delta = 0.0f;
