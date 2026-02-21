@@ -1,5 +1,6 @@
 #include <print>
 #include <thread>
+#include <sstream>
 
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
@@ -94,8 +95,12 @@ int main(int, char**)
         delta = current - time;
         time = current;
 
-        std::string newTitle = festation::EMU_TITLE + std::string(" | ") + std::to_string(1.0f / delta);
-        glfwSetWindowTitle(window, newTitle.c_str());
+        std::stringstream strStream;
+        strStream << festation::EMU_TITLE;
+        strStream << std::string(" | ");
+        strStream << std::to_string(1.0f / delta);
+        strStream << std::string(" FPS");
+        glfwSetWindowTitle(window, strStream.str().c_str());
 
         psxSystem.runWholeFrame();
 
