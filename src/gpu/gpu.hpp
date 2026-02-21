@@ -22,6 +22,8 @@ namespace festation {
         uint32_t read32(uint32_t address);
         void write32(uint32_t address, uint32_t value);
 
+        void renderFrame();
+
     private:
         void parseCommandGP0(uint32_t commandWord);
         void processGP0RectangleCmd(uint32_t parameter);
@@ -47,6 +49,8 @@ namespace festation {
         void processDisplayModeCmd(uint32_t parameter);
         void processSetVramSizeCmd(uint32_t parameter);
         void processReadGpuInternalRegCmd(uint32_t parameter);
+
+        void updateRenderProjection();
 
     private:
         union {

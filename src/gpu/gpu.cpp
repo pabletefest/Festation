@@ -53,6 +53,11 @@ void festation::PsxGpu::write32(uint32_t address, uint32_t value)
     }
 }
 
+void festation::PsxGpu::renderFrame()
+{
+    m_renderer.renderFrame();
+}
+
 void festation::PsxGpu::parseCommandGP0(uint32_t commandWord)
 {
     uint8_t command = commandWord >> 29;
@@ -179,12 +184,8 @@ void festation::PsxGpu::processGP0RectangleCmd(uint32_t parameter)
         }
 
         m_renderer.setViewport(m_drawingAreaInfo.topLeft, m_drawingAreaInfo.bottomRight - m_drawingAreaInfo.topLeft);
-
-        float width = m_drawingAreaInfo.bottomRight.x - m_drawingAreaInfo.topLeft.x + 1;
-        float height = m_drawingAreaInfo.bottomRight.y - m_drawingAreaInfo.topLeft.y + 1;
-        glm::mat4 projection = glm::ortho(0.0f, width, height, 0.0f);
         
-        m_renderer.drawRectangle(m_rectData, projection);
+        m_renderer.drawRectangle(m_rectData);
 
         m_currentCmdParam = 0;
         m_commandState = GpuCommandsState::WaitingForCommand;
@@ -217,13 +218,17 @@ void festation::PsxGpu::processGP0TextureWindowCmd(uint32_t parameter)
 void festation::PsxGpu::processGP0SetDrawingAreaX1Y1Cmd(uint32_t parameter)
 {
     m_drawingAreaInfo.topLeft.x = parameter & 0x3FF;
-    m_drawingAreaInfo.topLeft.y = (parameter >> 10) & 0x1FF; 
+    m_drawingAreaInfo.topLeft.y = (parameter >> 10) & 0x1FF;
+
+    updateRenderProjection();
 }
 
 void festation::PsxGpu::processGP0SetDrawingAreaX2Y2Cmd(uint32_t parameter)
 {
     m_drawingAreaInfo.bottomRight.x = parameter & 0x3FF;
     m_drawingAreaInfo.bottomRight.y = (parameter >> 10) & 0x1FF; 
+
+    updateRenderProjection();
 }
 
 void festation::PsxGpu::processGP0SetDrawingOffsetCmd(uint32_t parameter)
@@ -331,4 +336,12 @@ void festation::PsxGpu::processSetVramSizeCmd(uint32_t parameter)
 
 void festation::PsxGpu::processReadGpuInternalRegCmd(uint32_t parameter)
 {
+}
+
+void festation::PsxGpu::updateRenderProjection()
+{
+    float width = m_drawingAreaInfo.bottomRight.x - m_drawingAreaInfo.topLeft.x + 1;
+    float height = m_drawingAreaInfo.bottomRight.y - m_drawingAreaInfo.topLeft.y + 1;
+    glm::mat4 projection = glm::ortho(0.0f, width, height, 0.0f);
+    m_renderer.setProjection(projection);
 }

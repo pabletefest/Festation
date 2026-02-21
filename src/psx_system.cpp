@@ -311,6 +311,8 @@ void festation::PSXSystem::runWholeFrame()
         totalElapsedCycles += cycles;
         totalFrameCycles -= cycles;
     }
+
+    gpu.renderFrame();
 }
 
 void festation::PSXSystem::sideloadExeFile(const std::filesystem::path& path)
