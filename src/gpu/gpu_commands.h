@@ -41,5 +41,6 @@ namespace festation {
     enum class GpuCommandsState {
         WaitingForCommand,
         ProcessingRectCmdParams,
+        ProcessingQuickRectFillCmdParams,
     };
 };

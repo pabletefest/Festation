@@ -16,7 +16,7 @@ namespace festation {
     inline constexpr size_t VERTEX_PARAM_POS = 1; 
     inline constexpr size_t UV_PARAM_POS = 2; 
     inline constexpr size_t RECT_SIZE_PARAM_POS = 3;
-
+    
     struct RectanglePrimitiveData {
         enum RectSizeType {
         Variable,

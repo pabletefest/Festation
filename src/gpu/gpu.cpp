@@ -41,6 +41,9 @@ void festation::PsxGpu::write32(uint32_t address, uint32_t value)
         case GpuCommandsState::ProcessingRectCmdParams:
             processGP0RectangleCmd(value);
             break;
+        case GpuCommandsState::ProcessingQuickRectFillCmdParams:
+            processGP0QuickRectFillCmd(value);
+            break;
         default:
             std::unreachable();
         }
@@ -60,6 +63,8 @@ void festation::PsxGpu::renderFrame()
 
 void festation::PsxGpu::parseCommandGP0(uint32_t commandWord)
 {
+    LOG_DEBUG("Getting GP0 command ({:X}h)", commandWord);
+
     uint8_t command = commandWord >> 29;
     uint8_t fullCmd = commandWord >> 24;
 
@@ -104,7 +109,9 @@ void festation::PsxGpu::parseCommandGP0(uint32_t commandWord)
             processGP0ClearCacheCmd();
             break;
         case Gpu0Commands::QuickRectangleFill:
-            processGP0QuickRectFillCmd(commandWord);
+            m_remainingCmdArg = 2;
+            m_commandsFIFO[m_currentCmdParam++] = commandWord;
+            m_commandState = GpuCommandsState::ProcessingQuickRectFillCmdParams;
             break;
         case Gpu0Commands::InterruptRequest:
             processGP0InterruptRequestCmd();
@@ -128,7 +135,7 @@ void festation::PsxGpu::parseCommandGP0(uint32_t commandWord)
             processGP0MaskBitSettingCmd(commandWord);
             break;
         default:
-            LOG_DEBUG("Unimplemented GP0 Misc/Env GPU command ({:x}h)", fullCmd);
+            LOG_DEBUG("Unimplemented GP0 Misc/Env GPU command ({:X}h)", fullCmd);
             break;
         }
         break;
@@ -198,6 +205,37 @@ void festation::PsxGpu::processGP0ClearCacheCmd()
 
 void festation::PsxGpu::processGP0QuickRectFillCmd(uint32_t parameter)
 {
+    m_commandsFIFO[m_currentCmdParam++] = parameter;
+    m_remainingCmdArg--;
+
+    if (m_remainingCmdArg == 0) {
+        const auto& colorParam = m_commandsFIFO[0];
+        glm::vec4 color;
+        
+        color.a = 1.0f;
+        color.r = (colorParam & 0xFF) / 255.0f;
+        color.g = ((colorParam >> 8) & 0xFF) / 255.0f;
+        color.b = ((colorParam >> 16) & 0xFF) / 255.0f;
+
+        const auto& topLeftCoordsParam = m_commandsFIFO[1];
+        glm::u16vec2 topLeftCoords;
+
+        topLeftCoords.x = topLeftCoordsParam & 0x3F0;
+        topLeftCoords.y = (topLeftCoordsParam >> 16) & 0x1FF;
+
+        const auto& sizeParam = m_commandsFIFO[2];
+        glm::u16vec2 size;
+
+        size.x = ((sizeParam & 0x3FF) + 0x0F) & ~0x0F;
+        size.y = (sizeParam >> 16) & 0x1FF;
+
+        if (size.x != 0 && size.y != 0) {
+            /** @todo: Create VRAM framebuffer on device side and fill it as stated by command parameters */
+        }
+
+        m_currentCmdParam = 0;
+        m_commandState = GpuCommandsState::WaitingForCommand;
+    }
 }
 
 void festation::PsxGpu::processGP0InterruptRequestCmd()
