@@ -11,5 +11,7 @@ namespace festation {
         auto apply() -> void override;
 
         auto setData(std::span<uint8_t> buffer, const glm::uvec2& offset, const glm::uvec2& size) -> void override;
+
+        auto blitToSwapchain() -> void override;
     };
 };

@@ -35,3 +35,13 @@ auto festation::OGLFramebuffer::setData(std::span<uint8_t> buffer, const glm::uv
 
     m_colorAttachment->setData(buffer, offset, size);
 }
+
+auto festation::OGLFramebuffer::blitToSwapchain() -> void
+{
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);  // swapchain (display)
+
+	glBlitFramebuffer(0, 0, m_specification.size.x, m_specification.size.y,     // Source rect
+		0, 0, m_specification.size.x, m_specification.size.y,                 // Destination rect
+		GL_COLOR_BUFFER_BIT, GL_NEAREST);
+}

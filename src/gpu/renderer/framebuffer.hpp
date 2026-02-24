@@ -27,6 +27,8 @@ namespace festation {
 
         virtual auto setData(std::span<uint8_t> buffer, const glm::uvec2& offset, const glm::uvec2& size) -> void = 0;
 
+        virtual auto blitToSwapchain() -> void = 0;
+
         auto getHandle() const -> uint32_t { return m_fbo; }
 
         static auto createUnique(const FramebufferInfo& specification) -> std::unique_ptr<Framebuffer>;
