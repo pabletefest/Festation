@@ -38,10 +38,16 @@ auto festation::OGLFramebuffer::setData(std::span<uint8_t> buffer, const glm::uv
 
 auto festation::OGLFramebuffer::blitToSwapchain() -> void
 {
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);  // swapchain (display)
+	glBlitNamedFramebuffer(m_fbo, 0, 
+        0, 0, m_specification.size.x, m_specification.size.y, // Source rect
+		0, 0, m_specification.size.x, m_specification.size.y, // Destination rect
+		GL_COLOR_BUFFER_BIT, GL_NEAREST);
+}
 
-	glBlitFramebuffer(0, 0, m_specification.size.x, m_specification.size.y,     // Source rect
-		0, 0, m_specification.size.x, m_specification.size.y,                 // Destination rect
+auto festation::OGLFramebuffer::blitToFramebuffer(const Framebuffer &framebuffer, const glm::uvec2& srcOffset, const glm::uvec2& dstOffset) -> void
+{
+	glBlitNamedFramebuffer(m_fbo, framebuffer.getHandle(), 
+        srcOffset.x, srcOffset.y, m_specification.size.x + srcOffset.x, m_specification.size.y + srcOffset.y,                                   // Source rect
+		dstOffset.x, dstOffset.y, framebuffer.getFramebufferInfo().size.x + dstOffset.x, framebuffer.getFramebufferInfo().size.y + dstOffset.y, // Destination rect
 		GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }
