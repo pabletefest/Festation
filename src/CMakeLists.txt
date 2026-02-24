@@ -25,6 +25,8 @@ target_sources(${PROJECT_NAME} PRIVATE
 
     ${CMAKE_CURRENT_SOURCE_DIR}/gpu/gpu.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/gpu/renderer/renderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gpu/renderer/framebuffer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gpu/renderer/hw/OpenGL/ogl_framebuffer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/gpu/renderer/texture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/gpu/renderer/hw/OpenGL/ogl_texture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/gpu/renderer/shader.cpp
