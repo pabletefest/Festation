@@ -11,6 +11,7 @@ festation::PsxGpu::PsxGpu()
         m_remainingCmdArg(1), m_currentCmdParam(0), m_commandsFIFO({}), m_vram(VRAM_WIDTH * VRAM_HEIGHT)
 {
     processResetGpuCmd();
+    updateRenderProjection();
 }
 
 festation::PsxGpu::~PsxGpu()
@@ -63,7 +64,7 @@ void festation::PsxGpu::renderFrame()
 
 void festation::PsxGpu::parseCommandGP0(uint32_t commandWord)
 {
-    LOG_DEBUG("Getting GP0 command ({:X}h)", commandWord);
+    // LOG_DEBUG("Getting GP0 command ({:X}h)", commandWord);
 
     uint8_t command = commandWord >> 29;
     uint8_t fullCmd = commandWord >> 24;
@@ -189,8 +190,6 @@ void festation::PsxGpu::processGP0RectangleCmd(uint32_t parameter)
         default:
             std::unreachable();
         }
-
-        m_renderer.setViewport(m_drawingAreaInfo.topLeft, m_drawingAreaInfo.bottomRight - m_drawingAreaInfo.topLeft);
         
         m_renderer.drawRectangle(m_rectData);
 
@@ -255,18 +254,24 @@ void festation::PsxGpu::processGP0TextureWindowCmd(uint32_t parameter)
 
 void festation::PsxGpu::processGP0SetDrawingAreaX1Y1Cmd(uint32_t parameter)
 {
+    m_renderer.renderFrame();
+
     m_drawingAreaInfo.topLeft.x = parameter & 0x3FF;
     m_drawingAreaInfo.topLeft.y = (parameter >> 10) & 0x1FF;
 
-    updateRenderProjection();
+    // updateRenderProjection();
+    // m_renderer.setViewport(m_drawingAreaInfo.topLeft, m_drawingAreaInfo.bottomRight);
 }
 
 void festation::PsxGpu::processGP0SetDrawingAreaX2Y2Cmd(uint32_t parameter)
 {
+    m_renderer.renderFrame();
+
     m_drawingAreaInfo.bottomRight.x = parameter & 0x3FF;
     m_drawingAreaInfo.bottomRight.y = (parameter >> 10) & 0x1FF; 
 
-    updateRenderProjection();
+    // updateRenderProjection();
+    // m_renderer.setViewport(m_drawingAreaInfo.topLeft, m_drawingAreaInfo.bottomRight);
 }
 
 void festation::PsxGpu::processGP0SetDrawingOffsetCmd(uint32_t parameter)
@@ -380,8 +385,8 @@ void festation::PsxGpu::processReadGpuInternalRegCmd(uint32_t parameter)
 
 void festation::PsxGpu::updateRenderProjection()
 {
-    float width = m_drawingAreaInfo.bottomRight.x - m_drawingAreaInfo.topLeft.x + 1;
-    float height = m_drawingAreaInfo.bottomRight.y - m_drawingAreaInfo.topLeft.y + 1;
-    glm::mat4 projection = glm::ortho(0.0f, width, height, 0.0f);
+    // float width = m_drawingAreaInfo.bottomRight.x - m_drawingAreaInfo.topLeft.x + 1;
+    // float height = m_drawingAreaInfo.bottomRight.y - m_drawingAreaInfo.topLeft.y + 1;
+    glm::mat4 projection = glm::ortho(0.0f, (float)VRAM_WIDTH, (float)VRAM_HEIGHT, 0.0f);
     m_renderer.setProjection(projection);
 }
