@@ -331,12 +331,14 @@ void festation::PsxGpu::processResetGpuCmd()
 {
     GPUSTAT.raw = 0x14802000;
     GPUSTAT.readyToSendVRAMtoCPU = 1; // TODO: TEMP
+    m_commandState = GpuCommandsState::WaitingForCommand;
 }
 
 void festation::PsxGpu::processResetCommandBufferCmd()
 {
     std::memset(m_commandsFIFO.data(), 0, m_commandsFIFO.size());
     m_remainingCmdArg = 0;
+    m_commandState = GpuCommandsState::WaitingForCommand;
 }
 
 void festation::PsxGpu::processAckGpuIntCmd()
