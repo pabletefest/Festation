@@ -16,12 +16,6 @@
 #include <glad/gl.h>
 
 namespace festation {
-
-    struct PrimitiveVertex {
-        glm::vec2 coords;
-        glm::vec4 color; 
-    };
-
     class Renderer {
     public:
         Renderer();
@@ -33,6 +27,10 @@ namespace festation {
         auto setViewport(const glm::ivec2& startCoord, const glm::ivec2& size) -> void;
         auto setClipRegion(const glm::ivec2& startCoord, const glm::ivec2& size) -> void;
         auto setProjection(const glm::mat4& projection) -> void;
+        auto enableDepthTesting() -> void;
+        auto disableDepthTesting() -> void;
+        auto enableBlending() -> void;
+        auto disableBlending() -> void;
 
         auto uploadVramToGpu(const uint8_t* data, 
             const glm::uvec2& offset, const glm::uvec2& size) -> void;

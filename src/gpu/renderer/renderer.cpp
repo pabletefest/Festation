@@ -95,6 +95,26 @@ void festation::Renderer::setProjection(const glm::mat4 &projection)
     m_projection = projection;
 }
 
+auto festation::Renderer::enableDepthTesting() -> void
+{
+    glEnable(GL_DEPTH_TEST);
+}
+
+auto festation::Renderer::disableDepthTesting() -> void
+{
+    glDisable(GL_DEPTH_TEST);
+}
+
+auto festation::Renderer::enableBlending() -> void
+{
+    glEnable(GL_BLEND);
+}
+
+auto festation::Renderer::disableBlending() -> void
+{
+    glDisable(GL_BLEND);
+}
+
 auto festation::Renderer::uploadVramToGpu(const uint8_t* data, const glm::uvec2 &offset = { 0, 0 }, const glm::uvec2 &size = VRAM_SIZE) -> void
 {
     m_vramFramebuffer->setData(data, offset, size);
