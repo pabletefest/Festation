@@ -11,11 +11,18 @@ static constexpr size_t MAX_PRIMITIVES_COUNT = 1024 * 512;
 static constexpr size_t MAX_VERTICES_COUNT = MAX_PRIMITIVES_COUNT * MAX_VERTICES_PER_PRIMITIVE;
 static constexpr size_t MAX_INDICES_COUNT = MAX_PRIMITIVES_COUNT * MAX_INDICES_PER_PRIMITIVE;
 
+static constexpr glm::uvec2 VRAM_SIZE = { 1024, 512 };
+
 festation::Renderer::Renderer()
     : m_flatColorShader(IShader::createUnique(SHADERS_PATH / "flat_color.glsl.vert",
         SHADERS_PATH / "flat_color.glsl.frag")), m_VAO(0), m_VBO(0), m_IBO(0), m_projection(glm::mat4(1)),
             m_indicesCount(0)
 {
+    m_vramFramebuffer = IFramebuffer::createUnique({
+        .size = VRAM_SIZE,
+        .format = FboFormats::RGBA5,
+    });
+
     m_indices.resize(MAX_INDICES_COUNT);
     size_t offset = 0;
 
@@ -88,6 +95,16 @@ void festation::Renderer::setProjection(const glm::mat4 &projection)
     m_projection = projection;
 }
 
+auto festation::Renderer::uploadVramToGpu(const uint8_t* data, const glm::uvec2 &offset = { 0, 0 }, const glm::uvec2 &size = VRAM_SIZE) -> void
+{
+    m_vramFramebuffer->setData(data, offset, size);
+}
+
+auto festation::Renderer::uploadVramToGpu(std::span<uint8_t> data, const glm::uvec2 &offset = { 0, 0 }, const glm::uvec2 &size = VRAM_SIZE) -> void
+{
+    m_vramFramebuffer->setData(data, offset, size);
+}
+
 void festation::Renderer::drawRectangle(const RectanglePrimitiveData &rectData)
 {
     glm::vec4 color = {
@@ -112,6 +129,8 @@ void festation::Renderer::renderFrame()
     if (m_vertices.empty())
         return;
 
+    m_vramFramebuffer->apply();
+
     glNamedBufferSubData(m_VBO, 0, sizeof(PrimitiveVertex) * m_vertices.size(), m_vertices.data());
 
     m_flatColorShader->apply();
@@ -122,4 +141,6 @@ void festation::Renderer::renderFrame()
 
     m_vertices.clear();
     m_indicesCount = 0;
+
+    m_vramFramebuffer->blitToSwapchain();
 }

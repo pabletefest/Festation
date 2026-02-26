@@ -12,6 +12,7 @@ festation::PsxGpu::PsxGpu()
 {
     processResetGpuCmd();
     updateRenderProjection();
+    m_renderer.uploadVramToGpu((const uint8_t*)m_vram.data(), { 0, 0 }, { VRAM_WIDTH, VRAM_HEIGHT });
 }
 
 festation::PsxGpu::~PsxGpu()

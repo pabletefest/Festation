@@ -1,17 +1,17 @@
 #include "framebuffer.hpp"
 #include "hw/OpenGL/ogl_framebuffer.hpp"
 
-auto festation::Framebuffer::createUnique(const FramebufferInfo &specification) -> std::unique_ptr<Framebuffer>
+auto festation::IFramebuffer::createUnique(const FramebufferInfo &specification) -> std::unique_ptr<IFramebuffer>
 {
     return std::make_unique<OGLFramebuffer>(specification);
 }
 
-auto festation::Framebuffer::createShared(const FramebufferInfo &specification) -> std::shared_ptr<Framebuffer>
+auto festation::IFramebuffer::createShared(const FramebufferInfo &specification) -> std::shared_ptr<IFramebuffer>
 {
     return std::make_shared<OGLFramebuffer>(specification);
 }
 
-festation::Framebuffer::Framebuffer(const FramebufferInfo &specification)
+festation::IFramebuffer::IFramebuffer(const FramebufferInfo &specification)
     : m_specification(specification)
 {
     TextureInfo textInfo = {
