@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <array>
+#include <functional>
 
 namespace festation
 {
@@ -11,6 +12,18 @@ namespace festation
 
     static constexpr float CPU_CLOCK_SPEED = 33.8688f; // MHz
     static constexpr uint32_t CPU_CLOCKS_PER_SECOND = 33'868'800;
+
+//     struct MipsInstruction {
+//         EncodingType type;
+
+//         union {
+//             std::function<void(uint8_t, uint8_t, uint8_t, uint8_t)> rTypeFunc;
+//             std::function<void(uint8_t, uint8_t, uint16_t)> iTypeFunc;
+//             std::function<void(uint32_t)> jTypeFunc;
+//         };
+//     };
+
+    using MipsInstruction = std::function<void(void)>;
 
     class MIPS_R3000A_Core
     {
@@ -42,10 +55,7 @@ namespace festation
 
     private:        
         uint32_t fetchInstruction();
-        InstructionType decodeInstruction(uint32_t instruction);
-        InstructionTypeVariant decodeRFormat(uint32_t instruction);
-        InstructionTypeVariant decodeJFormat(uint32_t instruction);
-        InstructionTypeVariant decodeIFormat(uint32_t instruction);
+        MipsInstruction decodeInstruction(uint32_t instruction);
 
     private:
         uint64_t totalCyclesElapsed;
