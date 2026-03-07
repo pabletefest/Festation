@@ -76,9 +76,12 @@ int main(int, char**)
     }
 
     festation::PSXSystem psxSystem;
+    
+    // std::filesystem::path path = std::filesystem::current_path().concat("/../../../res/tests/psxtest_cpu.exe");
+    // std::filesystem::path path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/HelloWorld/16BPP/HelloWorld16BPP.exe");
+    std::filesystem::path path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/GPU/16BPP/RenderRectangle/RenderRectangle16BPP.exe");
 
-    // psxSystem.sideloadExeFile(std::filesystem::current_path().concat("/../../../res/tests/psxtest_cpu.exe"));
-    psxSystem.sideloadExeFile(std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/HelloWorld/16BPP/HelloWorld16BPP.exe"));
+    psxSystem.sideloadExeFile(path);
     
     float time = (float)glfwGetTime();
     float delta = 0.0f;
@@ -98,9 +101,11 @@ int main(int, char**)
 
         std::stringstream strStream;
         strStream << festation::EMU_TITLE;
-        strStream << std::string(" | ");
-        strStream << std::to_string(1.0f / delta);
-        strStream << std::string(" FPS");
+        strStream << " | ";
+        strStream << path.filename().string();
+        strStream << " | ";
+        strStream << std::format("{:.2f}", 1.0f / delta);
+        strStream << " FPS";
         glfwSetWindowTitle(window, strStream.str().c_str());
 
         psxSystem.runWholeFrame();
