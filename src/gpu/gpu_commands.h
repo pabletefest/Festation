@@ -42,5 +42,7 @@ namespace festation {
         WaitingForCommand,
         ProcessingRectCmdParams,
         ProcessingQuickRectFillCmdParams,
+        ProcessingPolygonCmdParams,
+        ProcessingLineCmdParams,
     };
 };

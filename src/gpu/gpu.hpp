@@ -26,6 +26,8 @@ namespace festation {
 
     private:
         void parseCommandGP0(uint32_t commandWord);
+        void processGP0PolygonCmd(uint32_t parameter);
+        void processGP0LineCmd(uint32_t parameter);
         void processGP0RectangleCmd(uint32_t parameter);
         void processGP0ClearCacheCmd();
         void processGP0QuickRectFillCmd(uint32_t parameter);

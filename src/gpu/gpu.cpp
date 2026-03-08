@@ -46,6 +46,12 @@ void festation::PsxGpu::write32(uint32_t address, uint32_t value)
         case GpuCommandsState::ProcessingQuickRectFillCmdParams:
             processGP0QuickRectFillCmd(value);
             break;
+        case GpuCommandsState::ProcessingPolygonCmdParams:
+            processGP0PolygonCmd(value);
+            break;
+        case GpuCommandsState::ProcessingLineCmdParams:
+            processGP0LineCmd(value);
+            break;
         default:
             std::unreachable();
         }
@@ -145,6 +151,14 @@ void festation::PsxGpu::parseCommandGP0(uint32_t commandWord)
         LOG_DEBUG("Unimplemented GP0 GPU command (0b{:b})", command);
         break;
     }
+}
+
+void festation::PsxGpu::processGP0PolygonCmd(uint32_t parameter)
+{
+}
+
+void festation::PsxGpu::processGP0LineCmd(uint32_t parameter)
+{
 }
 
 void festation::PsxGpu::processGP0RectangleCmd(uint32_t parameter)
