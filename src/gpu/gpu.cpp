@@ -79,6 +79,22 @@ void festation::PsxGpu::parseCommandGP0(uint32_t commandWord)
     switch(command)
     {
     case Gpu0Commands::PolygonPrimitive:
+        m_polyData.isGouraudShading = (commandWord >> 28) & 0x1;
+        m_polyData.verticesCount = ((commandWord >> 27) & 0x1) ? 4 : 3;
+        m_polyData.isTextured = (commandWord >> 26) & 0x1;
+        m_polyData.isSemiTransparent = (commandWord >> 25) & 0x1;
+        m_polyData.isRawTexture = (commandWord >> 24) & 0x1;
+
+        m_remainingCmdArg =  m_polyData.verticesCount; // At least 3/4 vertices words
+
+        if (m_polyData.isGouraudShading)
+            m_remainingCmdArg += (m_polyData.verticesCount - 1); // 1st color already provided
+
+        if (m_polyData.isTextured)
+            m_remainingCmdArg += m_polyData.verticesCount;
+
+        m_commandsFIFO[m_currentCmdParam++] = commandWord;
+        m_commandState = GpuCommandsState::ProcessingPolygonCmdParams;
         break;
     case Gpu0Commands::LinePrimitive:
         break;

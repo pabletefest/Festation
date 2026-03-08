@@ -98,6 +98,7 @@ namespace festation {
         DrawingAreaInfo m_drawingAreaInfo{};
 
         RectanglePrimitiveData m_rectData{};
+        PolygonPrimitiveData m_polyData{};
 
         GpuCommandsState m_commandState{};
         size_t m_remainingCmdArg{};

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <array>
 
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
@@ -37,6 +38,23 @@ namespace festation {
         } clutUV;
 
         glm::u16vec2 size;
+    };
+
+    struct PolygonPrimitiveData {
+        bool isGouraudShading;
+        uint8_t verticesCount;
+        bool isTextured;
+        bool isSemiTransparent;
+        bool isRawTexture; 
+        std::array<glm::u8vec4, 4> colors;
+        std::array<glm::i16vec2, 4> vertices;
+
+        struct ClutPageUV {
+            glm::u16vec2 uv;
+            glm::u16vec2 clutPage;
+        };
+
+        std::array<ClutPageUV, 4> clutPagesUVs;
     };
 
     struct PrimitiveVertex {
