@@ -13,9 +13,9 @@ namespace festation {
         glm::i16vec2 offset;
     };
 
-    inline constexpr size_t COLOR_PARAM_POS = 0; 
-    inline constexpr size_t VERTEX_PARAM_POS = 1; 
-    inline constexpr size_t UV_PARAM_POS = 2; 
+    inline constexpr size_t RECT_COLOR_PARAM_POS = 0; 
+    inline constexpr size_t RECT_VERTEX_PARAM_POS = 1; 
+    inline constexpr size_t RECT_UV_PARAM_POS = 2; 
     inline constexpr size_t RECT_SIZE_PARAM_POS = 3;
 
     struct RectanglePrimitiveData {
@@ -33,7 +33,7 @@ namespace festation {
         glm::i16vec2 vertex1;
 
         struct {
-            glm::u16vec2 uv;
+            glm::u8vec2 uv;
             glm::u16vec2 clut;
         } clutUV;
 
@@ -48,13 +48,9 @@ namespace festation {
         bool isRawTexture; 
         std::array<glm::u8vec4, 4> colors;
         std::array<glm::i16vec2, 4> vertices;
-
-        struct ClutPageUV {
-            glm::u16vec2 uv;
-            glm::u16vec2 clutPage;
-        };
-
-        std::array<ClutPageUV, 4> clutPagesUVs;
+        std::array<glm::u8vec2, 4> uvs;
+        glm::u16vec2 clut;
+        glm::u16vec2 page;
     };
 
     struct PrimitiveVertex {

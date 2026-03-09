@@ -85,7 +85,7 @@ void festation::PsxGpu::parseCommandGP0(uint32_t commandWord)
         m_polyData.isSemiTransparent = (commandWord >> 25) & 0x1;
         m_polyData.isRawTexture = (commandWord >> 24) & 0x1;
 
-        m_remainingCmdArg =  m_polyData.verticesCount; // At least 3/4 vertices words
+        m_remainingCmdArg =  m_polyData.verticesCount; // At least 3/4 vertices words (flat shading and not textured)
 
         if (m_polyData.isGouraudShading)
             m_remainingCmdArg += (m_polyData.verticesCount - 1); // 1st color already provided
@@ -171,6 +171,62 @@ void festation::PsxGpu::parseCommandGP0(uint32_t commandWord)
 
 void festation::PsxGpu::processGP0PolygonCmd(uint32_t parameter)
 {
+    m_commandsFIFO[m_currentCmdParam++] = parameter;
+    m_remainingCmdArg--;
+
+    if (m_remainingCmdArg == 0) {
+        size_t offsetBase = 0;
+        size_t colorParamOffset = 0;
+        size_t vertexParamOffset = 1;
+        size_t clutPageUVParamOffset = 2;
+
+        if (m_polyData.isGouraudShading) {
+            offsetBase = 1;
+        }
+
+        for (size_t vertexId = 0; vertexId < m_polyData.verticesCount; vertexId++) {
+            const auto& colorParam = m_commandsFIFO[colorParamOffset];
+            auto&  color = m_polyData.colors[vertexId];
+            color.a = 1.0f;
+            color.r = colorParam & 0xFF;
+            color.g = (colorParam >> 8) & 0xFF;
+            color.b = (colorParam >> 16) & 0xFF;
+
+            const auto& vertexParam = m_commandsFIFO[vertexParamOffset];
+            auto& vertex = m_polyData.vertices[vertexId];
+            vertex.x = int16_t(vertexParam & 0x7FF) + m_drawingAreaInfo.offset.x;
+            vertex.y = int16_t((vertexParam >> 16) & 0x7FF) + m_drawingAreaInfo.offset.y;
+
+            if (m_polyData.isTextured) {
+                const auto& clutPageUVParam = m_commandsFIFO[vertexId * offsetBase + clutPageUVParamOffset];
+                auto& uv = m_polyData.uvs[vertexId];
+                uv.x = clutPageUVParam & 0xFFu;
+                uv.y = (clutPageUVParam >> 8) & 0xFFu;
+
+                if (vertexId == 0) {
+                    auto& clut = m_polyData.clut;
+                    clut.x = (clutPageUVParam >> 16) & 0x3Fu;
+                    clut.y = (clutPageUVParam >> 22) & 0x1FFu;
+                }
+
+                if (vertexId == 1) {
+                    auto& page = m_polyData.page;
+                    page.x = (clutPageUVParam >> 16) & 0x3Fu;
+                    page.y = (clutPageUVParam >> 22) & 0x1FFu;
+                }
+
+                clutPageUVParamOffset += vertexId * offsetBase;
+            }
+
+            colorParamOffset += vertexId * offsetBase;
+            vertexParamOffset += vertexId * offsetBase;
+        }
+        
+        // m_renderer.drawRectangle(m_rectData);
+
+        m_currentCmdParam = 0;
+        m_commandState = GpuCommandsState::WaitingForCommand;
+    }
 }
 
 void festation::PsxGpu::processGP0LineCmd(uint32_t parameter)
@@ -183,28 +239,29 @@ void festation::PsxGpu::processGP0RectangleCmd(uint32_t parameter)
     m_remainingCmdArg--;
 
     if (m_remainingCmdArg == 0) {
-        const auto& color = m_commandsFIFO[COLOR_PARAM_POS];
+        const auto& color = m_commandsFIFO[RECT_COLOR_PARAM_POS];
         m_rectData.color.a = 1.0f;
-        m_rectData.color.r = color & 0xFF;
-        m_rectData.color.g = (color >> 8) & 0xFF;
-        m_rectData.color.b = (color >> 16) & 0xFF;
+        m_rectData.color.r = color & 0xFFu;
+        m_rectData.color.g = (color >> 8) & 0xFFu;
+        m_rectData.color.b = (color >> 16) & 0xFFu;
 
-        const auto& vertex = m_commandsFIFO[VERTEX_PARAM_POS];
-        m_rectData.vertex1.x = int16_t(vertex & 0x7FF) + m_drawingAreaInfo.offset.x;
-        m_rectData.vertex1.y = int16_t((vertex >> 16) & 0x7FF) + m_drawingAreaInfo.offset.y;
+        const auto& vertex = m_commandsFIFO[RECT_VERTEX_PARAM_POS];
+        m_rectData.vertex1.x = int16_t(vertex & 0x7FFu) + m_drawingAreaInfo.offset.x;
+        m_rectData.vertex1.y = int16_t((vertex >> 16) & 0x7FFu) + m_drawingAreaInfo.offset.y;
 
-        const auto& clutUV = m_commandsFIFO[UV_PARAM_POS];
-        m_rectData.clutUV.uv.x = clutUV & 0x3F;
-        m_rectData.clutUV.uv.y = (clutUV >> 6) & 0x1FF;
-        m_rectData.clutUV.clut = glm::i16vec2((clutUV >> 16) & 0xFFFF);
+        const auto& clutUV = m_commandsFIFO[RECT_UV_PARAM_POS];
+        m_rectData.clutUV.uv.x = clutUV & 0xFFu;
+        m_rectData.clutUV.uv.y = (clutUV >> 8) & 0xFFu;
+        m_rectData.clutUV.clut.x = (clutUV >> 16) & 0x3Fu;
+        m_rectData.clutUV.clut.y = (clutUV >> 22) & 0x1FFu;
 
         const auto& dimensions = m_commandsFIFO[RECT_SIZE_PARAM_POS];
 
         switch(m_rectData.sizeType)
         {
         case RectanglePrimitiveData::Variable:
-            m_rectData.size.x = dimensions & 0x7FF;
-            m_rectData.size.y = (dimensions >> 16) & 0x7FF;
+            m_rectData.size.x = dimensions & 0x7FFu;
+            m_rectData.size.y = (dimensions >> 16) & 0x7FFu;
             break;
         case RectanglePrimitiveData::SinglePixel:
             m_rectData.size.x = 1u;
@@ -244,20 +301,20 @@ void festation::PsxGpu::processGP0QuickRectFillCmd(uint32_t parameter)
         
         color.a = 1.0f;
         color.r = (colorParam & 0xFF) / 255.0f;
-        color.g = ((colorParam >> 8) & 0xFF) / 255.0f;
-        color.b = ((colorParam >> 16) & 0xFF) / 255.0f;
+        color.g = ((colorParam >> 8) & 0xFFu) / 255.0f;
+        color.b = ((colorParam >> 16) & 0xFFu) / 255.0f;
 
         const auto& topLeftCoordsParam = m_commandsFIFO[1];
         glm::u16vec2 topLeftCoords;
 
-        topLeftCoords.x = topLeftCoordsParam & 0x3F0;
-        topLeftCoords.y = (topLeftCoordsParam >> 16) & 0x1FF;
+        topLeftCoords.x = topLeftCoordsParam & 0x3F0u;
+        topLeftCoords.y = (topLeftCoordsParam >> 16) & 0x1FFu;
 
         const auto& sizeParam = m_commandsFIFO[2];
         glm::u16vec2 size;
 
-        size.x = ((sizeParam & 0x3FF) + 0x0F) & ~0x0F;
-        size.y = (sizeParam >> 16) & 0x1FF;
+        size.x = ((sizeParam & 0x3FFu) + 0x0Fu) & ~0x0Fu;
+        size.y = (sizeParam >> 16) & 0x1FFu;
 
         if (size.x != 0 && size.y != 0) {
             /** @todo: Create VRAM framebuffer on device side and fill it as stated by command parameters */
@@ -274,7 +331,7 @@ void festation::PsxGpu::processGP0InterruptRequestCmd()
 
 void festation::PsxGpu::processGP0DrawModeCmd(uint32_t parameter)
 {
-    GPUSTAT.raw = (GPUSTAT.raw & 0xFFFFFC00) | (parameter & 0x3FF);
+    GPUSTAT.raw = (GPUSTAT.raw & 0xFFFFFC00u) | (parameter & 0x3FFu);
     GPUSTAT.drawingToDisplayArea = (parameter >> 10) & 1;
     GPUSTAT.texturePageYBase2 = (parameter >> 11) & 1;
 }
@@ -287,8 +344,8 @@ void festation::PsxGpu::processGP0SetDrawingAreaX1Y1Cmd(uint32_t parameter)
 {
     m_renderer.renderFrame();
 
-    m_drawingAreaInfo.topLeft.x = parameter & 0x3FF;
-    m_drawingAreaInfo.topLeft.y = (parameter >> 10) & 0x1FF;
+    m_drawingAreaInfo.topLeft.x = parameter & 0x3FFu;
+    m_drawingAreaInfo.topLeft.y = (parameter >> 10) & 0x1FFu;
 
     // updateRenderProjection();
     // m_renderer.setViewport(m_drawingAreaInfo.topLeft, m_drawingAreaInfo.bottomRight);
@@ -298,8 +355,8 @@ void festation::PsxGpu::processGP0SetDrawingAreaX2Y2Cmd(uint32_t parameter)
 {
     m_renderer.renderFrame();
 
-    m_drawingAreaInfo.bottomRight.x = parameter & 0x3FF;
-    m_drawingAreaInfo.bottomRight.y = (parameter >> 10) & 0x1FF; 
+    m_drawingAreaInfo.bottomRight.x = parameter & 0x3FFu;
+    m_drawingAreaInfo.bottomRight.y = (parameter >> 10) & 0x1FFu; 
 
     // updateRenderProjection();
     // m_renderer.setViewport(m_drawingAreaInfo.topLeft, m_drawingAreaInfo.bottomRight);
@@ -307,8 +364,8 @@ void festation::PsxGpu::processGP0SetDrawingAreaX2Y2Cmd(uint32_t parameter)
 
 void festation::PsxGpu::processGP0SetDrawingOffsetCmd(uint32_t parameter)
 {
-    m_drawingAreaInfo.offset.x = parameter & 0x3FF;
-    m_drawingAreaInfo.offset.y = (parameter >> 10) & 0x3FF; 
+    m_drawingAreaInfo.offset.x = parameter & 0x3FFu;
+    m_drawingAreaInfo.offset.y = (parameter >> 10) & 0x3FFu; 
 }
 
 void festation::PsxGpu::processGP0MaskBitSettingCmd(uint32_t parameter)
@@ -320,7 +377,7 @@ void festation::PsxGpu::processGP0MaskBitSettingCmd(uint32_t parameter)
 void festation::PsxGpu::parseCommandGP1(uint32_t commandWord)
 {
     uint8_t command = commandWord >> 24;
-    uint32_t parameter = commandWord & 0x00FFFFFF;
+    uint32_t parameter = commandWord & 0x00FFFFFFu;
 
     switch (command)
     {
