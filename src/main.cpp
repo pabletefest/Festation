@@ -80,6 +80,7 @@ int main(int, char**)
     std::filesystem::path path = std::filesystem::current_path().concat("/../../../res/tests/psxtest_cpu.exe");
     // std::filesystem::path path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/HelloWorld/16BPP/HelloWorld16BPP.exe");
     // std::filesystem::path path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/GPU/16BPP/RenderRectangle/RenderRectangle16BPP.exe");
+    // std::filesystem::path path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/GPU/16BPP/RenderPolygon/RenderPolygon16BPP.exe");
 
     psxSystem.sideloadExeFile(path);
     

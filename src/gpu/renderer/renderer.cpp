@@ -7,7 +7,7 @@
 
 static constexpr size_t MAX_VERTICES_PER_PRIMITIVE = 4;
 static constexpr size_t MAX_INDICES_PER_PRIMITIVE = 6;
-static constexpr size_t MAX_PRIMITIVES_COUNT = 1024 * 512;
+static constexpr size_t MAX_PRIMITIVES_COUNT = 180'000; /** @brief Max theoretical count for the HW */
 static constexpr size_t MAX_VERTICES_COUNT = MAX_PRIMITIVES_COUNT * MAX_VERTICES_PER_PRIMITIVE;
 static constexpr size_t MAX_INDICES_COUNT = MAX_PRIMITIVES_COUNT * MAX_INDICES_PER_PRIMITIVE;
 
@@ -146,8 +146,8 @@ void festation::Renderer::drawRectangle(const RectanglePrimitiveData &rectData)
 
 void festation::Renderer::renderFrame()
 {
-    if (m_vertices.empty())
-        return;
+    // if (m_vertices.empty())
+    //     return;
 
     m_vramFramebuffer->apply();
 
@@ -156,11 +156,12 @@ void festation::Renderer::renderFrame()
     m_flatColorShader->apply();
     m_flatColorShader->setData("uProjection", m_projection);
 
+    m_indicesCount = m_vertices.size() / 4 * 6;
+    
     glBindVertexArray(m_VAO);
     glDrawElements(GL_TRIANGLES, m_indicesCount, GL_UNSIGNED_INT, nullptr);
 
     m_vertices.clear();
-    m_indicesCount = 0;
 
     m_vramFramebuffer->blitToSwapchain();
 }
