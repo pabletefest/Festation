@@ -146,22 +146,19 @@ void festation::Renderer::drawRectangle(const RectanglePrimitiveData &rectData)
 
 void festation::Renderer::renderFrame()
 {
-    // if (m_vertices.empty())
-    //     return;
+    if (!m_vertices.empty()) {
+        m_vramFramebuffer->apply();
+        glNamedBufferSubData(m_VBO, 0, sizeof(PrimitiveVertex) * m_vertices.size(), m_vertices.data());
 
-    m_vramFramebuffer->apply();
+        m_flatColorShader->apply();
+        m_flatColorShader->setData("uProjection", m_projection);
 
-    glNamedBufferSubData(m_VBO, 0, sizeof(PrimitiveVertex) * m_vertices.size(), m_vertices.data());
+        m_indicesCount = m_vertices.size() / 4 * 6;
+        m_vertices.clear();
 
-    m_flatColorShader->apply();
-    m_flatColorShader->setData("uProjection", m_projection);
-
-    m_indicesCount = m_vertices.size() / 4 * 6;
-    
-    glBindVertexArray(m_VAO);
-    glDrawElements(GL_TRIANGLES, m_indicesCount, GL_UNSIGNED_INT, nullptr);
-
-    m_vertices.clear();
+        glBindVertexArray(m_VAO);
+        glDrawElements(GL_TRIANGLES, m_indicesCount, GL_UNSIGNED_INT, nullptr);
+    }
 
     m_vramFramebuffer->blitToSwapchain();
 }
