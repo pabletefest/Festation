@@ -38,6 +38,7 @@ namespace festation {
             const glm::uvec2& offset, const glm::uvec2& size) -> void;
 
         auto drawRectangle(const RectanglePrimitiveData& rectData) -> void;
+        auto drawPolygon(const PolygonPrimitiveData& polygonData) -> void;
 
         auto renderFrame() -> void;
 

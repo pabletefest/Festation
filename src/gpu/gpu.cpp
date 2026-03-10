@@ -222,7 +222,7 @@ void festation::PsxGpu::processGP0PolygonCmd(uint32_t parameter)
             vertexParamOffset += vertexId * offsetBase;
         }
         
-        // m_renderer.drawRectangle(m_rectData);
+        m_renderer.drawPolygon(m_polyData);
 
         m_currentCmdParam = 0;
         m_commandState = GpuCommandsState::WaitingForCommand;

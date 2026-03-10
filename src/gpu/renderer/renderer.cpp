@@ -10,6 +10,8 @@ static constexpr size_t MAX_INDICES_PER_PRIMITIVE = 6;
 static constexpr size_t MAX_PRIMITIVES_COUNT = 180'000; /** @brief Max theoretical count for the HW */
 static constexpr size_t MAX_VERTICES_COUNT = MAX_PRIMITIVES_COUNT * MAX_VERTICES_PER_PRIMITIVE;
 static constexpr size_t MAX_INDICES_COUNT = MAX_PRIMITIVES_COUNT * MAX_INDICES_PER_PRIMITIVE;
+static constexpr size_t INDICES_PER_TRIANGLE = 3;
+static constexpr size_t INDICES_PER_QUAD = 4;
 
 static constexpr glm::uvec2 VRAM_SIZE = { 1024, 512 };
 
@@ -141,7 +143,27 @@ void festation::Renderer::drawRectangle(const RectanglePrimitiveData &rectData)
         PrimitiveVertex { glm::vec2(rectData.vertex1.x, rectData.vertex1.y + rectData.size.y), color },
     });
 
-    m_indicesCount += MAX_INDICES_PER_PRIMITIVE;
+    m_indicesCount += INDICES_PER_QUAD;
+}
+
+auto festation::Renderer::drawPolygon(const PolygonPrimitiveData &polygonData) -> void
+{
+    for (size_t vertexId = 0; vertexId < polygonData.verticesCount; vertexId++) {
+        m_vertices.emplace_back(PrimitiveVertex { 
+            .coords = glm::vec2 {
+                polygonData.vertices[vertexId].x,
+                polygonData.vertices[vertexId].y, 
+            },
+            .color = glm::vec4 {
+                polygonData.colors[vertexId].r / 255.0f,
+                polygonData.colors[vertexId].g / 255.0f,
+                polygonData.colors[vertexId].b / 255.0f,
+                polygonData.colors[vertexId].a,
+            },
+        });
+    }
+
+    m_indicesCount += (INDICES_PER_TRIANGLE + (polygonData.verticesCount % 3)  * INDICES_PER_TRIANGLE);
 }
 
 void festation::Renderer::renderFrame()
@@ -153,7 +175,7 @@ void festation::Renderer::renderFrame()
         m_flatColorShader->apply();
         m_flatColorShader->setData("uProjection", m_projection);
 
-        m_indicesCount = m_vertices.size() / 4 * 6;
+        // m_indicesCount = m_vertices.size() / 4 * 6;
         m_vertices.clear();
 
         glBindVertexArray(m_VAO);
