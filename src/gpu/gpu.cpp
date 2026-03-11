@@ -180,19 +180,22 @@ void festation::PsxGpu::processGP0PolygonCmd(uint32_t parameter)
         size_t vertexParamOffset = 1;
         size_t clutPageUVParamOffset = 2;
 
-        if (m_polyData.isGouraudShading) {
-            offsetBase = 1;
+        if (m_polyData.isGouraudShading && m_polyData.isTextured) {
+            offsetBase = 3;
+        }
+        else if (m_polyData.isGouraudShading || m_polyData.isTextured) {
+            offsetBase = 2;
         }
 
         for (size_t vertexId = 0; vertexId < m_polyData.verticesCount; vertexId++) {
-            const auto& colorParam = m_commandsFIFO[colorParamOffset];
+            const auto& colorParam = m_commandsFIFO[vertexId * offsetBase];
             auto&  color = m_polyData.colors[vertexId];
             color.a = 1.0f;
             color.r = colorParam & 0xFF;
             color.g = (colorParam >> 8) & 0xFF;
             color.b = (colorParam >> 16) & 0xFF;
 
-            const auto& vertexParam = m_commandsFIFO[vertexParamOffset];
+            const auto& vertexParam = m_commandsFIFO[vertexId * 2 + 1];
             auto& vertex = m_polyData.vertices[vertexId];
             vertex.x = int16_t(vertexParam & 0x7FF) + m_drawingAreaInfo.offset.x;
             vertex.y = int16_t((vertexParam >> 16) & 0x7FF) + m_drawingAreaInfo.offset.y;
@@ -215,11 +218,11 @@ void festation::PsxGpu::processGP0PolygonCmd(uint32_t parameter)
                     page.y = (clutPageUVParam >> 22) & 0x1FFu;
                 }
 
-                clutPageUVParamOffset += vertexId * offsetBase;
+                // clutPageUVParamOffset += vertexId * offsetBase;
             }
 
-            colorParamOffset += vertexId * offsetBase;
-            vertexParamOffset += vertexId * offsetBase;
+            // colorParamOffset += vertexId * offsetBase;
+            // vertexParamOffset += vertexId * offsetBase;
         }
         
         m_renderer.drawPolygon(m_polyData);
@@ -347,6 +350,9 @@ void festation::PsxGpu::processGP0SetDrawingAreaX1Y1Cmd(uint32_t parameter)
     m_drawingAreaInfo.topLeft.x = parameter & 0x3FFu;
     m_drawingAreaInfo.topLeft.y = (parameter >> 10) & 0x1FFu;
 
+    uint16_t flippedY = VRAM_HEIGHT - (m_drawingAreaInfo.topLeft.y + m_drawingAreaInfo.bottomRight.y);
+    m_renderer.setClipRegion({ m_drawingAreaInfo.topLeft.x, flippedY }, m_drawingAreaInfo.bottomRight);
+
     // updateRenderProjection();
     // m_renderer.setViewport(m_drawingAreaInfo.topLeft, m_drawingAreaInfo.bottomRight);
 }
@@ -357,6 +363,9 @@ void festation::PsxGpu::processGP0SetDrawingAreaX2Y2Cmd(uint32_t parameter)
 
     m_drawingAreaInfo.bottomRight.x = parameter & 0x3FFu;
     m_drawingAreaInfo.bottomRight.y = (parameter >> 10) & 0x1FFu; 
+    
+    uint16_t flippedY = VRAM_HEIGHT - (m_drawingAreaInfo.topLeft.y + m_drawingAreaInfo.bottomRight.y);
+    m_renderer.setClipRegion({ m_drawingAreaInfo.topLeft.x, flippedY }, m_drawingAreaInfo.bottomRight);
 
     // updateRenderProjection();
     // m_renderer.setViewport(m_drawingAreaInfo.topLeft, m_drawingAreaInfo.bottomRight);

@@ -82,12 +82,12 @@ void festation::Renderer::clearDisplay()
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void festation::Renderer::setViewport(const glm::ivec2 &startCoord, const glm::ivec2 &size)
+void festation::Renderer::setViewport(const glm::uvec2 &startCoord, const glm::uvec2 &size)
 {
     glViewport(startCoord.x, startCoord.y, size.x, size.y);
 }
 
-void festation::Renderer::setClipRegion(const glm::ivec2 &startCoord, const glm::ivec2 &size)
+void festation::Renderer::setClipRegion(const glm::uvec2 &startCoord, const glm::uvec2 &size)
 {
     glScissor(startCoord.x, startCoord.y, size.x, size.y);
 }

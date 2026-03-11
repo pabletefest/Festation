@@ -24,8 +24,8 @@ namespace festation {
         auto setClearColor(const glm::vec4& color) -> void;
         auto clearDisplay() -> void;
 
-        auto setViewport(const glm::ivec2& startCoord, const glm::ivec2& size) -> void;
-        auto setClipRegion(const glm::ivec2& startCoord, const glm::ivec2& size) -> void;
+        auto setViewport(const glm::uvec2& startCoord, const glm::uvec2& size) -> void;
+        auto setClipRegion(const glm::uvec2& startCoord, const glm::uvec2& size) -> void;
         auto setProjection(const glm::mat4& projection) -> void;
         auto enableDepthTesting() -> void;
         auto disableDepthTesting() -> void;
