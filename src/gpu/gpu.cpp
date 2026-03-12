@@ -175,33 +175,43 @@ void festation::PsxGpu::processGP0PolygonCmd(uint32_t parameter)
     m_remainingCmdArg--;
 
     if (m_remainingCmdArg == 0) {
-        size_t offsetBase = 0;
-        size_t colorParamOffset = 0;
-        size_t vertexParamOffset = 1;
-        size_t clutPageUVParamOffset = 2;
-
-        if (m_polyData.isGouraudShading && m_polyData.isTextured) {
-            offsetBase = 3;
-        }
-        else if (m_polyData.isGouraudShading || m_polyData.isTextured) {
-            offsetBase = 2;
-        }
+        size_t colorParamOffset, vertexParamOffset, clutPageUVParamOffset;
 
         for (size_t vertexId = 0; vertexId < m_polyData.verticesCount; vertexId++) {
-            const auto& colorParam = m_commandsFIFO[vertexId * offsetBase];
+
+            if (m_polyData.isGouraudShading && m_polyData.isTextured) {
+                colorParamOffset = vertexId * 3;
+                vertexParamOffset = vertexId * 3 + 1;
+                clutPageUVParamOffset = vertexId * 3 + 2;
+            }
+            else if (m_polyData.isGouraudShading && !m_polyData.isTextured) {
+                colorParamOffset = vertexId * 2;
+                vertexParamOffset = vertexId * 2 + 1;
+            }
+            else if (!m_polyData.isGouraudShading && m_polyData.isTextured) {
+                colorParamOffset = 0;
+                vertexParamOffset = vertexId * 2 + 1;
+                clutPageUVParamOffset = vertexId * 2 + 2;
+            }
+            else {
+                colorParamOffset = 0;
+                vertexParamOffset = vertexId + 1;
+            }
+
+            const auto& colorParam = m_commandsFIFO[colorParamOffset];
             auto&  color = m_polyData.colors[vertexId];
             color.a = 1.0f;
             color.r = colorParam & 0xFF;
             color.g = (colorParam >> 8) & 0xFF;
             color.b = (colorParam >> 16) & 0xFF;
 
-            const auto& vertexParam = m_commandsFIFO[vertexId * 2 + 1];
+            const auto& vertexParam = m_commandsFIFO[vertexParamOffset];
             auto& vertex = m_polyData.vertices[vertexId];
             vertex.x = int16_t(vertexParam & 0x7FF) + m_drawingAreaInfo.offset.x;
             vertex.y = int16_t((vertexParam >> 16) & 0x7FF) + m_drawingAreaInfo.offset.y;
 
             if (m_polyData.isTextured) {
-                const auto& clutPageUVParam = m_commandsFIFO[vertexId * offsetBase + clutPageUVParamOffset];
+                const auto& clutPageUVParam = m_commandsFIFO[clutPageUVParamOffset];
                 auto& uv = m_polyData.uvs[vertexId];
                 uv.x = clutPageUVParam & 0xFFu;
                 uv.y = (clutPageUVParam >> 8) & 0xFFu;
@@ -217,12 +227,7 @@ void festation::PsxGpu::processGP0PolygonCmd(uint32_t parameter)
                     page.x = (clutPageUVParam >> 16) & 0x3Fu;
                     page.y = (clutPageUVParam >> 22) & 0x1FFu;
                 }
-
-                // clutPageUVParamOffset += vertexId * offsetBase;
             }
-
-            // colorParamOffset += vertexId * offsetBase;
-            // vertexParamOffset += vertexId * offsetBase;
         }
         
         m_renderer.drawPolygon(m_polyData);
@@ -363,7 +368,7 @@ void festation::PsxGpu::processGP0SetDrawingAreaX2Y2Cmd(uint32_t parameter)
 
     m_drawingAreaInfo.bottomRight.x = parameter & 0x3FFu;
     m_drawingAreaInfo.bottomRight.y = (parameter >> 10) & 0x1FFu; 
-    
+
     uint16_t flippedY = VRAM_HEIGHT - (m_drawingAreaInfo.topLeft.y + m_drawingAreaInfo.bottomRight.y);
     m_renderer.setClipRegion({ m_drawingAreaInfo.topLeft.x, flippedY }, m_drawingAreaInfo.bottomRight);
 

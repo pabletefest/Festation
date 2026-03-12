@@ -11,7 +11,7 @@ static constexpr size_t MAX_PRIMITIVES_COUNT = 180'000; /** @brief Max theoretic
 static constexpr size_t MAX_VERTICES_COUNT = MAX_PRIMITIVES_COUNT * MAX_VERTICES_PER_PRIMITIVE;
 static constexpr size_t MAX_INDICES_COUNT = MAX_PRIMITIVES_COUNT * MAX_INDICES_PER_PRIMITIVE;
 static constexpr size_t INDICES_PER_TRIANGLE = 3;
-static constexpr size_t INDICES_PER_QUAD = 4;
+static constexpr size_t INDICES_PER_QUAD = 6;
 
 static constexpr glm::uvec2 VRAM_SIZE = { 1024, 512 };
 
@@ -26,18 +26,18 @@ festation::Renderer::Renderer()
     });
 
     m_indices.resize(MAX_INDICES_COUNT);
-    size_t offset = 0;
+    // size_t offset = 0;
 
-    for (size_t i = 0; i < MAX_INDICES_COUNT; i += 6) {
-        m_indices[i + 0] = 0 + offset;
-        m_indices[i + 1] = 1 + offset;
-        m_indices[i + 2] = 2 + offset;
-        m_indices[i + 3] = 2 + offset;
-        m_indices[i + 4] = 3 + offset;
-        m_indices[i + 5] = 0 + offset;
+    // for (size_t i = 0; i < MAX_INDICES_COUNT; i += 6) {
+    //     m_indices[i + 0] = 0 + offset;
+    //     m_indices[i + 1] = 1 + offset;
+    //     m_indices[i + 2] = 2 + offset;
+    //     m_indices[i + 3] = 2 + offset;
+    //     m_indices[i + 4] = 3 + offset;
+    //     m_indices[i + 5] = 0 + offset;
 
-        offset += 4;
-    }
+    //     offset += 4;
+    // }
 
     glCreateVertexArrays(1, &m_VAO);
 
@@ -136,6 +136,13 @@ void festation::Renderer::drawRectangle(const RectanglePrimitiveData &rectData)
         rectData.color.a,
     };
 
+    m_indices[m_indicesCount + 0] = 0 + m_vertices.size();
+    m_indices[m_indicesCount + 1] = 1 + m_vertices.size();
+    m_indices[m_indicesCount + 2] = 2 + m_vertices.size();
+    m_indices[m_indicesCount + 3] = 2 + m_vertices.size();
+    m_indices[m_indicesCount + 4] = 3 + m_vertices.size();
+    m_indices[m_indicesCount + 5] = 0 + m_vertices.size();
+
     m_vertices.append_range(std::array {
         PrimitiveVertex { glm::vec2(rectData.vertex1.x, rectData.vertex1.y), color },
         PrimitiveVertex { glm::vec2(rectData.vertex1.x + rectData.size.x, rectData.vertex1.y), color },
@@ -148,6 +155,29 @@ void festation::Renderer::drawRectangle(const RectanglePrimitiveData &rectData)
 
 auto festation::Renderer::drawPolygon(const PolygonPrimitiveData &polygonData) -> void
 {
+    switch (polygonData.verticesCount)
+    {
+    case 3:
+        m_indices[m_indicesCount + 0] = 0 + m_vertices.size();
+        m_indices[m_indicesCount + 1] = 1 + m_vertices.size();
+        m_indices[m_indicesCount + 2] = 2 + m_vertices.size();
+
+        m_indicesCount += INDICES_PER_TRIANGLE;
+        break;
+    case 4:
+        m_indices[m_indicesCount + 0] = 0 + m_vertices.size();
+        m_indices[m_indicesCount + 1] = 1 + m_vertices.size();
+        m_indices[m_indicesCount + 2] = 2 + m_vertices.size();
+        m_indices[m_indicesCount + 3] = 2 + m_vertices.size();
+        m_indices[m_indicesCount + 4] = 3 + m_vertices.size();
+        m_indices[m_indicesCount + 5] = 0 + m_vertices.size();
+
+        m_indicesCount += INDICES_PER_QUAD;
+        break;
+    default:
+        std::unreachable();
+    }
+
     for (size_t vertexId = 0; vertexId < polygonData.verticesCount; vertexId++) {
         m_vertices.emplace_back(PrimitiveVertex { 
             .coords = glm::vec2 {
@@ -162,8 +192,6 @@ auto festation::Renderer::drawPolygon(const PolygonPrimitiveData &polygonData) -
             },
         });
     }
-
-    m_indicesCount += (INDICES_PER_TRIANGLE + (polygonData.verticesCount % 3)  * INDICES_PER_TRIANGLE);
 }
 
 void festation::Renderer::renderFrame()
@@ -171,15 +199,19 @@ void festation::Renderer::renderFrame()
     if (!m_vertices.empty()) {
         m_vramFramebuffer->apply();
         glNamedBufferSubData(m_VBO, 0, sizeof(PrimitiveVertex) * m_vertices.size(), m_vertices.data());
+        glNamedBufferSubData(m_IBO, 0, sizeof(GLuint) * m_indices.size(), m_indices.data());
 
         m_flatColorShader->apply();
         m_flatColorShader->setData("uProjection", m_projection);
 
         // m_indicesCount = m_vertices.size() / 4 * 6;
-        m_vertices.clear();
 
         glBindVertexArray(m_VAO);
         glDrawElements(GL_TRIANGLES, m_indicesCount, GL_UNSIGNED_INT, nullptr);
+        
+        m_vertices.clear();
+        m_indices.clear();
+        m_indicesCount = 0;
     }
 
     m_vramFramebuffer->blitToSwapchain();
