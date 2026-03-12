@@ -168,9 +168,9 @@ auto festation::Renderer::drawPolygon(const PolygonPrimitiveData &polygonData) -
         m_indices[m_indicesCount + 0] = 0 + m_vertices.size();
         m_indices[m_indicesCount + 1] = 1 + m_vertices.size();
         m_indices[m_indicesCount + 2] = 2 + m_vertices.size();
-        m_indices[m_indicesCount + 3] = 2 + m_vertices.size();
-        m_indices[m_indicesCount + 4] = 3 + m_vertices.size();
-        m_indices[m_indicesCount + 5] = 0 + m_vertices.size();
+        m_indices[m_indicesCount + 3] = 1 + m_vertices.size();
+        m_indices[m_indicesCount + 4] = 2 + m_vertices.size();
+        m_indices[m_indicesCount + 5] = 3 + m_vertices.size();
 
         m_indicesCount += INDICES_PER_QUAD;
         break;
