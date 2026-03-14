@@ -3,6 +3,14 @@
 
 festation::DmaControl::DmaControl()
 {
+    m_channels[0] = std::make_unique<Dma0MdecIn>();
+    m_channels[1] = std::make_unique<Dma1MdecOut>();
+    m_channels[2] = std::make_unique<Dma2Gpu>();
+    m_channels[3] = std::make_unique<Dma3Cdrom>();
+    m_channels[4] = std::make_unique<Dma4Spu>();
+    m_channels[5] = std::make_unique<Dma5Pio>();
+    m_channels[6] = std::make_unique<Dma6Otc>();
+
     reset();
 }
 
@@ -10,13 +18,13 @@ festation::DmaControl::~DmaControl()
 {
 }
 
-void festation::DmaControl::reset()
+auto festation::DmaControl::reset() -> void
 {
     DPCR.raw = 0x07654321u;
     DICR.raw = 0;
 }
 
-uint32_t festation::DmaControl::read32(uint32_t address)
+auto festation::DmaControl::read32(uint32_t address) -> uint32_t
 {
     switch(address)
     {
@@ -28,24 +36,24 @@ uint32_t festation::DmaControl::read32(uint32_t address)
         break;
     default:
         size_t channelId = ((address >> 4) & 0xFu) - 8u;
-        return channels[channelId].read32(address);
+        return m_channels[channelId]->read32(address);
     }
 
     return 0;
 }
 
-void festation::DmaControl::write32(uint32_t address, uint32_t value)
+auto festation::DmaControl::write32(uint32_t address, uint32_t value) -> void
 {
     switch(address)
     {
     case 0x1F8010F0:
         DPCR.raw = value;
         break;
-    case 0x1F8010F4:
+    case 0x1F8010F4: // Check DICR write bug
         DICR.raw = value;
         break;
     default:
         size_t channelId = ((address >> 4) & 0xFu) - 8u;
-        channels[channelId].write32(address, value);
+        m_channels[channelId]->write32(address, value);
     }
 }

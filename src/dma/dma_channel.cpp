@@ -1,6 +1,7 @@
 #include <dma/dma_channel.hpp>
 
 #include <cassert>
+#include "dma_channel.hpp"
 
 festation::DmaChannel::DmaChannel()
     : D_MADR({}), D_BCR({}), D_CHCR({})
@@ -11,7 +12,7 @@ festation::DmaChannel::~DmaChannel()
 {
 }
 
-uint32_t festation::DmaChannel::read32(uint32_t address)
+auto festation::DmaChannel::read32(uint32_t address) -> uint32_t
 {
     switch(address & 0xFu)
     {
@@ -28,7 +29,7 @@ uint32_t festation::DmaChannel::read32(uint32_t address)
     return 0xFF;
 }
 
-void festation::DmaChannel::write32(uint32_t address, uint32_t value)
+auto festation::DmaChannel::write32(uint32_t address, uint32_t value) -> void
 {
     switch(address & 0xFu)
     {
@@ -54,8 +55,96 @@ void festation::DmaChannel::write32(uint32_t address, uint32_t value)
         break;
     case 0x8:
         D_CHCR.raw = value;
+
+        if (D_CHCR.startTransfer) {
+            startTransfer();
+        }
         break;
     default:
         assert(false);
     }
+}
+
+festation::Dma0MdecIn::Dma0MdecIn()
+{
+}
+
+festation::Dma0MdecIn::~Dma0MdecIn()
+{
+}
+
+auto festation::Dma0MdecIn::startTransfer() -> void
+{
+}
+
+festation::Dma1MdecOut::Dma1MdecOut()
+{
+}
+
+festation::Dma1MdecOut::~Dma1MdecOut()
+{
+}
+
+auto festation::Dma1MdecOut::startTransfer() -> void
+{
+}
+
+festation::Dma2Gpu::Dma2Gpu()
+{
+}
+
+festation::Dma2Gpu::~Dma2Gpu()
+{
+}
+
+auto festation::Dma2Gpu::startTransfer() -> void
+{
+}
+
+festation::Dma3Cdrom::Dma3Cdrom()
+{
+}
+
+festation::Dma3Cdrom::~Dma3Cdrom()
+{
+}
+
+auto festation::Dma3Cdrom::startTransfer() -> void
+{
+}
+
+festation::Dma4Spu::Dma4Spu()
+{
+}
+
+festation::Dma4Spu::~Dma4Spu()
+{
+}
+
+auto festation::Dma4Spu::startTransfer() -> void
+{
+}
+
+festation::Dma5Pio::Dma5Pio()
+{
+}
+
+festation::Dma5Pio::~Dma5Pio()
+{
+}
+
+auto festation::Dma5Pio::startTransfer() -> void
+{
+}
+
+festation::Dma6Otc::Dma6Otc()
+{
+}
+
+festation::Dma6Otc::~Dma6Otc()
+{
+}
+
+auto festation::Dma6Otc::startTransfer() -> void
+{
 }

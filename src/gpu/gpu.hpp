@@ -19,40 +19,40 @@ namespace festation {
         PsxGpu();
         ~PsxGpu();
 
-        uint32_t read32(uint32_t address);
-        void write32(uint32_t address, uint32_t value);
+        auto read32(uint32_t address) -> uint32_t;
+        auto write32(uint32_t address, uint32_t value) -> void;
 
-        void renderFrame();
+        auto renderFrame() -> void;
 
     private:
-        void parseCommandGP0(uint32_t commandWord);
-        void processGP0PolygonCmd(uint32_t parameter);
-        void processGP0LineCmd(uint32_t parameter);
-        void processGP0RectangleCmd(uint32_t parameter);
-        void processGP0ClearCacheCmd();
-        void processGP0QuickRectFillCmd(uint32_t parameter);
-        void processGP0InterruptRequestCmd();
-        void processGP0DrawModeCmd(uint32_t parameter);
-        void processGP0TextureWindowCmd(uint32_t parameter);
-        void processGP0SetDrawingAreaX1Y1Cmd(uint32_t parameter);
-        void processGP0SetDrawingAreaX2Y2Cmd(uint32_t parameter);
-        void processGP0SetDrawingOffsetCmd(uint32_t parameter);
-        void processGP0MaskBitSettingCmd(uint32_t parameter);
+        auto parseCommandGP0(uint32_t commandWord) -> void;
+        auto processGP0PolygonCmd(uint32_t parameter) -> void;
+        auto processGP0LineCmd(uint32_t parameter) -> void;
+        auto processGP0RectangleCmd(uint32_t parameter) -> void;
+        auto processGP0ClearCacheCmd() -> void;
+        auto processGP0QuickRectFillCmd(uint32_t parameter) -> void;
+        auto processGP0InterruptRequestCmd() -> void;
+        auto processGP0DrawModeCmd(uint32_t parameter) -> void;
+        auto processGP0TextureWindowCmd(uint32_t parameter) -> void;
+        auto processGP0SetDrawingAreaX1Y1Cmd(uint32_t parameter) -> void;
+        auto processGP0SetDrawingAreaX2Y2Cmd(uint32_t parameter) -> void;
+        auto processGP0SetDrawingOffsetCmd(uint32_t parameter) -> void;
+        auto processGP0MaskBitSettingCmd(uint32_t parameter) -> void;
         
-        void parseCommandGP1(uint32_t commandWord);
-        void processResetGpuCmd();
-        void processResetCommandBufferCmd();
-        void processAckGpuIntCmd();
-        void processDisplayEnableCmd(uint32_t parameter);
-        void processDmaDirectionDataRequestCmd(uint32_t parameter);
-        void processStartDisplayAreaCmd(uint32_t parameter);
-        void processHorizontalDisplayRangeCmd(uint32_t parameter);
-        void processVerticalDisplayRangeCmd(uint32_t parameter);
-        void processDisplayModeCmd(uint32_t parameter);
-        void processSetVramSizeCmd(uint32_t parameter);
-        void processReadGpuInternalRegCmd(uint32_t parameter);
+        auto parseCommandGP1(uint32_t commandWord) -> void;
+        auto processResetGpuCmd() -> void;
+        auto processResetCommandBufferCmd() -> void;
+        auto processAckGpuIntCmd() -> void;
+        auto processDisplayEnableCmd(uint32_t parameter) -> void;
+        auto processDmaDirectionDataRequestCmd(uint32_t parameter) -> void;
+        auto processStartDisplayAreaCmd(uint32_t parameter) -> void;
+        auto processHorizontalDisplayRangeCmd(uint32_t parameter) -> void;
+        auto processVerticalDisplayRangeCmd(uint32_t parameter) -> void;
+        auto processDisplayModeCmd(uint32_t parameter) -> void;
+        auto processSetVramSizeCmd(uint32_t parameter) -> void;
+        auto processReadGpuInternalRegCmd(uint32_t parameter) -> void;
 
-        void updateRenderProjection();
+        auto updateRenderProjection() -> void;
 
     private:
         union {

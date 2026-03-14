@@ -19,7 +19,7 @@ festation::PsxGpu::~PsxGpu()
 {
 }
 
-uint32_t festation::PsxGpu::read32(uint32_t address)
+auto festation::PsxGpu::read32(uint32_t address) -> uint32_t
 {
     switch(address) {
     case 0x1F801810:
@@ -31,7 +31,7 @@ uint32_t festation::PsxGpu::read32(uint32_t address)
     }
 }
 
-void festation::PsxGpu::write32(uint32_t address, uint32_t value)
+auto festation::PsxGpu::write32(uint32_t address, uint32_t value) -> void
 {
     switch(address) {
     case 0x1F801810:
@@ -64,12 +64,12 @@ void festation::PsxGpu::write32(uint32_t address, uint32_t value)
     }
 }
 
-void festation::PsxGpu::renderFrame()
+auto festation::PsxGpu::renderFrame() -> void
 {
     m_renderer.renderFrame();
 }
 
-void festation::PsxGpu::parseCommandGP0(uint32_t commandWord)
+auto festation::PsxGpu::parseCommandGP0(uint32_t commandWord) -> void
 {
     // LOG_DEBUG("Getting GP0 command ({:X}h)", commandWord);
 
@@ -169,7 +169,7 @@ void festation::PsxGpu::parseCommandGP0(uint32_t commandWord)
     }
 }
 
-void festation::PsxGpu::processGP0PolygonCmd(uint32_t parameter)
+auto festation::PsxGpu::processGP0PolygonCmd(uint32_t parameter) -> void
 {
     m_commandsFIFO[m_currentCmdParam++] = parameter;
     m_remainingCmdArg--;
@@ -237,11 +237,11 @@ void festation::PsxGpu::processGP0PolygonCmd(uint32_t parameter)
     }
 }
 
-void festation::PsxGpu::processGP0LineCmd(uint32_t parameter)
+auto festation::PsxGpu::processGP0LineCmd(uint32_t parameter) -> void
 {
 }
 
-void festation::PsxGpu::processGP0RectangleCmd(uint32_t parameter)
+auto festation::PsxGpu::processGP0RectangleCmd(uint32_t parameter) -> void
 {
     m_commandsFIFO[m_currentCmdParam++] = parameter;
     m_remainingCmdArg--;
@@ -294,11 +294,11 @@ void festation::PsxGpu::processGP0RectangleCmd(uint32_t parameter)
     }
 }
 
-void festation::PsxGpu::processGP0ClearCacheCmd()
+auto festation::PsxGpu::processGP0ClearCacheCmd() -> void
 {
 }
 
-void festation::PsxGpu::processGP0QuickRectFillCmd(uint32_t parameter)
+auto festation::PsxGpu::processGP0QuickRectFillCmd(uint32_t parameter) -> void
 {
     m_commandsFIFO[m_currentCmdParam++] = parameter;
     m_remainingCmdArg--;
@@ -333,22 +333,22 @@ void festation::PsxGpu::processGP0QuickRectFillCmd(uint32_t parameter)
     }
 }
 
-void festation::PsxGpu::processGP0InterruptRequestCmd()
+auto festation::PsxGpu::processGP0InterruptRequestCmd() -> void
 {
 }
 
-void festation::PsxGpu::processGP0DrawModeCmd(uint32_t parameter)
+auto festation::PsxGpu::processGP0DrawModeCmd(uint32_t parameter) -> void
 {
     GPUSTAT.raw = (GPUSTAT.raw & 0xFFFFFC00u) | (parameter & 0x3FFu);
     GPUSTAT.drawingToDisplayArea = (parameter >> 10) & 1;
     GPUSTAT.texturePageYBase2 = (parameter >> 11) & 1;
 }
 
-void festation::PsxGpu::processGP0TextureWindowCmd(uint32_t parameter)
+auto festation::PsxGpu::processGP0TextureWindowCmd(uint32_t parameter) -> void
 { 
 }
 
-void festation::PsxGpu::processGP0SetDrawingAreaX1Y1Cmd(uint32_t parameter)
+auto festation::PsxGpu::processGP0SetDrawingAreaX1Y1Cmd(uint32_t parameter) -> void
 {
     m_renderer.renderFrame();
 
@@ -362,7 +362,7 @@ void festation::PsxGpu::processGP0SetDrawingAreaX1Y1Cmd(uint32_t parameter)
     // m_renderer.setViewport(m_drawingAreaInfo.topLeft, m_drawingAreaInfo.bottomRight);
 }
 
-void festation::PsxGpu::processGP0SetDrawingAreaX2Y2Cmd(uint32_t parameter)
+auto festation::PsxGpu::processGP0SetDrawingAreaX2Y2Cmd(uint32_t parameter) -> void
 {
     m_renderer.renderFrame();
 
@@ -376,19 +376,19 @@ void festation::PsxGpu::processGP0SetDrawingAreaX2Y2Cmd(uint32_t parameter)
     // m_renderer.setViewport(m_drawingAreaInfo.topLeft, m_drawingAreaInfo.bottomRight);
 }
 
-void festation::PsxGpu::processGP0SetDrawingOffsetCmd(uint32_t parameter)
+auto festation::PsxGpu::processGP0SetDrawingOffsetCmd(uint32_t parameter) -> void
 {
     m_drawingAreaInfo.offset.x = parameter & 0x3FFu;
     m_drawingAreaInfo.offset.y = (parameter >> 10) & 0x3FFu; 
 }
 
-void festation::PsxGpu::processGP0MaskBitSettingCmd(uint32_t parameter)
+auto festation::PsxGpu::processGP0MaskBitSettingCmd(uint32_t parameter) -> void
 {
     GPUSTAT.setMaskbitWhenDrawing = parameter & 1;
     GPUSTAT.drawPixels = (parameter >> 1) & 1;
 }
 
-void festation::PsxGpu::parseCommandGP1(uint32_t commandWord)
+auto festation::PsxGpu::parseCommandGP1(uint32_t commandWord) -> void
 {
     uint8_t command = commandWord >> 24;
     uint32_t parameter = commandWord & 0x00FFFFFFu;
@@ -434,30 +434,30 @@ void festation::PsxGpu::parseCommandGP1(uint32_t commandWord)
     }
 }
 
-void festation::PsxGpu::processResetGpuCmd()
+auto festation::PsxGpu::processResetGpuCmd() -> void
 {
     GPUSTAT.raw = 0x14802000;
     GPUSTAT.readyToSendVRAMtoCPU = 1; // TODO: TEMP
     m_commandState = GpuCommandsState::WaitingForCommand;
 }
 
-void festation::PsxGpu::processResetCommandBufferCmd()
+auto festation::PsxGpu::processResetCommandBufferCmd() -> void
 {
     std::memset(m_commandsFIFO.data(), 0, m_commandsFIFO.size());
     m_remainingCmdArg = 0;
     m_commandState = GpuCommandsState::WaitingForCommand;
 }
 
-void festation::PsxGpu::processAckGpuIntCmd()
+auto festation::PsxGpu::processAckGpuIntCmd() -> void
 {
     GPUSTAT.interruptRequest = 0;
 }
 
-void festation::PsxGpu::processDisplayEnableCmd(uint32_t parameter)
+auto festation::PsxGpu::processDisplayEnableCmd(uint32_t parameter) -> void
 {
 }
 
-void festation::PsxGpu::processDmaDirectionDataRequestCmd(uint32_t parameter)
+auto festation::PsxGpu::processDmaDirectionDataRequestCmd(uint32_t parameter) -> void
 {
     GPUSTAT.dmaDirection = parameter & 3;
 
@@ -480,31 +480,31 @@ void festation::PsxGpu::processDmaDirectionDataRequestCmd(uint32_t parameter)
     }
 }
 
-void festation::PsxGpu::processStartDisplayAreaCmd(uint32_t parameter)
+auto festation::PsxGpu::processStartDisplayAreaCmd(uint32_t parameter) -> void
 {
 }
 
-void festation::PsxGpu::processHorizontalDisplayRangeCmd(uint32_t parameter)
+auto festation::PsxGpu::processHorizontalDisplayRangeCmd(uint32_t parameter) -> void
 {
 }
 
-void festation::PsxGpu::processVerticalDisplayRangeCmd(uint32_t parameter)
+auto festation::PsxGpu::processVerticalDisplayRangeCmd(uint32_t parameter) -> void
 {
 }
 
-void festation::PsxGpu::processDisplayModeCmd(uint32_t parameter)
+auto festation::PsxGpu::processDisplayModeCmd(uint32_t parameter) -> void
 {
 }
 
-void festation::PsxGpu::processSetVramSizeCmd(uint32_t parameter)
+auto festation::PsxGpu::processSetVramSizeCmd(uint32_t parameter) -> void
 {
 }
 
-void festation::PsxGpu::processReadGpuInternalRegCmd(uint32_t parameter)
+auto festation::PsxGpu::processReadGpuInternalRegCmd(uint32_t parameter) -> void
 {
 }
 
-void festation::PsxGpu::updateRenderProjection()
+auto festation::PsxGpu::updateRenderProjection() -> void
 {
     // float width = m_drawingAreaInfo.bottomRight.x - m_drawingAreaInfo.topLeft.x + 1;
     // float height = m_drawingAreaInfo.bottomRight.y - m_drawingAreaInfo.topLeft.y + 1;

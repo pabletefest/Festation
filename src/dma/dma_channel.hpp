@@ -6,12 +6,14 @@ namespace festation {
     class DmaChannel {
     public:
         DmaChannel();
-        ~DmaChannel();
+        virtual ~DmaChannel();
 
-        uint32_t read32(uint32_t address);
-        void write32(uint32_t address, uint32_t value);
+        virtual auto startTransfer() -> void = 0;
 
-    private:
+        auto read32(uint32_t address) -> uint32_t;
+        auto write32(uint32_t address, uint32_t value) -> void;
+
+    protected:
         union DmaBaseAddress {
             struct {
                 uint32_t startMemoryAddress : 24;
@@ -61,5 +63,61 @@ namespace festation {
             
             uint32_t raw;
         } D_CHCR;
+    };
+
+    class Dma0MdecIn : public DmaChannel {
+    public:
+        Dma0MdecIn();
+        virtual ~Dma0MdecIn();
+
+        auto startTransfer() -> void override;
+    };
+
+    class Dma1MdecOut : public DmaChannel {
+    public:
+        Dma1MdecOut();
+        virtual ~Dma1MdecOut();
+
+        auto startTransfer() -> void override;
+    };
+
+    class Dma2Gpu : public DmaChannel {
+    public:
+        Dma2Gpu();
+        virtual ~Dma2Gpu();
+
+        auto startTransfer() -> void override;
+    };
+
+    class Dma3Cdrom : public DmaChannel {
+    public:
+        Dma3Cdrom();
+        virtual ~Dma3Cdrom();
+
+        auto startTransfer() -> void override;
+    };
+
+    class Dma4Spu : public DmaChannel {
+    public:
+        Dma4Spu();
+        virtual ~Dma4Spu();
+
+        auto startTransfer() -> void override;
+    };
+
+    class Dma5Pio : public DmaChannel {
+    public:
+        Dma5Pio();
+        virtual ~Dma5Pio();
+
+        auto startTransfer() -> void override;
+    };
+
+    class Dma6Otc : public DmaChannel {
+    public:
+        Dma6Otc();
+        virtual ~Dma6Otc();
+
+        auto startTransfer() -> void override;
     };
 };

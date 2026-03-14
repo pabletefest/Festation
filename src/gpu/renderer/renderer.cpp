@@ -72,27 +72,27 @@ festation::Renderer::~Renderer()
     glDeleteVertexArrays(1, &m_VAO);
 }
 
-void festation::Renderer::setClearColor(const glm::vec4 &color)
+auto festation::Renderer::setClearColor(const glm::vec4 &color) -> void
 {
     glClearColor(color.r, color.g, color.b, color.a);
 }
 
-void festation::Renderer::clearDisplay()
+auto festation::Renderer::clearDisplay() -> void
 {
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void festation::Renderer::setViewport(const glm::uvec2 &startCoord, const glm::uvec2 &size)
+auto festation::Renderer::setViewport(const glm::uvec2 &startCoord, const glm::uvec2 &size) -> void
 {
     glViewport(startCoord.x, startCoord.y, size.x, size.y);
 }
 
-void festation::Renderer::setClipRegion(const glm::uvec2 &startCoord, const glm::uvec2 &size)
+auto festation::Renderer::setClipRegion(const glm::uvec2 &startCoord, const glm::uvec2 &size) -> void
 {
     glScissor(startCoord.x, startCoord.y, size.x, size.y);
 }
 
-void festation::Renderer::setProjection(const glm::mat4 &projection)
+auto festation::Renderer::setProjection(const glm::mat4 &projection) -> void
 {
     m_projection = projection;
 }
@@ -194,7 +194,7 @@ auto festation::Renderer::drawPolygon(const PolygonPrimitiveData &polygonData) -
     }
 }
 
-void festation::Renderer::renderFrame()
+auto festation::Renderer::renderFrame() -> void
 {
     if (!m_vertices.empty()) {
         m_vramFramebuffer->apply();

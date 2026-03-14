@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <array>
+#include <memory>
 
 namespace festation {
     inline constexpr uint8_t DMA_CHANNELS = 7u;
@@ -13,10 +14,10 @@ namespace festation {
         DmaControl();
         ~DmaControl();
 
-        void reset();
+        auto reset() -> void;
 
-        uint32_t read32(uint32_t address);
-        void write32(uint32_t address, uint32_t value);
+        auto read32(uint32_t address) -> uint32_t;
+        auto write32(uint32_t address, uint32_t value) -> void;
 
     private:
         union DmaControlRegister {
@@ -56,6 +57,6 @@ namespace festation {
             uint32_t raw;
         } DICR;
 
-        std::array<DmaChannel, DMA_CHANNELS> channels;
+        std::array<std::unique_ptr<DmaChannel>, DMA_CHANNELS> m_channels;
     };
 };
