@@ -77,12 +77,13 @@ int main(int, char**)
 
     festation::PSXSystem psxSystem;
     
-    // std::filesystem::path path = std::filesystem::current_path().concat("/../../../res/tests/psxtest_cpu.exe");
-    // std::filesystem::path path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/HelloWorld/16BPP/HelloWorld16BPP.exe");
-    // std::filesystem::path path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/GPU/16BPP/RenderRectangle/RenderRectangle16BPP.exe");
-    std::filesystem::path path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/GPU/16BPP/RenderPolygon/RenderPolygon16BPP.exe");
+    std::filesystem::path path;
+    // path = std::filesystem::current_path().concat("/../../../res/tests/psxtest_cpu.exe");
+    // path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/HelloWorld/16BPP/HelloWorld16BPP.exe");
+    // path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/GPU/16BPP/RenderRectangle/RenderRectangle16BPP.exe");
+    // path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/GPU/16BPP/RenderPolygon/RenderPolygon16BPP.exe");
 
-    psxSystem.sideloadExeFile(path);
+    // psxSystem.sideloadExeFile(path);
     
     float time = (float)glfwGetTime();
     float delta = 0.0f;

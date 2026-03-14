@@ -459,6 +459,25 @@ void festation::PsxGpu::processDisplayEnableCmd(uint32_t parameter)
 
 void festation::PsxGpu::processDmaDirectionDataRequestCmd(uint32_t parameter)
 {
+    GPUSTAT.dmaDirection = parameter & 3;
+
+    switch (GPUSTAT.dmaDirection)
+    {
+    case 0:
+        GPUSTAT.dmaDataRequest = 0;
+        break;
+    case 1:
+        GPUSTAT.dmaDataRequest = 1;
+        break;
+    case 2:
+        GPUSTAT.dmaDataRequest = GPUSTAT.readyToSendVRAMtoCPU;
+        break;
+    case 3:
+        GPUSTAT.dmaDataRequest = GPUSTAT.readyToReceiveDMABlock;
+        break;
+    default:
+        std::unreachable();
+    }
 }
 
 void festation::PsxGpu::processStartDisplayAreaCmd(uint32_t parameter)
