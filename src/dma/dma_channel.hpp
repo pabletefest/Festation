@@ -3,9 +3,11 @@
 #include <cstdint>
 
 namespace festation {
+    class PSXSystem;
+
     class DmaChannel {
     public:
-        DmaChannel();
+        DmaChannel(PSXSystem& system);
         virtual ~DmaChannel();
 
         virtual auto startTransfer() -> void = 0;
@@ -63,11 +65,13 @@ namespace festation {
             
             uint32_t raw;
         } D_CHCR;
+
+        PSXSystem& m_system;
     };
 
     class Dma0MdecIn : public DmaChannel {
     public:
-        Dma0MdecIn();
+        Dma0MdecIn(PSXSystem& system);
         virtual ~Dma0MdecIn();
 
         auto startTransfer() -> void override;
@@ -75,7 +79,7 @@ namespace festation {
 
     class Dma1MdecOut : public DmaChannel {
     public:
-        Dma1MdecOut();
+        Dma1MdecOut(PSXSystem& system);
         virtual ~Dma1MdecOut();
 
         auto startTransfer() -> void override;
@@ -83,7 +87,7 @@ namespace festation {
 
     class Dma2Gpu : public DmaChannel {
     public:
-        Dma2Gpu();
+        Dma2Gpu(PSXSystem& system);
         virtual ~Dma2Gpu();
 
         auto startTransfer() -> void override;
@@ -91,7 +95,7 @@ namespace festation {
 
     class Dma3Cdrom : public DmaChannel {
     public:
-        Dma3Cdrom();
+        Dma3Cdrom(PSXSystem& system);
         virtual ~Dma3Cdrom();
 
         auto startTransfer() -> void override;
@@ -99,7 +103,7 @@ namespace festation {
 
     class Dma4Spu : public DmaChannel {
     public:
-        Dma4Spu();
+        Dma4Spu(PSXSystem& system);
         virtual ~Dma4Spu();
 
         auto startTransfer() -> void override;
@@ -107,7 +111,7 @@ namespace festation {
 
     class Dma5Pio : public DmaChannel {
     public:
-        Dma5Pio();
+        Dma5Pio(PSXSystem& system);
         virtual ~Dma5Pio();
 
         auto startTransfer() -> void override;
@@ -115,7 +119,7 @@ namespace festation {
 
     class Dma6Otc : public DmaChannel {
     public:
-        Dma6Otc();
+        Dma6Otc(PSXSystem& system);
         virtual ~Dma6Otc();
 
         auto startTransfer() -> void override;

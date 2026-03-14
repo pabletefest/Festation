@@ -11,7 +11,7 @@ namespace festation {
 
     class DmaControl {
     public:
-        DmaControl();
+        DmaControl(PSXSystem& system);
         ~DmaControl();
 
         auto reset() -> void;
@@ -58,5 +58,6 @@ namespace festation {
         } DICR;
 
         std::array<std::unique_ptr<DmaChannel>, DMA_CHANNELS> m_channels;
+        PSXSystem& m_system;
     };
 };

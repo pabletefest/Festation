@@ -1,10 +1,10 @@
-#include <dma/dma_channel.hpp>
+#include "dma_channel.hpp"
+#include "psx_system.hpp"
 
 #include <cassert>
-#include "dma_channel.hpp"
 
-festation::DmaChannel::DmaChannel()
-    : D_MADR({}), D_BCR({}), D_CHCR({})
+festation::DmaChannel::DmaChannel(PSXSystem& system)
+    : D_MADR({}), D_BCR({}), D_CHCR({}), m_system(system)
 {
 }
 
@@ -65,8 +65,8 @@ auto festation::DmaChannel::write32(uint32_t address, uint32_t value) -> void
     }
 }
 
-festation::Dma0MdecIn::Dma0MdecIn()
-    : DmaChannel()
+festation::Dma0MdecIn::Dma0MdecIn(PSXSystem& system)
+    : DmaChannel(system)
 {
 }
 
@@ -78,8 +78,8 @@ auto festation::Dma0MdecIn::startTransfer() -> void
 {
 }
 
-festation::Dma1MdecOut::Dma1MdecOut()
-    : DmaChannel()
+festation::Dma1MdecOut::Dma1MdecOut(PSXSystem& system)
+    : DmaChannel(system)
 {
 }
 
@@ -91,8 +91,8 @@ auto festation::Dma1MdecOut::startTransfer() -> void
 {
 }
 
-festation::Dma2Gpu::Dma2Gpu()
-    : DmaChannel()
+festation::Dma2Gpu::Dma2Gpu(PSXSystem& system)
+    : DmaChannel(system)
 {
 }
 
@@ -102,10 +102,12 @@ festation::Dma2Gpu::~Dma2Gpu()
 
 auto festation::Dma2Gpu::startTransfer() -> void
 {
+    assert(D_CHCR.transferSyncMode == 2);
+    D_CHCR.startTransfer = 0;
 }
 
-festation::Dma3Cdrom::Dma3Cdrom()
-    : DmaChannel()
+festation::Dma3Cdrom::Dma3Cdrom(PSXSystem& system)
+    : DmaChannel(system)
 {
 }
 
@@ -117,8 +119,8 @@ auto festation::Dma3Cdrom::startTransfer() -> void
 {
 }
 
-festation::Dma4Spu::Dma4Spu()
-    : DmaChannel()
+festation::Dma4Spu::Dma4Spu(PSXSystem& system)
+    : DmaChannel(system)
 {
 }
 
@@ -130,8 +132,8 @@ auto festation::Dma4Spu::startTransfer() -> void
 {
 }
 
-festation::Dma5Pio::Dma5Pio()
-    : DmaChannel()
+festation::Dma5Pio::Dma5Pio(PSXSystem& system)
+    : DmaChannel(system)
 {
 }
 
@@ -143,8 +145,8 @@ auto festation::Dma5Pio::startTransfer() -> void
 {
 }
 
-festation::Dma6Otc::Dma6Otc()
-    : DmaChannel()
+festation::Dma6Otc::Dma6Otc(PSXSystem& system)
+    : DmaChannel(system)
 {
 }
 
@@ -154,4 +156,17 @@ festation::Dma6Otc::~Dma6Otc()
 
 auto festation::Dma6Otc::startTransfer() -> void
 {
+    assert(D_CHCR.transferSyncMode == 0);
+
+    uint32_t startAddress = D_MADR.startMemoryAddress & 0x00FFFFFF;
+    uint32_t wordsCount = (D_BCR.bcrSyncMode0.wordsNumber > 0) ? D_BCR.bcrSyncMode0.wordsNumber : 0x10000;
+
+    do {
+        startAddress -= 4;
+        uint32_t tableEntry = (wordsCount > 1) ? startAddress : 0x00FFFFFF;
+        m_system.write32(startAddress, tableEntry);
+        wordsCount--;
+    } while (wordsCount > 0);
+
+    D_CHCR.startTransfer = 0;
 }

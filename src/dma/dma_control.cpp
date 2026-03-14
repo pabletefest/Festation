@@ -1,15 +1,16 @@
 #include <dma/dma_control.hpp>
 #include "dma_control.hpp"
 
-festation::DmaControl::DmaControl()
+festation::DmaControl::DmaControl(PSXSystem& system)
+    : m_system(system)
 {
-    m_channels[0] = std::make_unique<Dma0MdecIn>();
-    m_channels[1] = std::make_unique<Dma1MdecOut>();
-    m_channels[2] = std::make_unique<Dma2Gpu>();
-    m_channels[3] = std::make_unique<Dma3Cdrom>();
-    m_channels[4] = std::make_unique<Dma4Spu>();
-    m_channels[5] = std::make_unique<Dma5Pio>();
-    m_channels[6] = std::make_unique<Dma6Otc>();
+    m_channels[0] = std::make_unique<Dma0MdecIn>(system);
+    m_channels[1] = std::make_unique<Dma1MdecOut>(system);
+    m_channels[2] = std::make_unique<Dma2Gpu>(system);
+    m_channels[3] = std::make_unique<Dma3Cdrom>(system);
+    m_channels[4] = std::make_unique<Dma4Spu>(system);
+    m_channels[5] = std::make_unique<Dma5Pio>(system);
+    m_channels[6] = std::make_unique<Dma6Otc>(system);
 
     reset();
 }

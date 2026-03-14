@@ -29,12 +29,12 @@ namespace festation
         void sideloadExeFile(const std::filesystem::path& path);
 
     private:
-        MIPS_R3000A_Core cpu;
+        MIPS_R3000A_Core m_cpu;
         //uint8_t* mainRAM = nullptr;
-        std::vector<uint8_t> mainRAM;
-        KernelBIOS bios;
-        DmaControl dma;
-        PsxGpu gpu;
-        uint64_t totalElapsedCycles;
+        std::vector<uint8_t> m_mainRAM;
+        KernelBIOS m_bios;
+        DmaControl m_dma;
+        PsxGpu m_gpu;
+        uint64_t m_totalElapsedCycles;
     };
 };

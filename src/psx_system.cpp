@@ -10,7 +10,7 @@
 static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = 565045;
 
 festation::PSXSystem::PSXSystem()
-    : cpu(this), mainRAM(MAIN_RAM_SIZE), bios(KernelBIOS(cpu))
+    : m_cpu(this), m_mainRAM(MAIN_RAM_SIZE), m_bios(KernelBIOS(m_cpu)), m_dma(*this)
 {
 }
 
@@ -20,8 +20,8 @@ festation::PSXSystem::~PSXSystem()
 
 void festation::PSXSystem::reset()
 {
-    cpu.reset();
-    dma.reset();
+    m_cpu.reset();
+    m_dma.reset();
 }
 
 // IMPLEMENT READ16 AND READ32 AS MULTIPLE READ8 SIMPLIFIES IMPLEMENTATION
@@ -33,7 +33,7 @@ uint8_t festation::PSXSystem::read8(uint32_t address)
 
     if (masked_address <= MAIN_RAM_END)
     {
-        return mainRAM[masked_address & MAIN_RAM_SIZE_MASK];
+        return m_mainRAM[masked_address & MAIN_RAM_SIZE_MASK];
     }
     else if (masked_address >= EXPANSION_REGION1_START && masked_address <= EXPANSION_REGION1_END)
     {
@@ -57,7 +57,7 @@ uint8_t festation::PSXSystem::read8(uint32_t address)
     }
     else if (masked_address >= BIOS_ROM_START && masked_address <= BIOS_ROM_END)
     {
-        return bios.read8(masked_address & BIOS_ROM_SIZE_MASK);
+        return m_bios.read8(masked_address & BIOS_ROM_SIZE_MASK);
     } 
     else if ((address & 0xFFFE0000) == 0xFFFE0000)
     {
@@ -73,7 +73,7 @@ uint16_t festation::PSXSystem::read16(uint32_t address)
 
     if (masked_address <= MAIN_RAM_END)
     {
-        return *(uint16_t*)&mainRAM[masked_address & MAIN_RAM_SIZE_MASK];
+        return *(uint16_t*)&m_mainRAM[masked_address & MAIN_RAM_SIZE_MASK];
     }
     else if (masked_address >= EXPANSION_REGION1_START && masked_address <= EXPANSION_REGION1_END)
     {
@@ -97,7 +97,7 @@ uint16_t festation::PSXSystem::read16(uint32_t address)
     }
     else if (masked_address >= BIOS_ROM_START && masked_address <= BIOS_ROM_END)
     {
-        return bios.read16(masked_address & BIOS_ROM_SIZE_MASK);
+        return m_bios.read16(masked_address & BIOS_ROM_SIZE_MASK);
     }
     else if ((address & 0xFFFE0000) == 0xFFFE0000)
     {
@@ -113,7 +113,7 @@ uint32_t festation::PSXSystem::read32(uint32_t address)
 
     if (masked_address <= MAIN_RAM_END)
     {
-        return *(uint32_t*)&mainRAM[masked_address & MAIN_RAM_SIZE_MASK];
+        return *(uint32_t*)&m_mainRAM[masked_address & MAIN_RAM_SIZE_MASK];
     }
     else if (masked_address >= EXPANSION_REGION1_START && masked_address <= EXPANSION_REGION1_END)
     {
@@ -129,14 +129,14 @@ uint32_t festation::PSXSystem::read32(uint32_t address)
         case 0x1F801810:
         case 0x1F801814:
         {
-            readValue = gpu.read32(masked_address);
+            readValue = m_gpu.read32(masked_address);
             LOG_DEBUG("Reading {:08X}h from GPU IO port 0x{:08X}", readValue, masked_address);
             break;
         }
         default:
             if (masked_address >= 0x1F801080 && masked_address <= 0x1F8010FF)
             {
-                readValue = dma.read32(masked_address);
+                readValue = m_dma.read32(masked_address);
                 LOG_DEBUG("Reading {:08X}h from DMA IO port 0x{:08X}", readValue, masked_address);
             }
             else
@@ -161,7 +161,7 @@ uint32_t festation::PSXSystem::read32(uint32_t address)
     }
     else if (masked_address >= BIOS_ROM_START && masked_address <= BIOS_ROM_END)
     {
-        return bios.read32(masked_address & BIOS_ROM_SIZE_MASK);
+        return m_bios.read32(masked_address & BIOS_ROM_SIZE_MASK);
     }
     else if ((address & 0xFFFE0000) == 0xFFFE0000)
     {
@@ -173,14 +173,14 @@ uint32_t festation::PSXSystem::read32(uint32_t address)
 
 void festation::PSXSystem::write8(uint32_t address, uint8_t value)
 {
-    if (cpu.isCacheIsolated())
+    if (m_cpu.isCacheIsolated())
         return;
 
     uint32_t masked_address = address & PHYSICAL_MEMORY_MASK;
 
     if (masked_address <= MAIN_RAM_END)
     {
-        mainRAM[masked_address & MAIN_RAM_SIZE_MASK] = value;
+        m_mainRAM[masked_address & MAIN_RAM_SIZE_MASK] = value;
     }
     else if (masked_address >= EXPANSION_REGION1_START && masked_address <= EXPANSION_REGION1_END)
     {
@@ -200,7 +200,7 @@ void festation::PSXSystem::write8(uint32_t address, uint8_t value)
     }
     else if (masked_address >= BIOS_ROM_START && masked_address <= BIOS_ROM_END)
     {
-        bios.write8(masked_address & BIOS_ROM_SIZE_MASK, value);
+        m_bios.write8(masked_address & BIOS_ROM_SIZE_MASK, value);
     }
     else if ((address & 0xFFFE0000) == 0xFFFE0000)
     {
@@ -210,14 +210,14 @@ void festation::PSXSystem::write8(uint32_t address, uint8_t value)
 
 void festation::PSXSystem::write16(uint32_t address, uint16_t value)
 {
-    if (cpu.isCacheIsolated())
+    if (m_cpu.isCacheIsolated())
         return;
 
     uint32_t masked_address = address & PHYSICAL_MEMORY_MASK;
 
     if (masked_address <= MAIN_RAM_END)
     {
-        *(uint16_t*)&mainRAM[masked_address & MAIN_RAM_SIZE_MASK] = value;
+        *(uint16_t*)&m_mainRAM[masked_address & MAIN_RAM_SIZE_MASK] = value;
     }
     else if (masked_address >= EXPANSION_REGION1_START && masked_address <= EXPANSION_REGION1_END)
     {
@@ -237,7 +237,7 @@ void festation::PSXSystem::write16(uint32_t address, uint16_t value)
     }
     else if (masked_address >= BIOS_ROM_START && masked_address <= BIOS_ROM_END)
     {
-        bios.write16(masked_address & BIOS_ROM_SIZE_MASK, value);
+        m_bios.write16(masked_address & BIOS_ROM_SIZE_MASK, value);
     }
     else if ((address & 0xFFFE0000) == 0xFFFE0000)
     {
@@ -247,14 +247,14 @@ void festation::PSXSystem::write16(uint32_t address, uint16_t value)
 
 void festation::PSXSystem::write32(uint32_t address, uint32_t value)
 {
-    if (cpu.isCacheIsolated())
+    if (m_cpu.isCacheIsolated())
         return;
 
     uint32_t masked_address = address & PHYSICAL_MEMORY_MASK;
 
     if (masked_address <= MAIN_RAM_END)
     {
-        *(uint32_t*)&mainRAM[masked_address & MAIN_RAM_SIZE_MASK] = value;
+        *(uint32_t*)&m_mainRAM[masked_address & MAIN_RAM_SIZE_MASK] = value;
     }
     else if (masked_address >= EXPANSION_REGION1_START && masked_address <= EXPANSION_REGION1_END)
     {
@@ -267,13 +267,13 @@ void festation::PSXSystem::write32(uint32_t address, uint32_t value)
         case 0x1F801810:
         case 0x1F801814:
             LOG_DEBUG("Writting {:08X}h to GPU IO port 0x{:08X}", value, masked_address);
-            gpu.write32(masked_address, value);
+            m_gpu.write32(masked_address, value);
             break;
         default:
             if (masked_address >= 0x1F801080 && masked_address <= 0x1F8010FF)
             {
                 LOG_DEBUG("Writting {:08X}h to DMA IO port 0x{:08X}", value, masked_address);
-                dma.write32(masked_address, value);
+                m_dma.write32(masked_address, value);
             } 
             else
             {
@@ -293,7 +293,7 @@ void festation::PSXSystem::write32(uint32_t address, uint32_t value)
     }
     else if (masked_address >= BIOS_ROM_START && masked_address <= BIOS_ROM_END)
     {
-        bios.write32(masked_address & BIOS_ROM_SIZE_MASK, value);
+        m_bios.write32(masked_address & BIOS_ROM_SIZE_MASK, value);
     }
     else if ((address & 0xFFFE0000) == 0xFFFE0000)
     {
@@ -306,24 +306,24 @@ void festation::PSXSystem::runWholeFrame()
     int32_t totalFrameCycles = CYCLES_FER_FRAME_NTSC;
 
     while (totalFrameCycles > 0) {
-        uint8_t cycles = cpu.executeInstruction();
-        bios.checkKernerlTTYOutput();
-        totalElapsedCycles += cycles;
+        uint8_t cycles = m_cpu.executeInstruction();
+        m_bios.checkKernerlTTYOutput();
+        m_totalElapsedCycles += cycles;
         totalFrameCycles -= cycles;
     }
 
-    gpu.renderFrame();
+    m_gpu.renderFrame();
 }
 
 void festation::PSXSystem::sideloadExeFile(const std::filesystem::path& path)
 {
-    uint32_t& pcRef = cpu.getCPURegs().pc;
+    uint32_t& pcRef = m_cpu.getCPURegs().pc;
 
     while (pcRef != 0x80030000)
     {
-        uint8_t cycles = cpu.executeInstruction();
-        bios.checkKernerlTTYOutput();
-        totalElapsedCycles += cycles;
+        uint8_t cycles = m_cpu.executeInstruction();
+        m_bios.checkKernerlTTYOutput();
+        m_totalElapsedCycles += cycles;
     }
 
     LOG_INFO("READY TO SIDELOAD EXEs!");
@@ -338,14 +338,14 @@ void festation::PSXSystem::sideloadExeFile(const std::filesystem::path& path)
     uint32_t exeSize = *reinterpret_cast<uint32_t*>(&exe[0x1C]); // 2KB multiples
     uint32_t initialR29_R30 = *reinterpret_cast<uint32_t*>(&exe[0x30]);
 
-    cpu.getCPURegs().gpr_regs[28] = initialR28;
+    m_cpu.getCPURegs().gpr_regs[28] = initialR28;
 
     if (initialR29_R30 != 0) {
-        cpu.getCPURegs().gpr_regs[29] = initialR29_R30;
-        cpu.getCPURegs().gpr_regs[30] = initialR29_R30;
+        m_cpu.getCPURegs().gpr_regs[29] = initialR29_R30;
+        m_cpu.getCPURegs().gpr_regs[30] = initialR29_R30;
     }
 
-    std::memcpy(mainRAM.data() + startExeRamAddress, 
+    std::memcpy(m_mainRAM.data() + startExeRamAddress, 
         exe.data() + HEADER_SIZE, exeSize);
 
     pcRef = initialPC;
