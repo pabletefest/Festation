@@ -66,6 +66,7 @@ auto festation::DmaChannel::write32(uint32_t address, uint32_t value) -> void
 }
 
 festation::Dma0MdecIn::Dma0MdecIn()
+    : DmaChannel()
 {
 }
 
@@ -78,6 +79,7 @@ auto festation::Dma0MdecIn::startTransfer() -> void
 }
 
 festation::Dma1MdecOut::Dma1MdecOut()
+    : DmaChannel()
 {
 }
 
@@ -90,6 +92,7 @@ auto festation::Dma1MdecOut::startTransfer() -> void
 }
 
 festation::Dma2Gpu::Dma2Gpu()
+    : DmaChannel()
 {
 }
 
@@ -102,6 +105,7 @@ auto festation::Dma2Gpu::startTransfer() -> void
 }
 
 festation::Dma3Cdrom::Dma3Cdrom()
+    : DmaChannel()
 {
 }
 
@@ -114,6 +118,7 @@ auto festation::Dma3Cdrom::startTransfer() -> void
 }
 
 festation::Dma4Spu::Dma4Spu()
+    : DmaChannel()
 {
 }
 
@@ -126,6 +131,7 @@ auto festation::Dma4Spu::startTransfer() -> void
 }
 
 festation::Dma5Pio::Dma5Pio()
+    : DmaChannel()
 {
 }
 
@@ -138,6 +144,7 @@ auto festation::Dma5Pio::startTransfer() -> void
 }
 
 festation::Dma6Otc::Dma6Otc()
+    : DmaChannel()
 {
 }
 
