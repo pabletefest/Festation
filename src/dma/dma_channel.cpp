@@ -56,13 +56,23 @@ auto festation::DmaChannel::write32(uint32_t address, uint32_t value) -> void
     case 0x8:
         D_CHCR.raw = value;
 
-        if (D_CHCR.startTransfer) {
+        if (D_CHCR.startTransfer && m_isEnabled) {
             startTransfer();
         }
         break;
     default:
         assert(false);
     }
+}
+
+auto festation::DmaChannel::setChannelEnable(bool isEnabled) -> void
+{
+    m_isEnabled = isEnabled;
+}
+
+auto festation::DmaChannel::isEnabled() const -> bool
+{
+    return m_isEnabled;
 }
 
 festation::Dma0MdecIn::Dma0MdecIn(PSXSystem& system)

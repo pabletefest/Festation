@@ -7,7 +7,7 @@
 #include <memory>
 
 namespace festation {
-    inline constexpr uint8_t DMA_CHANNELS = 7u;
+    inline constexpr uint8_t DMA_CHANNELS_COUNT = 7u;
 
     class DmaControl {
     public:
@@ -57,7 +57,7 @@ namespace festation {
             uint32_t raw;
         } DICR;
 
-        std::array<std::unique_ptr<DmaChannel>, DMA_CHANNELS> m_channels;
+        std::array<std::unique_ptr<DmaChannel>, DMA_CHANNELS_COUNT> m_channels;
         PSXSystem& m_system;
     };
 };

@@ -15,6 +15,9 @@ namespace festation {
         auto read32(uint32_t address) -> uint32_t;
         auto write32(uint32_t address, uint32_t value) -> void;
 
+        auto setChannelEnable(bool isEnabled) -> void;
+        auto isEnabled() const -> bool;
+
     protected:
         union DmaBaseAddress {
             struct {
@@ -67,6 +70,7 @@ namespace festation {
         } D_CHCR;
 
         PSXSystem& m_system;
+        bool m_isEnabled;
     };
 
     class Dma0MdecIn : public DmaChannel {

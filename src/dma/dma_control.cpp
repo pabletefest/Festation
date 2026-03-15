@@ -1,6 +1,8 @@
 #include <dma/dma_control.hpp>
 #include "dma_control.hpp"
 
+#include <algorithm>
+
 festation::DmaControl::DmaControl(PSXSystem& system)
     : m_system(system)
 {
@@ -49,6 +51,11 @@ auto festation::DmaControl::write32(uint32_t address, uint32_t value) -> void
     {
     case 0x1F8010F0:
         DPCR.raw = value;
+        
+        for (size_t channelId = 0; channelId < DMA_CHANNELS_COUNT; channelId++) {
+            bool isEnabled = DPCR.raw & (1 << (channelId * 4 + 3));
+            m_channels[channelId]->setChannelEnable(isEnabled);  
+        }
         break;
     case 0x1F8010F4: // Check DICR write bug
         DICR.raw = value;
