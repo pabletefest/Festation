@@ -113,6 +113,47 @@ festation::Dma2Gpu::~Dma2Gpu()
 auto festation::Dma2Gpu::startTransfer() -> void
 {
     assert(D_CHCR.transferSyncMode == 2);
+
+    struct NodeHeader {
+        uint32_t nextNodeAddress : 24;
+        uint32_t wordsCount : 8;
+    };
+
+    std::function<void(uint32_t)> transferWordFn;
+
+    if (D_CHCR.transferDirection == 1) {
+        transferWordFn = [this](uint32_t address) {
+            uint32_t word = this->m_system.read32(address);
+            this->m_system.write32(0x1F801810, word);
+        };
+    }
+    else {
+        transferWordFn = [this](uint32_t address) {
+            uint32_t word = this->m_system.read32(0x1F801810);
+            this->m_system.write32(address, word);
+        };
+    }
+
+    while (true) {
+        uint32_t firstNodeWord = this->m_system.read32(D_MADR.startMemoryAddress & 0x00FFFFFF);
+        uint32_t wordAddress = D_MADR.startMemoryAddress + 4;
+        NodeHeader header;
+
+        std::memcpy(&header, &firstNodeWord, sizeof(NodeHeader));
+
+        while (header.wordsCount > 0) {
+            transferWordFn(wordAddress);
+            wordAddress += 4;
+            header.wordsCount--;
+        }
+
+        /** @brief When nextNodeAddress is 0xFFFFFF, it marks the end of the DMA transfer (current node is transfered anyway)*/
+        if (header.nextNodeAddress == 0xFFFFFF)
+            break;
+
+        D_MADR.startMemoryAddress = header.nextNodeAddress;
+    }
+
     D_CHCR.startTransfer = 0;
 }
 
