@@ -131,21 +131,14 @@ festation::Dma2Gpu::~Dma2Gpu()
 
 auto festation::Dma2Gpu::startTransfer() -> void
 {
-    assert(D_CHCR.transferSyncMode == 2);
-
-    LOG_DEBUG("Starting DMA2 (GPU) transfer...");
-
-    struct NodeHeader {
-        uint32_t nextNodeAddress : 24;
-        uint32_t wordsCount : 8;
-    };
+    LOG_DEBUG("(DMA): Starting DMA2 GPU transfer...");
 
     std::function<void(uint32_t)> transferWordFn;
 
-    if (D_CHCR.transferDirection == 1) {
+    if (D_CHCR.transferDirection == RamToDevice) {
         transferWordFn = [this](uint32_t address) {
             uint32_t word = this->m_system.read32(address);
-            // LOG_DEBUG("Transfering node word {:08X}h from address {:08X}h to GPU", word, address);
+            // LOG_DEBUG("Transfering word {:08X}h from address {:08X}h to GPU", word, address);
             this->m_system.write32(0x1F801810, word);
         };
     }
@@ -156,32 +149,64 @@ auto festation::Dma2Gpu::startTransfer() -> void
         };
     }
 
-    while (true) {
-        uint32_t wordAddress = D_MADR.startMemoryAddress & 0x1FFFFC;
-        uint32_t firstNodeWord = this->m_system.read32(wordAddress);
-        NodeHeader header;
+    if (D_CHCR.transferSyncMode == LinkedListMode) {
+        struct NodeHeader {
+            uint32_t nextNodeAddress : 24;
+            uint32_t wordsCount : 8;
+        };
 
-        std::memcpy(&header, &firstNodeWord, sizeof(NodeHeader));
+        while (true) {
+            uint32_t wordAddress = D_MADR.startMemoryAddress & 0x1FFFFC;
+            uint32_t firstNodeWord = this->m_system.read32(wordAddress);
+            NodeHeader header;
 
-        // LOG_DEBUG("Node address {:06X}h", (uint32_t)D_MADR.startMemoryAddress);
-        // LOG_DEBUG("Header word: {:08X}h, NextNode: {:06X}h, WordsCount: {}", (uint32_t)firstNodeWord, (uint32_t)header.nextNodeAddress, (uint8_t)header.wordsCount);
+            std::memcpy(&header, &firstNodeWord, sizeof(NodeHeader));
 
-        while (header.wordsCount > 0) {
-            wordAddress += 4;
-            transferWordFn(wordAddress);
-            header.wordsCount--;
+            // LOG_DEBUG("Node address {:06X}h", (uint32_t)D_MADR.startMemoryAddress);
+            // LOG_DEBUG("Header word: {:08X}h, NextNode: {:06X}h, WordsCount: {}", (uint32_t)firstNodeWord, (uint32_t)header.nextNodeAddress, (uint8_t)header.wordsCount);
+
+            while (header.wordsCount > 0) {
+                wordAddress += 4;
+                transferWordFn(wordAddress);
+                header.wordsCount--;
+            }
+
+            /** @brief When nextNodeAddress is 0xFFFFFF or bit 23 is set, it marks the end of the DMA transfer (current node is transfered anyway)*/
+            if (header.nextNodeAddress & 0x800000)
+                break;
+
+            D_MADR.startMemoryAddress = header.nextNodeAddress;
+        }
+    } else {
+        uint32_t startAddress = D_MADR.startMemoryAddress & 0x00FFFFFF;
+        uint32_t wordsCount = 0;
+        int increment = (D_CHCR.madrIncrementPerStep == Forward) ? 4 : -4;
+        
+        switch (D_CHCR.transferSyncMode)
+        {
+        case BurstMode:
+            wordsCount = (D_BCR.bcrSyncMode0.wordsNumber > 0) ? D_BCR.bcrSyncMode0.wordsNumber : 0x10000;
+            break;
+        case SliceMode:
+            wordsCount = D_BCR.bcrSyncMode1.blockSize * D_BCR.bcrSyncMode1.blocksAmount;
+            break;
+        case LinkedListMode:
+            LOG_DEBUG("(DMA): Linked-list mode not supported on DMA6 OTC");
+            break;
+        default:
+            std::unreachable();
         }
 
-        /** @brief When nextNodeAddress is 0xFFFFFF or bit 23 is set, it marks the end of the DMA transfer (current node is transfered anyway)*/
-        if (header.nextNodeAddress & 0x800000)
-            break;
-
-        D_MADR.startMemoryAddress = header.nextNodeAddress;
+        while (wordsCount > 0) {
+            transferWordFn(startAddress);
+            startAddress += increment;
+            wordsCount--;
+        }
     }
 
     endTransfer();
 
-    LOG_DEBUG(" (GPU) transfer ended");
+    LOG_DEBUG("(DMA): DMA2 GPU transfer ended");
 }
 
 festation::Dma3Cdrom::Dma3Cdrom(PSXSystem& system)
@@ -239,7 +264,7 @@ auto festation::Dma6Otc::startTransfer() -> void
         return;
     }
 
-    LOG_DEBUG("Starting DMA6 (OTC) transfer...");
+    LOG_DEBUG("(DMA): Starting DMA6 OTC transfer...");
 
     uint32_t startAddress = D_MADR.startMemoryAddress & 0x00FFFFFF;
     uint32_t wordsCount = 0;
@@ -272,7 +297,7 @@ auto festation::Dma6Otc::startTransfer() -> void
 
     endTransfer();
 
-    LOG_DEBUG("DMA6 (OTC) transfer ended");
+    LOG_DEBUG("(DMA): DMA6 OTC transfer ended");
 }
 
 auto festation::Dma6Otc::modifyControlRegister(uint32_t value) -> void

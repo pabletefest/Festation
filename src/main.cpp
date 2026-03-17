@@ -82,9 +82,11 @@ int main(int, char**)
     // path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/HelloWorld/16BPP/HelloWorld16BPP.exe");
     // path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/GPU/16BPP/RenderRectangle/RenderRectangle16BPP.exe");
     // path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/GPU/16BPP/RenderPolygon/RenderPolygon16BPP.exe");
-    path = std::filesystem::current_path().concat("/../../../res/tests/Jakub-PSX/dma/otc-test/otc-test.exe");
+    // path = std::filesystem::current_path().concat("/../../../res/tests/Jakub-PSX/dma/otc-test/otc-test.exe");
 
-    psxSystem.sideloadExeFile(path);
+    if (!path.empty()) {
+        psxSystem.sideloadExeFile(path);
+    }
     
     float time = (float)glfwGetTime();
     float delta = 0.0f;
