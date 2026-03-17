@@ -97,6 +97,22 @@ namespace festation {
 
         DrawingAreaInfo m_drawingAreaInfo{};
 
+        struct VramToVramBlitCmdInfo {
+            glm::u16vec2 srcCoord;
+            glm::u16vec2 dstCoord;
+            glm::u16vec2 size;
+        } m_vramVramBlitCmdInfo;
+
+        struct CpuToVramBlitCmdInfo {
+            glm::u16vec2 dstCoord;
+            glm::u16vec2 size;
+        } m_cpuVramBlitCmdInfo;
+
+        struct VramToCpuBlitCmdInfo {
+            glm::u16vec2 srcCoord;
+            glm::u16vec2 size;
+        } m_vramCpuBlitCmdInfo;
+
         RectanglePrimitiveData m_rectData{};
         PolygonPrimitiveData m_polyData{};
 
