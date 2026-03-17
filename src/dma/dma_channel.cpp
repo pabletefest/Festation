@@ -24,7 +24,7 @@ auto festation::DmaChannel::read32(uint32_t address) -> uint32_t
     case 0x8:
         return D_CHCR.raw;
     default:
-        assert(false);
+        std::unreachable();
     }
 
     return 0xFF;
@@ -55,14 +55,14 @@ auto festation::DmaChannel::write32(uint32_t address, uint32_t value) -> void
         }
         break;
     case 0x8:
-        D_CHCR.raw = value;
+        modifyControlRegister(value);
 
-        if (D_CHCR.startTransfer && m_isEnabled) {
+        if ((D_CHCR.startTransfer && m_isEnabled)) {
             startTransfer();
         }
         break;
     default:
-        assert(false);
+        std::unreachable();
     }
 }
 
@@ -74,6 +74,24 @@ auto festation::DmaChannel::setChannelEnable(bool isEnabled) -> void
 auto festation::DmaChannel::isEnabled() const -> bool
 {
     return m_isEnabled;
+}
+
+auto festation::DmaChannel::modifyControlRegister(uint32_t value) -> void
+{
+    D_CHCR.raw = value;
+}
+
+auto festation::DmaChannel::endTransfer() -> void
+{
+    D_CHCR.startTransfer = 0;
+    D_CHCR.forceTransferStartWithoutDREQWaiting = 0;
+
+    if (D_CHCR.transferSyncMode == SliceMode) {
+        D_BCR.bcrSyncMode1.blocksAmount = 0;
+    }
+    else if (D_CHCR.transferSyncMode == BurstMode && D_CHCR.modeEffectBit8) {
+        D_BCR.bcrSyncMode0.wordsNumber = 0;
+    }
 }
 
 festation::Dma0MdecIn::Dma0MdecIn(PSXSystem& system)
@@ -127,7 +145,7 @@ auto festation::Dma2Gpu::startTransfer() -> void
     if (D_CHCR.transferDirection == 1) {
         transferWordFn = [this](uint32_t address) {
             uint32_t word = this->m_system.read32(address);
-            LOG_DEBUG("Transfering node word {:08X}h from address {:08X}h to GPU", word, address);
+            // LOG_DEBUG("Transfering node word {:08X}h from address {:08X}h to GPU", word, address);
             this->m_system.write32(0x1F801810, word);
         };
     }
@@ -145,8 +163,8 @@ auto festation::Dma2Gpu::startTransfer() -> void
 
         std::memcpy(&header, &firstNodeWord, sizeof(NodeHeader));
 
-        LOG_DEBUG("Node address {:06X}h", (uint32_t)D_MADR.startMemoryAddress);
-        LOG_DEBUG("Header word: {:08X}h, NextNode: {:06X}h, WordsCount: {}", (uint32_t)firstNodeWord, (uint32_t)header.nextNodeAddress, (uint8_t)header.wordsCount);
+        // LOG_DEBUG("Node address {:06X}h", (uint32_t)D_MADR.startMemoryAddress);
+        // LOG_DEBUG("Header word: {:08X}h, NextNode: {:06X}h, WordsCount: {}", (uint32_t)firstNodeWord, (uint32_t)header.nextNodeAddress, (uint8_t)header.wordsCount);
 
         while (header.wordsCount > 0) {
             wordAddress += 4;
@@ -161,7 +179,8 @@ auto festation::Dma2Gpu::startTransfer() -> void
         D_MADR.startMemoryAddress = header.nextNodeAddress;
     }
 
-    D_CHCR.startTransfer = 0;
+    endTransfer();
+
     LOG_DEBUG(" (GPU) transfer ended");
 }
 
@@ -207,6 +226,7 @@ auto festation::Dma5Pio::startTransfer() -> void
 festation::Dma6Otc::Dma6Otc(PSXSystem& system)
     : DmaChannel(system)
 {
+    D_CHCR.raw = 0x00000002;
 }
 
 festation::Dma6Otc::~Dma6Otc()
@@ -215,23 +235,49 @@ festation::Dma6Otc::~Dma6Otc()
 
 auto festation::Dma6Otc::startTransfer() -> void
 {
+    if (!D_CHCR.forceTransferStartWithoutDREQWaiting) {
+        return;
+    }
+
     LOG_DEBUG("Starting DMA6 (OTC) transfer...");
 
     uint32_t startAddress = D_MADR.startMemoryAddress & 0x00FFFFFF;
-    uint32_t wordsCount = (D_BCR.bcrSyncMode0.wordsNumber > 0) ? D_BCR.bcrSyncMode0.wordsNumber : 0x10000;
+    uint32_t wordsCount = 0;
+    
+    switch (D_CHCR.transferSyncMode)
+    {
+    case BurstMode:
+        wordsCount = (D_BCR.bcrSyncMode0.wordsNumber > 0) ? D_BCR.bcrSyncMode0.wordsNumber : 0x10000;
+        break;
+    case SliceMode:
+        wordsCount = D_BCR.bcrSyncMode1.blockSize * D_BCR.bcrSyncMode1.blocksAmount;
+        break;
+    case LinkedListMode:
+        LOG_DEBUG("(DMA): Linked-list mode not supported on DMA6 OTC");
+        break;
+    default:
+        std::unreachable();
+    }
 
-    LOG_DEBUG("Start address: {:06X}h", (uint32_t)startAddress);
-    LOG_DEBUG("Words count: {}", (uint32_t)wordsCount);
+    // LOG_DEBUG("Start address: {:06X}h", (uint32_t)startAddress);
+    // LOG_DEBUG("Words count: {}", (uint32_t)wordsCount);
 
     do {
         uint32_t tableEntry = (wordsCount > 1) ? (startAddress - 4) : 0x00FFFFFF;
-        LOG_DEBUG("Writting word {:08X}h to address {:08X}h", (uint32_t)tableEntry, (uint32_t)startAddress);
+        // LOG_DEBUG("Writting word {:08X}h to address {:08X}h", (uint32_t)tableEntry, (uint32_t)startAddress);
         m_system.write32(startAddress, tableEntry);
         startAddress -= 4;
         wordsCount--;
     } while (wordsCount > 0);
 
-    D_CHCR.startTransfer = 0;
-    D_CHCR.forceTransferStartWithoutDREQWaiting = 0;
+    endTransfer();
+
     LOG_DEBUG("DMA6 (OTC) transfer ended");
+}
+
+auto festation::Dma6Otc::modifyControlRegister(uint32_t value) -> void
+{
+    D_CHCR.startTransfer = (value >> 24) & 1;
+    D_CHCR.forceTransferStartWithoutDREQWaiting = (value >> 28) & 1;
+    D_CHCR.performBusSnooping = (value >> 30) & 1;
 }
