@@ -25,6 +25,7 @@ festation::Renderer::Renderer()
         .format = FboFormats::RGBA5,
     });
 
+    m_vertices.reserve(MAX_VERTICES_PER_PRIMITIVE * MAX_PRIMITIVES_COUNT);
     m_indices.resize(MAX_INDICES_COUNT);
     // size_t offset = 0;
 
@@ -155,6 +156,10 @@ void festation::Renderer::drawRectangle(const RectanglePrimitiveData &rectData)
 
 auto festation::Renderer::drawPolygon(const PolygonPrimitiveData &polygonData) -> void
 {
+    if (m_vertices.size() >= MAX_VERTICES_PER_PRIMITIVE * MAX_PRIMITIVES_COUNT) {
+        renderFrame();
+    }
+
     switch (polygonData.verticesCount)
     {
     case 3:
@@ -210,7 +215,6 @@ auto festation::Renderer::renderFrame() -> void
         glDrawElements(GL_TRIANGLES, m_indicesCount, GL_UNSIGNED_INT, nullptr);
         
         m_vertices.clear();
-        m_indices.clear();
         m_indicesCount = 0;
     }
 

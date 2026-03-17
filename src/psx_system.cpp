@@ -43,7 +43,7 @@ uint8_t festation::PSXSystem::read8(uint32_t address)
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
         LOG_DEBUG("Read8 from I/O port address 0x{:08X}", masked_address);
-        return 0xFF;
+        return 0;
     }
     else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
     {
@@ -122,7 +122,7 @@ uint32_t festation::PSXSystem::read32(uint32_t address)
     }
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
-        uint32_t readValue = 0xFFFFFFFF;
+        uint32_t readValue = 0;
 
         switch(masked_address)
         {
