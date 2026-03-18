@@ -29,6 +29,9 @@ namespace festation {
         auto processGP0PolygonCmd(uint32_t parameter) -> void;
         auto processGP0LineCmd(uint32_t parameter) -> void;
         auto processGP0RectangleCmd(uint32_t parameter) -> void;
+        auto processGP0VramVramBlitCmd(uint32_t parameter) -> void;
+        auto processGP0CpuVramBlitCmd(uint32_t parameter) -> void;
+        auto processGP0VramCpuBlitCmd(uint32_t parameter) -> void;
         auto processGP0ClearCacheCmd() -> void;
         auto processGP0QuickRectFillCmd(uint32_t parameter) -> void;
         auto processGP0InterruptRequestCmd() -> void;
@@ -96,22 +99,6 @@ namespace festation {
         } GPUSTAT{};
 
         DrawingAreaInfo m_drawingAreaInfo{};
-
-        struct VramToVramBlitCmdInfo {
-            glm::u16vec2 srcCoord;
-            glm::u16vec2 dstCoord;
-            glm::u16vec2 size;
-        } m_vramVramBlitCmdInfo;
-
-        struct CpuToVramBlitCmdInfo {
-            glm::u16vec2 dstCoord;
-            glm::u16vec2 size;
-        } m_cpuVramBlitCmdInfo;
-
-        struct VramToCpuBlitCmdInfo {
-            glm::u16vec2 srcCoord;
-            glm::u16vec2 size;
-        } m_vramCpuBlitCmdInfo;
 
         RectanglePrimitiveData m_rectData{};
         PolygonPrimitiveData m_polyData{};

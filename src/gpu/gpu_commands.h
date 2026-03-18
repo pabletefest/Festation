@@ -44,5 +44,6 @@ namespace festation {
         ProcessingQuickRectFillCmdParams,
         ProcessingPolygonCmdParams,
         ProcessingLineCmdParams,
+        ProcessingVramVramBlitCmdParams,
     };
 };

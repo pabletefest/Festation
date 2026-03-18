@@ -138,7 +138,6 @@ auto festation::Dma2Gpu::startTransfer() -> void
     if (D_CHCR.transferDirection == RamToDevice) {
         transferWordFn = [this](uint32_t address) {
             uint32_t word = this->m_system.read32(address);
-            // LOG_DEBUG("Transfering word {:08X}h from address {:08X}h to GPU", word, address);
             this->m_system.write32(0x1F801810, word);
         };
     }
@@ -162,16 +161,13 @@ auto festation::Dma2Gpu::startTransfer() -> void
 
             std::memcpy(&header, &firstNodeWord, sizeof(NodeHeader));
 
-            // LOG_DEBUG("Node address {:06X}h", (uint32_t)D_MADR.startMemoryAddress);
-            // LOG_DEBUG("Header word: {:08X}h, NextNode: {:06X}h, WordsCount: {}", (uint32_t)firstNodeWord, (uint32_t)header.nextNodeAddress, (uint8_t)header.wordsCount);
-
             while (header.wordsCount > 0) {
                 wordAddress += 4;
                 transferWordFn(wordAddress);
                 header.wordsCount--;
             }
 
-            /** @brief When nextNodeAddress is 0xFFFFFF or bit 23 is set, it marks the end of the DMA transfer (current node is transfered anyway)*/
+            /** @brief When nextNodeAddress is 0xFFFFFF or bit 23 is set, it marks the end of the DMA transfer (current node is transfered anyway) */
             if (header.nextNodeAddress & 0x800000)
                 break;
 
@@ -191,7 +187,7 @@ auto festation::Dma2Gpu::startTransfer() -> void
             wordsCount = D_BCR.bcrSyncMode1.blockSize * D_BCR.bcrSyncMode1.blocksAmount;
             break;
         case LinkedListMode:
-            LOG_DEBUG("(DMA): Linked-list mode not supported on DMA6 OTC");
+            LOG_WARN("(DMA): Linked-list mode not supported on DMA6 OTC");
             break;
         default:
             std::unreachable();
@@ -278,18 +274,14 @@ auto festation::Dma6Otc::startTransfer() -> void
         wordsCount = D_BCR.bcrSyncMode1.blockSize * D_BCR.bcrSyncMode1.blocksAmount;
         break;
     case LinkedListMode:
-        LOG_DEBUG("(DMA): Linked-list mode not supported on DMA6 OTC");
+        LOG_INFO("(DMA): Linked-list mode not supported on DMA6 OTC");
         break;
     default:
         std::unreachable();
     }
 
-    // LOG_DEBUG("Start address: {:06X}h", (uint32_t)startAddress);
-    // LOG_DEBUG("Words count: {}", (uint32_t)wordsCount);
-
     do {
         uint32_t tableEntry = (wordsCount > 1) ? (startAddress - 4) : 0x00FFFFFF;
-        // LOG_DEBUG("Writting word {:08X}h to address {:08X}h", (uint32_t)tableEntry, (uint32_t)startAddress);
         m_system.write32(startAddress, tableEntry);
         startAddress -= 4;
         wordsCount--;

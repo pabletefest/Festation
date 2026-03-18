@@ -52,6 +52,9 @@ auto festation::PsxGpu::write32(uint32_t address, uint32_t value) -> void
         case GpuCommandsState::ProcessingLineCmdParams:
             processGP0LineCmd(value);
             break;
+        case GpuCommandsState::ProcessingVramVramBlitCmdParams:
+            processGP0VramVramBlitCmd(value);
+            break;
         default:
             std::unreachable();
         }
@@ -118,6 +121,9 @@ auto festation::PsxGpu::parseCommandGP0(uint32_t commandWord) -> void
         m_commandState = GpuCommandsState::ProcessingRectCmdParams;
         break;
     case Gpu0Commands::VramToVramBlit:
+        m_remainingCmdArg = 3;
+        m_commandsFIFO[m_currentCmdParam++] = commandWord;
+        m_commandState = GpuCommandsState::ProcessingVramVramBlitCmdParams;
         break;
     case Gpu0Commands::CpuToVramBlit:
         break;
@@ -292,6 +298,46 @@ auto festation::PsxGpu::processGP0RectangleCmd(uint32_t parameter) -> void
         m_currentCmdParam = 0;
         m_commandState = GpuCommandsState::WaitingForCommand;
     }
+}
+
+auto festation::PsxGpu::processGP0VramVramBlitCmd(uint32_t parameter) -> void
+{
+    m_commandsFIFO[m_currentCmdParam++] = parameter;
+    m_remainingCmdArg--;
+
+    if (m_remainingCmdArg == 0) {
+        const auto& srcCoordParam = m_commandsFIFO[1];
+        glm::u16vec2 srcCoord;
+        srcCoord.x = srcCoordParam & 0x3FFu;
+        srcCoord.y = (srcCoordParam >> 16) & 0x1FFu;
+
+        const auto& dstCoordParam = m_commandsFIFO[2];
+        glm::u16vec2 dstCoord;
+        dstCoord.x = dstCoordParam & 0x3FFu;
+        dstCoord.y = (dstCoordParam >> 16) & 0x1FFu;
+
+        const auto& sizeCoordParam = m_commandsFIFO[3];
+        glm::u16vec2 size;
+        size.x = ((sizeCoordParam - 1) & 0x3FFu) + 1;
+        size.y = (((sizeCoordParam >> 16) - 1) & 0x1FFu) + 1;
+
+        for (size_t line = 0; line < size.y; line++) {
+            size_t offsetDst = (dstCoord.y * size.x) + dstCoord.x;
+            size_t offsetSrc = (srcCoord.y * size.x) + srcCoord.x;
+            std::memcpy(m_vram.data() + offsetDst, m_vram.data() + offsetSrc, size.x);
+        }
+
+        m_currentCmdParam = 0;
+        m_commandState = GpuCommandsState::WaitingForCommand;
+    }
+}
+
+auto festation::PsxGpu::processGP0CpuVramBlitCmd(uint32_t parameter) -> void
+{
+}
+
+auto festation::PsxGpu::processGP0VramCpuBlitCmd(uint32_t parameter) -> void
+{
 }
 
 auto festation::PsxGpu::processGP0ClearCacheCmd() -> void
