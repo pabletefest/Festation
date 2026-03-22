@@ -413,6 +413,8 @@ auto festation::PsxGpu::processGP0CpuVramBlitCmd(uint32_t parameter) -> void
 
             m_cpuVramBlitCmdInfo.blitData[offsetDst] = parameter & 0xFFFF;
             m_cpuVramBlitCmdInfo.blitData[offsetDst + 1] = (parameter >> 16) & 0xFFFF;
+            m_vram[offsetDst] = m_cpuVramBlitCmdInfo.blitData[offsetDst];
+            m_vram[offsetDst + 1] = m_cpuVramBlitCmdInfo.blitData[offsetDst + 1];
             m_remainingCmdArg -= 2;
 
             if (m_remainingCmdArg == 0) {
