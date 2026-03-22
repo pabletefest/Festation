@@ -48,7 +48,8 @@ auto festation::DmaChannel::write32(uint32_t address, uint32_t value) -> void
             D_BCR.raw = value;
             break;
         case 2:
-            D_BCR.raw = 0;
+            // D_BCR.raw = 0; /* Bug here (can't assume it's always 0, sometimes it get written and SyncMode changes and uses it) */
+            D_BCR.raw = value;
             break;
         case 3: // Reserved
             break;

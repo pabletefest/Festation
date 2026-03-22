@@ -33,7 +33,6 @@ auto festation::PsxGpu::read32(uint32_t address) -> uint32_t
             const auto offsetY = (m_vramCpuBlitCmdInfo.size - m_remainingCmdArg) / lengthY;
             const auto destY = y + offsetY;
             const auto destX = x + offsetX;
-            // size_t offsetDst = ((((m_cpuVramBlitCmdInfo.size - m_remainingCmdArg) / lengthX) + destY) * destX) + offsetX + destX;
             size_t offsetDst = (destY * VRAM_WIDTH) + destX;
 
             m_gp0ReadValue = m_vram[offsetDst];
@@ -41,8 +40,7 @@ auto festation::PsxGpu::read32(uint32_t address) -> uint32_t
             m_remainingCmdArg -= 2;
 
             if (m_remainingCmdArg == 0) {
-                m_currentCmdParam = 0;
-                m_commandState = GpuCommandsState::WaitingForCommand;
+                processResetCommandBufferCmd();
             }
         }
         else {
@@ -278,8 +276,7 @@ auto festation::PsxGpu::processGP0PolygonCmd(uint32_t parameter) -> void
         
         m_renderer.drawPolygon(m_polyData);
 
-        m_currentCmdParam = 0;
-        m_commandState = GpuCommandsState::WaitingForCommand;
+        processResetCommandBufferCmd();
     }
 }
 
@@ -335,8 +332,7 @@ auto festation::PsxGpu::processGP0RectangleCmd(uint32_t parameter) -> void
         
         m_renderer.drawRectangle(m_rectData);
 
-        m_currentCmdParam = 0;
-        m_commandState = GpuCommandsState::WaitingForCommand;
+        processResetCommandBufferCmd();
     }
 }
 
@@ -367,8 +363,7 @@ auto festation::PsxGpu::processGP0VramVramBlitCmd(uint32_t parameter) -> void
             std::memcpy(m_vram.data() + offsetDst, m_vram.data() + offsetSrc, size.x);
         }
 
-        m_currentCmdParam = 0;
-        m_commandState = GpuCommandsState::WaitingForCommand;
+        processResetCommandBufferCmd();
     }
 }
 
@@ -393,36 +388,35 @@ auto festation::PsxGpu::processGP0CpuVramBlitCmd(uint32_t parameter) -> void
             m_cpuVramBlitCmdInfo.size = m_cpuVramBlitCmdInfo.size2D.x * m_cpuVramBlitCmdInfo.size2D.y;
             m_cpuVramBlitCmdInfo.blitData.clear();
             m_cpuVramBlitCmdInfo.blitData.resize(m_cpuVramBlitCmdInfo.size);
-            m_remainingCmdArg = m_cpuVramBlitCmdInfo.size;
+            m_cpuVramBlitCmdInfo.totalWords = (m_cpuVramBlitCmdInfo.size + 1) / 2;
+            m_cpuVramBlitCmdInfo.currentWord = 0;
             m_cpuVramBlitCmdInfo.cmdState = BlittingCommandsState::ReceivingData;
         }
         break;
     case BlittingCommandsState::ReceivingData:
         {
-            // const auto size = m_cpuVramBlitCmdInfo.size;
             const auto lengthX = m_cpuVramBlitCmdInfo.size2D.x;
             const auto lengthY = m_cpuVramBlitCmdInfo.size2D.y;
             const auto coordY = m_cpuVramBlitCmdInfo.dstCoord.y;
             const auto coordX = m_cpuVramBlitCmdInfo.dstCoord.x;
-            const auto offsetX = (m_cpuVramBlitCmdInfo.size - m_remainingCmdArg) % lengthX;
-            const auto offsetY = (m_cpuVramBlitCmdInfo.size - m_remainingCmdArg) / lengthX;
-            // const auto destY = coordY + offsetY;
-            // const auto destX = coordX + offsetX;
-            // size_t offsetDst = ((((size - m_remainingCmdArg) / lengthX) + destY) * destX) + offsetX + destX;
-            size_t offsetDst = (offsetY * lengthX) + offsetX;
+            const auto offsetX = (m_cpuVramBlitCmdInfo.currentWord * 2) % lengthX;
+            const auto offsetY = (m_cpuVramBlitCmdInfo.currentWord * 2) / lengthX;
+            const auto destY = coordY + offsetY;
+            const auto destX = coordX + offsetX;
+            size_t offsetDst = (destY * VRAM_WIDTH) + destX;
+            size_t offsetBlit = (offsetY * lengthX) + offsetX;
 
-            m_cpuVramBlitCmdInfo.blitData[offsetDst] = parameter & 0xFFFF;
-            m_cpuVramBlitCmdInfo.blitData[offsetDst + 1] = (parameter >> 16) & 0xFFFF;
-            m_vram[offsetDst] = m_cpuVramBlitCmdInfo.blitData[offsetDst];
-            m_vram[offsetDst + 1] = m_cpuVramBlitCmdInfo.blitData[offsetDst + 1];
-            m_remainingCmdArg -= 2;
+            m_cpuVramBlitCmdInfo.blitData[offsetBlit] = parameter & 0xFFFF;
+            m_cpuVramBlitCmdInfo.blitData[offsetBlit + 1] = (parameter >> 16) & 0xFFFF;
+            m_vram[offsetDst] = m_cpuVramBlitCmdInfo.blitData[offsetBlit];
+            m_vram[offsetDst + 1] = m_cpuVramBlitCmdInfo.blitData[offsetBlit + 1];
+            m_cpuVramBlitCmdInfo.currentWord++;
 
-            if (m_remainingCmdArg == 0) {
+            if (m_cpuVramBlitCmdInfo.currentWord == m_cpuVramBlitCmdInfo.totalWords) {
                 uint8_t* data = reinterpret_cast<uint8_t *>(m_cpuVramBlitCmdInfo.blitData.data());
                 m_renderer.uploadVramToGpu(data, { coordX, VRAM_HEIGHT - lengthY - coordY }, { lengthX, lengthY });
 
-                m_currentCmdParam = 0;
-                m_commandState = GpuCommandsState::WaitingForCommand;
+                processResetCommandBufferCmd();
             }
         }
         break;
@@ -450,7 +444,7 @@ auto festation::PsxGpu::processGP0VramCpuBlitCmd(uint32_t parameter) -> void
             m_vramCpuBlitCmdInfo.size2D.y = (((sizeCoordParam >> 16) - 1) & 0x1FFu) + 1;
 
             m_vramCpuBlitCmdInfo.size = m_vramCpuBlitCmdInfo.size2D.x * m_vramCpuBlitCmdInfo.size2D.y;
-            m_remainingCmdArg = m_vramCpuBlitCmdInfo.size / 2;
+            m_remainingCmdArg = m_vramCpuBlitCmdInfo.size;
             m_vramCpuBlitCmdInfo.cmdState = BlittingCommandsState::ReceivingData;
         }
         break;
@@ -495,8 +489,7 @@ auto festation::PsxGpu::processGP0QuickRectFillCmd(uint32_t parameter) -> void
             /** @todo: Create VRAM framebuffer on device side and fill it as stated by command parameters */
         }
 
-        m_currentCmdParam = 0;
-        m_commandState = GpuCommandsState::WaitingForCommand;
+        processResetCommandBufferCmd();
     }
 }
 
@@ -612,7 +605,8 @@ auto festation::PsxGpu::processResetGpuCmd() -> void
 
 auto festation::PsxGpu::processResetCommandBufferCmd() -> void
 {
-    std::memset(m_commandsFIFO.data(), 0, m_commandsFIFO.size());
+    std::memset(m_commandsFIFO.data(), 0, m_commandsFIFO.size() * sizeof(uint32_t));
+    m_currentCmdParam = 0;
     m_remainingCmdArg = 0;
     m_commandState = GpuCommandsState::WaitingForCommand;
 }

@@ -105,6 +105,8 @@ namespace festation {
             glm::u16vec2 dstCoord;
             glm::u16vec2 size2D;
             size_t size;
+            size_t totalWords;
+            size_t currentWord;
             std::vector<uint16_t> blitData;
         } m_cpuVramBlitCmdInfo;
 
