@@ -151,9 +151,9 @@ auto festation::PsxGpu::parseCommandGP0(uint32_t commandWord) -> void
         m_commandState = GpuCommandsState::ProcessingRectCmdParams;
         break;
     case Gpu0Commands::VramToVramBlit:
-        // m_remainingCmdArg = 3;
-        // m_commandsFIFO[m_currentCmdParam++] = commandWord;
-        // m_commandState = GpuCommandsState::ProcessingVramVramBlitCmdParams;
+        m_remainingCmdArg = 3;
+        m_commandsFIFO[m_currentCmdParam++] = commandWord;
+        m_commandState = GpuCommandsState::ProcessingVramVramBlitCmdParams;
         break;
     case Gpu0Commands::CpuToVramBlit:
         m_remainingCmdArg = 2;
@@ -162,10 +162,10 @@ auto festation::PsxGpu::parseCommandGP0(uint32_t commandWord) -> void
         m_commandState = GpuCommandsState::ProcessingCpuVramBlitCmd;
         break;
     case Gpu0Commands::VramToCpuBlit:
-        // m_remainingCmdArg = 2;
-        // m_vramCpuBlitCmdInfo.cmdState = BlittingCommandsState::ReceivingParams;
-        // m_commandsFIFO[m_currentCmdParam++] = commandWord;
-        // m_commandState = GpuCommandsState::ProcessingVramCpuBlitCmd;
+        m_remainingCmdArg = 2;
+        m_vramCpuBlitCmdInfo.cmdState = BlittingCommandsState::ReceivingParams;
+        m_commandsFIFO[m_currentCmdParam++] = commandWord;
+        m_commandState = GpuCommandsState::ProcessingVramCpuBlitCmd;
         break;
     case Gpu0Commands::Misc:
     case Gpu0Commands::Environment:
