@@ -405,11 +405,25 @@ auto festation::PsxGpu::processGP0CpuVramBlitCmd(uint32_t parameter) -> void
             const auto destX = coordX + offsetX;
             size_t offsetDst = (destY * VRAM_WIDTH) + destX;
             size_t offsetBlit = (offsetY * lengthX) + offsetX;
+            uint16_t lowPixel = parameter & 0xFFFF;
+            uint16_t highPixel = (parameter >> 16) & 0xFFFF;
 
-            m_cpuVramBlitCmdInfo.blitData[offsetBlit] = parameter & 0xFFFF;
-            m_cpuVramBlitCmdInfo.blitData[offsetBlit + 1] = (parameter >> 16) & 0xFFFF;
-            m_vram[offsetDst] = m_cpuVramBlitCmdInfo.blitData[offsetBlit];
-            m_vram[offsetDst + 1] = m_cpuVramBlitCmdInfo.blitData[offsetBlit + 1];
+            uint8_t red = lowPixel & 0x1Fu;
+            uint8_t green = (lowPixel >> 5) & 0x1Fu;
+            uint8_t blue = (lowPixel >> 10) & 0x1Fu;
+            uint8_t alpha = (lowPixel >> 15) & 1;
+
+            m_cpuVramBlitCmdInfo.blitData[offsetBlit] = (red << 11) | (green << 5) | (blue << 0) | alpha;
+            m_vram[offsetDst] = lowPixel;
+
+            red = highPixel & 0x1Fu;
+            green = (highPixel >> 5) & 0x1Fu;
+            blue = (highPixel >> 10) & 0x1Fu;
+            alpha = (highPixel >> 15) & 1;
+
+            m_cpuVramBlitCmdInfo.blitData[offsetBlit + 1] = (red << 11) | (green << 6) | (blue << 1) | alpha;
+            m_vram[offsetDst + 1] = highPixel;
+
             m_cpuVramBlitCmdInfo.currentWord++;
 
             if (m_cpuVramBlitCmdInfo.currentWord == m_cpuVramBlitCmdInfo.totalWords) {
