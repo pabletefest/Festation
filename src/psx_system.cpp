@@ -38,7 +38,7 @@ uint8_t festation::PSXSystem::read8(uint32_t address)
     else if (masked_address >= EXPANSION_REGION1_START && masked_address <= EXPANSION_REGION1_END)
     {
         LOG_WARN("Not implemented read8 at 0x{:08X} on expansion region 1!", masked_address);
-        return 0xFF; // Stub
+        return 0; // Stub
     }
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
@@ -48,12 +48,12 @@ uint8_t festation::PSXSystem::read8(uint32_t address)
     else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
     {
         LOG_WARN("Not implemented read8 at 0x{:08X} on expansion region 2!", masked_address);
-        return 0xFF;
+        return 0;
     }
     else if (masked_address >= EXPANSION_REGION3_START && masked_address <= EXPANSION_REGION3_END)
     {
         LOG_WARN("Not implemented read8 at 0x{:08X} on expansion region 3!", masked_address);
-        return 0xFF;
+        return 0;
     }
     else if (masked_address >= BIOS_ROM_START && masked_address <= BIOS_ROM_END)
     {
@@ -78,7 +78,7 @@ uint16_t festation::PSXSystem::read16(uint32_t address)
     else if (masked_address >= EXPANSION_REGION1_START && masked_address <= EXPANSION_REGION1_END)
     {
         LOG_WARN("Not implemented read16 at 0x{:08X} on expansion region 1!", masked_address);
-        return 0xFFFF; // Stub
+        return 0; // Stub
     }
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
@@ -88,12 +88,12 @@ uint16_t festation::PSXSystem::read16(uint32_t address)
     else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
     {
         LOG_WARN("Not implemented read16 at 0x{:08X} on expansion region 2!", masked_address);
-        return 0xFFFF;
+        return 0;
     }
     else if (masked_address >= EXPANSION_REGION3_START && masked_address <= EXPANSION_REGION3_END)
     {
         LOG_WARN("Not implemented read16 at 0x{:08X} on expansion region 3!", masked_address);
-        return 0xFFFF;
+        return 0;
     }
     else if (masked_address >= BIOS_ROM_START && masked_address <= BIOS_ROM_END)
     {
@@ -118,7 +118,7 @@ uint32_t festation::PSXSystem::read32(uint32_t address)
     else if (masked_address >= EXPANSION_REGION1_START && masked_address <= EXPANSION_REGION1_END)
     {
         LOG_WARN("Not implemented read32 at 0x{:08X} on expansion region 1!", masked_address);
-        return 0xFFFFFFFF; // Stub
+        return 0; // Stub
     }
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
@@ -152,12 +152,12 @@ uint32_t festation::PSXSystem::read32(uint32_t address)
     else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
     {
         LOG_WARN("Not implemented read32 at 0x{:08X} on expansion region 2!", masked_address);
-        return 0xFFFFFFFF;
+        return 0;
     }
     else if (masked_address >= EXPANSION_REGION3_START && masked_address <= EXPANSION_REGION3_END)
     {
         LOG_WARN("Not implemented read32 at 0x{:08X} on expansion region 3!", masked_address);
-        return 0xFFFFFFFF;
+        return 0;
     }
     else if (masked_address >= BIOS_ROM_START && masked_address <= BIOS_ROM_END)
     {
