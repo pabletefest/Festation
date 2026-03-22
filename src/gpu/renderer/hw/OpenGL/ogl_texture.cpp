@@ -91,6 +91,7 @@ auto festation::OGLTexture::createTexture() -> void
 
 auto festation::OGLTexture::updateTexture(const uint8_t *const data, const glm::uvec2& offset, const glm::uvec2& size) -> void
 {
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     auto [_, format, type] = getGLFormat(m_specification.format);
     glTextureSubImage2D(m_textureID, 0, offset.x, offset.y, size.x, size.y, format, type, data);
 }

@@ -120,11 +120,33 @@ auto festation::Renderer::disableBlending() -> void
 
 auto festation::Renderer::uploadVramToGpu(const uint8_t* data, const glm::uvec2 &offset = { 0, 0 }, const glm::uvec2 &size = VRAM_SIZE) -> void
 {
+    size_t stride = size.x * sizeof(uint16_t);
+
+    for (int y = 0; y < size.y / 2; y++) {
+        uint8_t* topLine = (uint8_t *)data + y * stride;
+        uint8_t* bottomLine = (uint8_t *)data + (size.y - y - 1) * stride;
+
+        for (int i = 0; i < stride; i++) {
+            std::swap(topLine[i], bottomLine[i]);
+        }
+    }
+
     m_vramFramebuffer->setData(data, offset, size);
 }
 
 auto festation::Renderer::uploadVramToGpu(std::span<uint8_t> data, const glm::uvec2 &offset = { 0, 0 }, const glm::uvec2 &size = VRAM_SIZE) -> void
 {
+    size_t stride = size.x * sizeof(uint16_t);
+
+    for (int y = 0; y < size.y / 2; y++) {
+        uint8_t* topLine = data.data() + y * stride;
+        uint8_t* bottomLine = data.data() + (size.y - y - 1) * stride;
+
+        for (int i = 0; i < stride; i++) {
+            std::swap(topLine[i], bottomLine[i]);
+        }
+    }
+    
     m_vramFramebuffer->setData(data, offset, size);
 }
 
@@ -218,5 +240,7 @@ auto festation::Renderer::renderFrame() -> void
         m_indicesCount = 0;
     }
 
+    glDisable(GL_SCISSOR_TEST);
     m_vramFramebuffer->blitToSwapchain();
+    glEnable(GL_SCISSOR_TEST);
 }

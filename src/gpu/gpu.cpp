@@ -25,14 +25,16 @@ auto festation::PsxGpu::read32(uint32_t address) -> uint32_t
     case 0x1F801810:
         if (m_commandState == GpuCommandsState::ProcessingVramCpuBlitCmd 
             && m_vramCpuBlitCmdInfo.cmdState == BlittingCommandsState::ReceivingData) {               
-            const auto lengthX = m_cpuVramBlitCmdInfo.size2D.x;
-            const auto lengthY = m_cpuVramBlitCmdInfo.size2D.y;
-            const auto destY = m_cpuVramBlitCmdInfo.dstCoord.y;
-            const auto destX = m_cpuVramBlitCmdInfo.dstCoord.x;
-            const auto offsetX = (m_cpuVramBlitCmdInfo.size - m_remainingCmdArg) % lengthX;
-            const auto offsetY = (m_cpuVramBlitCmdInfo.size - m_remainingCmdArg) / lengthY;
+            const auto lengthX = m_vramCpuBlitCmdInfo.size2D.x;
+            const auto lengthY = m_vramCpuBlitCmdInfo.size2D.y;
+            const auto y = m_vramCpuBlitCmdInfo.srcCoord.y;
+            const auto x = m_vramCpuBlitCmdInfo.srcCoord.x;
+            const auto offsetX = (m_vramCpuBlitCmdInfo.size - m_remainingCmdArg) % lengthX;
+            const auto offsetY = (m_vramCpuBlitCmdInfo.size - m_remainingCmdArg) / lengthY;
+            const auto destY = y + offsetY;
+            const auto destX = x + offsetX;
             // size_t offsetDst = ((((m_cpuVramBlitCmdInfo.size - m_remainingCmdArg) / lengthX) + destY) * destX) + offsetX + destX;
-            size_t offsetDst = ((destY + offsetY) * VRAM_WIDTH) + (destX + offsetX);
+            size_t offsetDst = (destY * VRAM_WIDTH) + destX;
 
             m_gp0ReadValue = m_vram[offsetDst];
             m_gp0ReadValue |= m_vram[offsetDst + 1] << 16;
@@ -151,9 +153,9 @@ auto festation::PsxGpu::parseCommandGP0(uint32_t commandWord) -> void
         m_commandState = GpuCommandsState::ProcessingRectCmdParams;
         break;
     case Gpu0Commands::VramToVramBlit:
-        m_remainingCmdArg = 3;
-        m_commandsFIFO[m_currentCmdParam++] = commandWord;
-        m_commandState = GpuCommandsState::ProcessingVramVramBlitCmdParams;
+        // m_remainingCmdArg = 3;
+        // m_commandsFIFO[m_currentCmdParam++] = commandWord;
+        // m_commandState = GpuCommandsState::ProcessingVramVramBlitCmdParams;
         break;
     case Gpu0Commands::CpuToVramBlit:
         m_remainingCmdArg = 2;
@@ -162,10 +164,10 @@ auto festation::PsxGpu::parseCommandGP0(uint32_t commandWord) -> void
         m_commandState = GpuCommandsState::ProcessingCpuVramBlitCmd;
         break;
     case Gpu0Commands::VramToCpuBlit:
-        m_remainingCmdArg = 2;
-        m_vramCpuBlitCmdInfo.cmdState = BlittingCommandsState::ReceivingParams;
-        m_commandsFIFO[m_currentCmdParam++] = commandWord;
-        m_commandState = GpuCommandsState::ProcessingVramCpuBlitCmd;
+        // m_remainingCmdArg = 2;
+        // m_vramCpuBlitCmdInfo.cmdState = BlittingCommandsState::ReceivingParams;
+        // m_commandsFIFO[m_currentCmdParam++] = commandWord;
+        // m_commandState = GpuCommandsState::ProcessingVramCpuBlitCmd;
         break;
     case Gpu0Commands::Misc:
     case Gpu0Commands::Environment:
@@ -389,6 +391,8 @@ auto festation::PsxGpu::processGP0CpuVramBlitCmd(uint32_t parameter) -> void
             m_cpuVramBlitCmdInfo.size2D.y = (((sizeCoordParam >> 16) - 1) & 0x1FFu) + 1;
 
             m_cpuVramBlitCmdInfo.size = m_cpuVramBlitCmdInfo.size2D.x * m_cpuVramBlitCmdInfo.size2D.y;
+            m_cpuVramBlitCmdInfo.blitData.clear();
+            m_cpuVramBlitCmdInfo.blitData.resize(m_cpuVramBlitCmdInfo.size);
             m_remainingCmdArg = m_cpuVramBlitCmdInfo.size;
             m_cpuVramBlitCmdInfo.cmdState = BlittingCommandsState::ReceivingData;
         }
@@ -398,19 +402,23 @@ auto festation::PsxGpu::processGP0CpuVramBlitCmd(uint32_t parameter) -> void
             // const auto size = m_cpuVramBlitCmdInfo.size;
             const auto lengthX = m_cpuVramBlitCmdInfo.size2D.x;
             const auto lengthY = m_cpuVramBlitCmdInfo.size2D.y;
-            const auto destY = m_cpuVramBlitCmdInfo.dstCoord.y;
-            const auto destX = m_cpuVramBlitCmdInfo.dstCoord.x;
+            const auto coordY = m_cpuVramBlitCmdInfo.dstCoord.y;
+            const auto coordX = m_cpuVramBlitCmdInfo.dstCoord.x;
             const auto offsetX = (m_cpuVramBlitCmdInfo.size - m_remainingCmdArg) % lengthX;
-            const auto offsetY = (m_cpuVramBlitCmdInfo.size - m_remainingCmdArg) / lengthY;
-            // size_t offsetDst = ((((m_cpuVramBlitCmdInfo.size - m_remainingCmdArg) / lengthX) + destY) * destX) + offsetX + destX;
-            size_t offsetDst = ((destY + offsetY) * VRAM_WIDTH) + (destX + offsetX);
+            const auto offsetY = (m_cpuVramBlitCmdInfo.size - m_remainingCmdArg) / lengthX;
+            // const auto destY = coordY + offsetY;
+            // const auto destX = coordX + offsetX;
+            // size_t offsetDst = ((((size - m_remainingCmdArg) / lengthX) + destY) * destX) + offsetX + destX;
+            size_t offsetDst = (offsetY * lengthX) + offsetX;
 
-            m_vram[offsetDst] = parameter & 0xFFFF;
-            m_vram[offsetDst + 1] = (parameter >> 16) & 0xFFFF;
-            // m_renderer.uploadVramToGpu((const uint8_t*)m_vram.data(), { 0, 0 }, { VRAM_WIDTH, VRAM_HEIGHT });
+            m_cpuVramBlitCmdInfo.blitData[offsetDst] = parameter & 0xFFFF;
+            m_cpuVramBlitCmdInfo.blitData[offsetDst + 1] = (parameter >> 16) & 0xFFFF;
             m_remainingCmdArg -= 2;
 
             if (m_remainingCmdArg == 0) {
+                uint8_t* data = reinterpret_cast<uint8_t *>(m_cpuVramBlitCmdInfo.blitData.data());
+                m_renderer.uploadVramToGpu(data, { coordX, VRAM_HEIGHT - lengthY - coordY }, { lengthX, lengthY });
+
                 m_currentCmdParam = 0;
                 m_commandState = GpuCommandsState::WaitingForCommand;
             }

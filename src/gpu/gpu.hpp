@@ -105,6 +105,7 @@ namespace festation {
             glm::u16vec2 dstCoord;
             glm::u16vec2 size2D;
             size_t size;
+            std::vector<uint16_t> blitData;
         } m_cpuVramBlitCmdInfo;
 
         struct VramToCpuBlitCmdInfo {
