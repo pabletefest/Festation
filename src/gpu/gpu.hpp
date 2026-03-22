@@ -100,6 +100,22 @@ namespace festation {
 
         DrawingAreaInfo m_drawingAreaInfo{};
 
+        struct CpuToVramBlitCmdInfo {
+            BlittingCommandsState cmdState;
+            glm::u16vec2 dstCoord;
+            glm::u16vec2 size2D;
+            size_t size;
+        } m_cpuVramBlitCmdInfo;
+
+        struct VramToCpuBlitCmdInfo {
+            BlittingCommandsState cmdState;
+            glm::u16vec2 srcCoord;
+            glm::u16vec2 size2D;
+            size_t size;
+        } m_vramCpuBlitCmdInfo;
+
+        uint32_t m_gp0ReadValue;
+
         RectanglePrimitiveData m_rectData{};
         PolygonPrimitiveData m_polyData{};
 

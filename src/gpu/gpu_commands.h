@@ -45,5 +45,12 @@ namespace festation {
         ProcessingPolygonCmdParams,
         ProcessingLineCmdParams,
         ProcessingVramVramBlitCmdParams,
+        ProcessingCpuVramBlitCmd,
+        ProcessingVramCpuBlitCmd,
+    };
+
+    enum class BlittingCommandsState {
+        ReceivingParams,
+        ReceivingData,
     };
 };

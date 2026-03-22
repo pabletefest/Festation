@@ -173,7 +173,8 @@ auto festation::Dma2Gpu::startTransfer() -> void
 
             D_MADR.startMemoryAddress = header.nextNodeAddress;
         }
-    } else {
+    }
+    else {
         uint32_t startAddress = D_MADR.startMemoryAddress & 0x00FFFFFF;
         uint32_t wordsCount = 0;
         int increment = (D_CHCR.madrIncrementPerStep == Forward) ? 4 : -4;
