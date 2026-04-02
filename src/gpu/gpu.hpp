@@ -71,7 +71,7 @@ namespace festation {
                 uint32_t texturePageXBase : 4;
                 uint32_t texturePageYBase1 : 1;
                 uint32_t semiTransparency : 2;
-                uint32_t texturePageColors : 2;
+                TexturePageColorsDepth texturePageColors : 2;
                 uint32_t dither24bitTo15bit: 1;
                 uint32_t drawingToDisplayArea : 1;
                 uint32_t setMaskbitWhenDrawing : 1;
@@ -130,6 +130,6 @@ namespace festation {
 
         std::vector<uint16_t> m_vram{};
 
-        Renderer m_renderer{};
+        Renderer m_renderer;
     };
 };

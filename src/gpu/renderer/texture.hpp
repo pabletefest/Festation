@@ -13,6 +13,8 @@ namespace festation {
         RGB8,
         RGBA8,
         RGB5,
+        RGB5_REV,
+        R16UI,
     };
 
     enum class TextureFiltering {

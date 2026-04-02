@@ -24,8 +24,14 @@ festation::IFramebuffer::IFramebuffer(const FramebufferInfo &specification)
     case FboFormats::RGBA5:
         textInfo.format = TextureFormat::RGB5;
         break;
+    case FboFormats::RGBA5_REV:
+        textInfo.format = TextureFormat::RGB5_REV;
+        break;
     case FboFormats::RGBA8:
         textInfo.format = TextureFormat::RGBA8;
+        break;
+    case FboFormats::R16UI:
+        textInfo.format = TextureFormat::R16UI;
         break;
     default:
         std::unreachable();

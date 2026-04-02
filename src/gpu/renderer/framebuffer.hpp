@@ -12,6 +12,8 @@ namespace festation {
     enum class FboFormats {
         RGBA8,
         RGBA5,
+        RGBA5_REV,
+        R16UI,
     };
 
     struct FramebufferInfo {

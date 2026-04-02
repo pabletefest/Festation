@@ -8,7 +8,7 @@
 
 festation::PsxGpu::PsxGpu()
     : GPUREAD({}), GPUSTAT({}), m_commandState(GpuCommandsState::WaitingForCommand),
-        m_remainingCmdArg(1), m_currentCmdParam(0), m_commandsFIFO({}), m_vram(VRAM_WIDTH * VRAM_HEIGHT)
+        m_remainingCmdArg(1), m_currentCmdParam(0), m_commandsFIFO({}), m_vram(VRAM_WIDTH * VRAM_HEIGHT), m_renderer(m_vram)
 {
     processResetGpuCmd();
     updateRenderProjection();
@@ -99,7 +99,7 @@ auto festation::PsxGpu::write32(uint32_t address, uint32_t value) -> void
 
 auto festation::PsxGpu::renderFrame() -> void
 {
-    m_renderer.renderFrame();
+    m_renderer.renderBatch();
 }
 
 auto festation::PsxGpu::parseCommandGP0(uint32_t commandWord) -> void
@@ -244,6 +244,7 @@ auto festation::PsxGpu::processGP0PolygonCmd(uint32_t parameter) -> void
 
             const auto& colorParam = m_commandsFIFO[colorParamOffset];
             auto&  color = m_polyData.colors[vertexId];
+            // color.a = (m_polyData.isSemiTransparent) ? 1.0f : 0.0f;
             color.a = 1.0f;
             color.r = colorParam & 0xFF;
             color.g = (colorParam >> 8) & 0xFF;
@@ -268,13 +269,18 @@ auto festation::PsxGpu::processGP0PolygonCmd(uint32_t parameter) -> void
 
                 if (vertexId == 1) {
                     auto& page = m_polyData.page;
-                    page.x = (clutPageUVParam >> 16) & 0x3Fu;
-                    page.y = (clutPageUVParam >> 22) & 0x1FFu;
+                    page.x = (clutPageUVParam >> 16) & 0xFu;
+                    page.y = (clutPageUVParam >> 20) & 1u;
                 }
             }
         }
         
-        m_renderer.drawPolygon(m_polyData);
+        if (m_polyData.isTextured) {
+            m_renderer.drawPolygonTextured(m_polyData, GPUSTAT.texturePageColors, m_vram);
+        }
+        else {
+            m_renderer.drawPolygon(m_polyData);
+        }
 
         processResetCommandBufferCmd();
     }
@@ -408,20 +414,10 @@ auto festation::PsxGpu::processGP0CpuVramBlitCmd(uint32_t parameter) -> void
             uint16_t lowPixel = parameter & 0xFFFF;
             uint16_t highPixel = (parameter >> 16) & 0xFFFF;
 
-            uint8_t red = lowPixel & 0x1Fu;
-            uint8_t green = (lowPixel >> 5) & 0x1Fu;
-            uint8_t blue = (lowPixel >> 10) & 0x1Fu;
-            uint8_t alpha = (lowPixel >> 15) & 1;
-
-            m_cpuVramBlitCmdInfo.blitData[offsetBlit] = (red << 11) | (green << 5) | (blue << 0) | alpha;
+            m_cpuVramBlitCmdInfo.blitData[offsetBlit] = lowPixel;
             m_vram[offsetDst] = lowPixel;
 
-            red = highPixel & 0x1Fu;
-            green = (highPixel >> 5) & 0x1Fu;
-            blue = (highPixel >> 10) & 0x1Fu;
-            alpha = (highPixel >> 15) & 1;
-
-            m_cpuVramBlitCmdInfo.blitData[offsetBlit + 1] = (red << 11) | (green << 6) | (blue << 1) | alpha;
+            m_cpuVramBlitCmdInfo.blitData[offsetBlit + 1] = highPixel;
             m_vram[offsetDst + 1] = highPixel;
 
             m_cpuVramBlitCmdInfo.currentWord++;
@@ -524,7 +520,7 @@ auto festation::PsxGpu::processGP0TextureWindowCmd(uint32_t parameter) -> void
 
 auto festation::PsxGpu::processGP0SetDrawingAreaX1Y1Cmd(uint32_t parameter) -> void
 {
-    m_renderer.renderFrame();
+    m_renderer.renderBatch();
 
     m_drawingAreaInfo.topLeft.x = parameter & 0x3FFu;
     m_drawingAreaInfo.topLeft.y = (parameter >> 10) & 0x1FFu;
@@ -538,7 +534,7 @@ auto festation::PsxGpu::processGP0SetDrawingAreaX1Y1Cmd(uint32_t parameter) -> v
 
 auto festation::PsxGpu::processGP0SetDrawingAreaX2Y2Cmd(uint32_t parameter) -> void
 {
-    m_renderer.renderFrame();
+    m_renderer.renderBatch();
 
     m_drawingAreaInfo.bottomRight.x = parameter & 0x3FFu;
     m_drawingAreaInfo.bottomRight.y = (parameter >> 10) & 0x1FFu; 

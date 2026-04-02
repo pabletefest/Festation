@@ -15,10 +15,14 @@ static constexpr auto getGLFormat(festation::TextureFormat format) -> GLTextureF
     switch(format) {
         case festation::TextureFormat::RGB5:
             return { GL_RGB5_A1, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1 };
+        case festation::TextureFormat::RGB5_REV:
+            return { GL_RGB5_A1, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV };
         case festation::TextureFormat::RGB8:
             return { GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE };
         case festation::TextureFormat::RGBA8:
             return { GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE };
+        case festation::TextureFormat::R16UI:
+            return { GL_R16UI, GL_RED_INTEGER, GL_UNSIGNED_SHORT };
         default:
             std::unreachable();
     }

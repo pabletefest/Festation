@@ -54,7 +54,11 @@ namespace festation {
     };
 
     struct PrimitiveVertex {
-        glm::vec2 coords;
-        glm::vec4 color; 
+        glm::vec2 position;
+        glm::vec4 color;
+        glm::vec2 texCoord;
+        uint32_t texIndex;
+        uint32_t bppDepth;
+        glm::uvec2 clut;
     };
 };
