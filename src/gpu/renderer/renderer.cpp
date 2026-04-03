@@ -17,6 +17,22 @@ namespace festation {
     static constexpr size_t VRAM_WIDTH = 1024;
     static constexpr size_t VRAM_HEIGHT = 512;
     static constexpr glm::u16vec2 VRAM_SIZE = { VRAM_WIDTH, VRAM_HEIGHT };
+
+    static constexpr uint32_t getBppDepthFromRegBits(TexturePageColorsDepth colorDepth)
+    {
+        switch (colorDepth)
+        {
+        case Color4bit:
+            return 4;
+        case Color8bit:
+            return 8;
+        case Color15bit:
+        case ColorReserved:
+            return 15;
+        default:
+            std::unreachable();
+        }
+    }
 };
 
 festation::Renderer::Renderer(const std::vector<uint16_t>& vram)
@@ -78,13 +94,15 @@ festation::Renderer::Renderer(const std::vector<uint16_t>& vram)
     glEnableVertexArrayAttrib(m_VAO, 3);
     glEnableVertexArrayAttrib(m_VAO, 4);
     glEnableVertexArrayAttrib(m_VAO, 5);
+    glEnableVertexArrayAttrib(m_VAO, 6);
 
     glVertexArrayAttribFormat(m_VAO, 0, 2, GL_FLOAT, GL_FALSE, offsetof(PrimitiveVertex, position));
     glVertexArrayAttribFormat(m_VAO, 1, 4, GL_FLOAT, GL_FALSE, offsetof(PrimitiveVertex, color));
     glVertexArrayAttribFormat(m_VAO, 2, 2, GL_FLOAT, GL_FALSE, offsetof(PrimitiveVertex, texCoord));
     glVertexArrayAttribIFormat(m_VAO, 3, 1, GL_UNSIGNED_INT, offsetof(PrimitiveVertex, texIndex));
     glVertexArrayAttribIFormat(m_VAO, 4, 1, GL_UNSIGNED_INT, offsetof(PrimitiveVertex, bppDepth));
-    glVertexArrayAttribIFormat(m_VAO, 5, 2, GL_UNSIGNED_INT, offsetof(PrimitiveVertex, clut));
+    glVertexArrayAttribIFormat(m_VAO, 5, 2, GL_UNSIGNED_INT, offsetof(PrimitiveVertex, texpage));
+    glVertexArrayAttribIFormat(m_VAO, 6, 2, GL_UNSIGNED_INT, offsetof(PrimitiveVertex, clut));
 
     glVertexArrayAttribBinding(m_VAO, 0, 0);
     glVertexArrayAttribBinding(m_VAO, 1, 0);
@@ -92,6 +110,7 @@ festation::Renderer::Renderer(const std::vector<uint16_t>& vram)
     glVertexArrayAttribBinding(m_VAO, 3, 0);
     glVertexArrayAttribBinding(m_VAO, 4, 0);
     glVertexArrayAttribBinding(m_VAO, 5, 0);
+    glVertexArrayAttribBinding(m_VAO, 6, 0);
 
     glEnable(GL_SCISSOR_TEST);
 
@@ -289,6 +308,7 @@ auto festation::Renderer::drawPolygon(const PolygonPrimitiveData &polygonData) -
             .texCoord = texCoords,
             .texIndex = 0,
             .bppDepth = 0,  // Ignored for untextured polygons
+            .texpage = {},  // Ignored for untextured polygons
             .clut = {}, // Ignored for untextured polygons 
         });
     }
@@ -344,43 +364,16 @@ auto festation::Renderer::drawPolygonTextured(const PolygonPrimitiveData &polygo
             };
         }
 
-        glm::vec2 texCoords;
-        uint32_t bppDepth;
-
-        switch (colorDepth)
-        {
-        case Color4bit:
-        {
-            glm::u16vec2 texelIndex {
-                polygonData.page.x * 64 + (polygonData.uvs[vertexId].x / 4),
-                polygonData.page.y * 256 + polygonData.uvs[vertexId].y,
-            };
-
-            texCoords = texelIndex;
-            bppDepth = 4;
-        }
-            break;
-        case Color8bit:
-            bppDepth = 8;
-            break;
-        case Color15bit:
-        case ColorReserved:
-            texCoords = (polygonData.page * glm::u16vec2(256, 256) + (glm::u16vec2)polygonData.uvs[vertexId]) / VRAM_SIZE;
-            bppDepth = 15;
-            break;
-        default:
-            std::unreachable();
-        }
-
         m_vertices.emplace_back(PrimitiveVertex { 
             .position = glm::vec2 {
                 polygonData.vertices[vertexId].x,
                 polygonData.vertices[vertexId].y, 
             },
             .color = vertexColor,
-            .texCoord = texCoords,
+            .texCoord = polygonData.uvs[vertexId],
             .texIndex = 1,
-            .bppDepth = bppDepth,
+            .bppDepth = getBppDepthFromRegBits(colorDepth),
+            .texpage = polygonData.page,
             .clut = polygonData.clut,
         });
     }

@@ -5,12 +5,14 @@ layout(location = 1) in vec4 aColor;
 layout(location = 2) in vec2 aTexCoord;
 layout(location = 3) in uint aTexIndex;
 layout(location = 4) in uint aBppDepth;
-layout(location = 5) in uvec2 aClut;
+layout(location = 5) in uvec2 aTexpage;
+layout(location = 6) in uvec2 aClut;
 
 out vec4 vColor;
 out vec2 vTexCoord;
 flat out uint vTexIndex;
 flat out uint vBppDepth;
+flat out uvec2 vTexpage;
 flat out uvec2 vClut;
 
 uniform mat4 uProjection;
@@ -21,5 +23,6 @@ void main() {
     vTexCoord = aTexCoord;
     vTexIndex = aTexIndex;
     vBppDepth = aBppDepth;
+    vTexpage = aTexpage;
     vClut = aClut;
 }

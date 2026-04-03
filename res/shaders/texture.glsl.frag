@@ -6,6 +6,7 @@ in vec4 vColor;
 in vec2 vTexCoord;
 flat in uint vTexIndex;
 flat in uint vBppDepth;
+flat in uvec2 vTexpage;
 flat in uvec2 vClut;
 
 // layout (binding = 0) uniform sampler2D uTextures[2];
@@ -30,11 +31,14 @@ void main() {
             break;
         case 1:
         {
-            uvec2 texPage = uvec2(vTexCoord);
-            uint texel = texelFetch(uVramTexture, ivec2(texPage), 0).r;
+            uvec2 uv = uvec2(vTexCoord);
+            uv.x = uv.x / 4u;
+
+            uvec2 texelCoord = vTexpage * uvec2(64u, 256u) + uv;
+            uint texel = texelFetch(uVramTexture, ivec2(texelCoord), 0).r;
 
             uvec2 clutIndex;
-            uint texelOffset = (texPage.x & 3u) * 4u;
+            uint texelOffset = (texelCoord.x & 3u) * 4u;
             uint clutOffset = ((texel >> texelOffset) & 0xFu);
             clutIndex.x = vClut.x * 16u + clutOffset;
             clutIndex.y = vClut.y;

@@ -59,6 +59,7 @@ namespace festation {
         glm::vec2 texCoord;
         uint32_t texIndex;
         uint32_t bppDepth;
+        glm::uvec2 texpage;
         glm::uvec2 clut;
     };
 };
