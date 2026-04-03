@@ -353,21 +353,10 @@ auto festation::Renderer::drawPolygonTextured(const PolygonPrimitiveData &polygo
         {
             glm::u16vec2 texelIndex {
                 polygonData.page.x * 64 + (polygonData.uvs[vertexId].x / 4),
-                polygonData.page.y * 256 + polygonData.uvs[vertexId].y + 1,
+                polygonData.page.y * 256 + polygonData.uvs[vertexId].y,
             };
 
-            texCoords = (polygonData.page * glm::u16vec2(64, 256) + (glm::u16vec2)polygonData.uvs[vertexId]);
-
-            // uint16_t texel = vram[texelIndex.y * VRAM_WIDTH + texelIndex.x];
-
-            // glm::u16vec2 clutIndex {
-            //     polygonData.clut.x * 16 + ((texel >> ((polygonData.uvs[vertexId].x & 3) * 4)) & 0xFu), 
-            //     polygonData.clut.y,
-            // };
-
-            // uint16_t pixel = vram[clutIndex.y * VRAM_WIDTH + clutIndex.x];
-            // texCoords = (glm::vec2)clutIndex / (glm::vec2)VRAM_SIZE;
-
+            texCoords = texelIndex;
             bppDepth = 4;
         }
             break;
