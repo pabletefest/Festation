@@ -53,7 +53,7 @@ void main() {
             float blue = (((clutColor >> 10u) >> 3u) & 0x1Fu) / 255.0;
             
             vec4 pixelColor = vec4(roundToRGB5Color(vec3(red, green, blue)), 1.0);
-            FragColor = pixelColor;
+            FragColor = pixelColor * vec4(color, vColor.a);
         }
             break;
         default:
