@@ -21,12 +21,13 @@ vec3 roundToRGB5Color(in vec3 inColor) {
 
 void main() {
     vec3 color = roundToRGB5Color(vColor.rgb);
+    vec4 finalColor = vec4(1.0);
 
     // @todo: try to improve this by making it branchless
     switch(vTexIndex) {
         case 0:
         {
-            FragColor = vec4(color, vColor.a);
+            finalColor = vec4(color, vColor.a);
         }
             break;
         case 1:
@@ -53,11 +54,13 @@ void main() {
             float blue = ((clutColor >> 10u) & 0x1Fu) / 31.0;
             
             vec4 pixelColor = vec4(roundToRGB5Color(vec3(red, green, blue)), 1.0);
-            FragColor = pixelColor * vec4(color.rgb, vColor.a);
+            finalColor.rgb = (pixelColor.rgb * color.rgb) / vec3(0.5);
         }
             break;
         default:
-            FragColor = vec4(color, vColor.a);
+            finalColor = vec4(color, vColor.a);
             break;
     }
+
+    FragColor = vec4(finalColor.rgb, 1.0);
 }
