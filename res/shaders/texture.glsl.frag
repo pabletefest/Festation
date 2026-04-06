@@ -54,7 +54,7 @@ void main() {
             float blue = ((clutColor >> 10u) & 0x1Fu) / 31.0;
             
             vec4 pixelColor = vec4(roundToRGB5Color(vec3(red, green, blue)), 1.0);
-            finalColor.rgb = (pixelColor.rgb * color.rgb) / vec3(0.5);
+            finalColor.rgb = ((pixelColor.rgb * color.rgb) / vec3(0.5));
         }
             break;
         default:
