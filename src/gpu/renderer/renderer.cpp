@@ -228,8 +228,7 @@ void festation::Renderer::drawRectangle(const RectanglePrimitiveData &rectData)
     m_indicesCount += INDICES_PER_QUAD;
 }
 
-auto festation::Renderer::drawRectangleTextured(const RectanglePrimitiveData &rectData, TexturePageColorsDepth colorDepth, 
-    const std::vector<uint16_t>& vram) -> void
+auto festation::Renderer::drawRectangleTextured(const RectanglePrimitiveData &rectData, TexturePageColorsDepth colorDepth) -> void
 {
 }
 
@@ -314,8 +313,7 @@ auto festation::Renderer::drawPolygon(const PolygonPrimitiveData &polygonData) -
     }
 }
 
-auto festation::Renderer::drawPolygonTextured(const PolygonPrimitiveData &polygonData, TexturePageColorsDepth colorDepth, 
-    const std::vector<uint16_t>& vram) -> void
+auto festation::Renderer::drawPolygonTextured(const PolygonPrimitiveData &polygonData, TexturePageColorsDepth colorDepth) -> void
 {
     if (m_vertices.size() >= MAX_VERTICES_PER_PRIMITIVE * MAX_PRIMITIVES_COUNT) {
         renderBatch();

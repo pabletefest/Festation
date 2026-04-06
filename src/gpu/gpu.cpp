@@ -276,7 +276,7 @@ auto festation::PsxGpu::processGP0PolygonCmd(uint32_t parameter) -> void
         }
         
         if (m_polyData.isTextured) {
-            m_renderer.drawPolygonTextured(m_polyData, GPUSTAT.texturePageColors, m_vram);
+            m_renderer.drawPolygonTextured(m_polyData, GPUSTAT.texturePageColors);
         }
         else {
             m_renderer.drawPolygon(m_polyData);

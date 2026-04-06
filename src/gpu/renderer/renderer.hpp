@@ -46,12 +46,10 @@ namespace festation {
             const glm::uvec2& offset, const glm::uvec2& size) -> void;
 
         auto drawRectangle(const RectanglePrimitiveData& rectData) -> void;
-        auto drawRectangleTextured(const RectanglePrimitiveData& rectData, TexturePageColorsDepth colorDepth, 
-            const std::vector<uint16_t>& vram) -> void;
+        auto drawRectangleTextured(const RectanglePrimitiveData& rectData, TexturePageColorsDepth colorDepth) -> void;
 
         auto drawPolygon(const PolygonPrimitiveData& polygonData) -> void;
-        auto drawPolygonTextured(const PolygonPrimitiveData& polygonData, TexturePageColorsDepth colorDepth, 
-            const std::vector<uint16_t>& vram) -> void;
+        auto drawPolygonTextured(const PolygonPrimitiveData& polygonData, TexturePageColorsDepth colorDepth) -> void;
 
         auto renderBatch() -> void;
 
