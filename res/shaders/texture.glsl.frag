@@ -48,12 +48,12 @@ void main() {
             if (clutColor == 0)
                 discard;
 
-            float red = ((clutColor >> 3u) & 0x1Fu) / 255.0;
-            float green = (((clutColor >> 5u) >> 3u) & 0x1Fu) / 255.0;
-            float blue = (((clutColor >> 10u) >> 3u) & 0x1Fu) / 255.0;
+            float red = (clutColor & 0x1Fu) / 31.0;
+            float green = ((clutColor >> 5u) & 0x1Fu) / 31.0;
+            float blue = ((clutColor >> 10u) & 0x1Fu) / 31.0;
             
-            vec4 pixelColor = vec4(vec3(red, green, blue), 1.0);
-            FragColor = pixelColor * vec4(color, vColor.a);
+            vec4 pixelColor = vec4(roundToRGB5Color(vec3(red, green, blue)), 1.0);
+            FragColor = pixelColor * vec4(color.rgb, vColor.a);
         }
             break;
         default:

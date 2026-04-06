@@ -35,6 +35,7 @@ namespace festation {
 
         auto getHandle() const -> uint32_t { return m_fbo; }
         auto getFramebufferInfo() const -> FramebufferInfo { return m_specification; }
+        auto getColorAttachmentHandle() const -> uint32_t { return m_colorAttachment->getHandle(); }
 
         static auto createUnique(const FramebufferInfo& specification) -> std::unique_ptr<IFramebuffer>;
         static auto createShared(const FramebufferInfo& specification) -> std::shared_ptr<IFramebuffer>;
