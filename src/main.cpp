@@ -115,7 +115,16 @@ int main(int, char**)
         std::stringstream strStream;
         strStream << festation::EMU_TITLE;
         strStream << " | ";
-        strStream << path.filename().string();
+
+        if (!path.empty())
+        {
+            strStream << path.filename().string();
+        }
+        else
+        {
+            strStream << "No disk";
+        }
+
         strStream << " | ";
         strStream << std::format("{:.2f}", 1.0f / delta);
         strStream << " FPS";
