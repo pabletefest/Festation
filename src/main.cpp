@@ -75,7 +75,7 @@ int main(int, char**)
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(GLDebugCallback, nullptr);
         glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_OTHER, GL_DONT_CARE, 0, nullptr, GL_FALSE);
-        glDebugMessageControl(GL_SHADER_COMPILER, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+        glDebugMessageControl(GL_DEBUG_SOURCE_SHADER_COMPILER, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
     }
 
     festation::PSXSystem psxSystem;
@@ -122,7 +122,7 @@ int main(int, char**)
         }
         else
         {
-            strStream << "No disk";
+            strStream << "No disc";
         }
 
         strStream << " | ";
