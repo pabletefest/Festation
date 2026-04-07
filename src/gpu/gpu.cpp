@@ -276,10 +276,11 @@ auto festation::PsxGpu::processGP0PolygonCmd(uint32_t parameter) -> void
         }
         
         if (m_polyData.isTextured) {
-            m_renderer.drawPolygonTextured(m_polyData, GPUSTAT.texturePageColors);
+            bool dithering = (GPUSTAT.dither24bitTo15bit && !m_polyData.isRawTexture) || (GPUSTAT.dither24bitTo15bit && m_polyData.isGouraudShading); 
+            m_renderer.drawPolygonTextured(m_polyData, GPUSTAT.texturePageColors, dithering);
         }
         else {
-            m_renderer.drawPolygon(m_polyData);
+            m_renderer.drawPolygon(m_polyData, GPUSTAT.dither24bitTo15bit && m_polyData.isGouraudShading);
         }
 
         processResetCommandBufferCmd();

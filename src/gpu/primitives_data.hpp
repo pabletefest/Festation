@@ -61,5 +61,6 @@ namespace festation {
         uint32_t bppDepth;
         glm::uvec2 texpage;
         glm::uvec2 clut;
+        uint32_t dithering;
     };
 };

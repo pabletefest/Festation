@@ -48,8 +48,8 @@ namespace festation {
         auto drawRectangle(const RectanglePrimitiveData& rectData) -> void;
         auto drawRectangleTextured(const RectanglePrimitiveData& rectData, TexturePageColorsDepth colorDepth) -> void;
 
-        auto drawPolygon(const PolygonPrimitiveData& polygonData) -> void;
-        auto drawPolygonTextured(const PolygonPrimitiveData& polygonData, TexturePageColorsDepth colorDepth) -> void;
+        auto drawPolygon(const PolygonPrimitiveData& polygonData, bool dithering) -> void;
+        auto drawPolygonTextured(const PolygonPrimitiveData& polygonData, TexturePageColorsDepth colorDepth, bool dithering) -> void;
 
         auto renderBatch() -> void;
 

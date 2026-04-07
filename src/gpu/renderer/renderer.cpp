@@ -95,6 +95,7 @@ festation::Renderer::Renderer(const std::vector<uint16_t>& vram)
     glEnableVertexArrayAttrib(m_VAO, 4);
     glEnableVertexArrayAttrib(m_VAO, 5);
     glEnableVertexArrayAttrib(m_VAO, 6);
+    glEnableVertexArrayAttrib(m_VAO, 7);
 
     glVertexArrayAttribFormat(m_VAO, 0, 2, GL_FLOAT, GL_FALSE, offsetof(PrimitiveVertex, position));
     glVertexArrayAttribFormat(m_VAO, 1, 4, GL_FLOAT, GL_FALSE, offsetof(PrimitiveVertex, color));
@@ -103,6 +104,7 @@ festation::Renderer::Renderer(const std::vector<uint16_t>& vram)
     glVertexArrayAttribIFormat(m_VAO, 4, 1, GL_UNSIGNED_INT, offsetof(PrimitiveVertex, bppDepth));
     glVertexArrayAttribIFormat(m_VAO, 5, 2, GL_UNSIGNED_INT, offsetof(PrimitiveVertex, texpage));
     glVertexArrayAttribIFormat(m_VAO, 6, 2, GL_UNSIGNED_INT, offsetof(PrimitiveVertex, clut));
+    glVertexArrayAttribIFormat(m_VAO, 7, 1, GL_UNSIGNED_INT, offsetof(PrimitiveVertex, dithering));
 
     glVertexArrayAttribBinding(m_VAO, 0, 0);
     glVertexArrayAttribBinding(m_VAO, 1, 0);
@@ -111,6 +113,7 @@ festation::Renderer::Renderer(const std::vector<uint16_t>& vram)
     glVertexArrayAttribBinding(m_VAO, 4, 0);
     glVertexArrayAttribBinding(m_VAO, 5, 0);
     glVertexArrayAttribBinding(m_VAO, 6, 0);
+    glVertexArrayAttribBinding(m_VAO, 7, 0);
 
     glEnable(GL_SCISSOR_TEST);
 
@@ -205,9 +208,9 @@ auto festation::Renderer::uploadVramToGpu(std::span<uint8_t> data, const glm::uv
 void festation::Renderer::drawRectangle(const RectanglePrimitiveData &rectData)
 {
     glm::vec4 color = {
-        rectData.color.r / 255.0f,
-        rectData.color.g / 255.0f,
-        rectData.color.b / 255.0f,
+        rectData.color.r,
+        rectData.color.g,
+        rectData.color.b,
         rectData.color.a,
     };
 
@@ -219,10 +222,10 @@ void festation::Renderer::drawRectangle(const RectanglePrimitiveData &rectData)
     m_indices[m_indicesCount + 5] = 0 + m_vertices.size();
 
     m_vertices.append_range(std::array {
-        PrimitiveVertex { glm::vec2(rectData.vertex1.x, rectData.vertex1.y), color, { 0.0f, 0.0f }, 0 },
-        PrimitiveVertex { glm::vec2(rectData.vertex1.x + rectData.size.x, rectData.vertex1.y), color, { 1.0f, 0.0f }, 0 },
-        PrimitiveVertex { glm::vec2(rectData.vertex1.x + rectData.size.x, rectData.vertex1.y + rectData.size.y), color, { 1.0f, 1.0f }, 0 },
-        PrimitiveVertex { glm::vec2(rectData.vertex1.x, rectData.vertex1.y + rectData.size.y), color, { 0.0f, 1.0f }, 0 },
+        PrimitiveVertex { glm::vec2(rectData.vertex1.x, rectData.vertex1.y), color, { 0.0f, 0.0f }, 0, 0, {}, {}, false },
+        PrimitiveVertex { glm::vec2(rectData.vertex1.x + rectData.size.x, rectData.vertex1.y), color, { 1.0f, 0.0f }, 0, 0, {}, {}, false },
+        PrimitiveVertex { glm::vec2(rectData.vertex1.x + rectData.size.x, rectData.vertex1.y + rectData.size.y), color, { 1.0f, 1.0f }, 0, 0, {}, {}, false },
+        PrimitiveVertex { glm::vec2(rectData.vertex1.x, rectData.vertex1.y + rectData.size.y), color, { 0.0f, 1.0f }, 0, 0, {}, {}, false },
     });
 
     m_indicesCount += INDICES_PER_QUAD;
@@ -232,7 +235,7 @@ auto festation::Renderer::drawRectangleTextured(const RectanglePrimitiveData &re
 {
 }
 
-auto festation::Renderer::drawPolygon(const PolygonPrimitiveData &polygonData) -> void
+auto festation::Renderer::drawPolygon(const PolygonPrimitiveData &polygonData, bool dithering) -> void
 {
     if (m_vertices.size() >= MAX_VERTICES_PER_PRIMITIVE * MAX_PRIMITIVES_COUNT) {
         renderBatch();
@@ -299,21 +302,22 @@ auto festation::Renderer::drawPolygon(const PolygonPrimitiveData &polygonData) -
                 polygonData.vertices[vertexId].y, 
             },
             .color = glm::vec4 {
-                polygonData.colors[vertexId].r / 255.0f,
-                polygonData.colors[vertexId].g / 255.0f,
-                polygonData.colors[vertexId].b / 255.0f,
+                polygonData.colors[vertexId].r,
+                polygonData.colors[vertexId].g,
+                polygonData.colors[vertexId].b,
                 polygonData.colors[vertexId].a,
             },
             .texCoord = texCoords,
             .texIndex = 0,
             .bppDepth = 0,  // Ignored for untextured polygons
             .texpage = {},  // Ignored for untextured polygons
-            .clut = {}, // Ignored for untextured polygons 
+            .clut = {}, // Ignored for untextured polygons
+            .dithering = dithering,
         });
     }
 }
 
-auto festation::Renderer::drawPolygonTextured(const PolygonPrimitiveData &polygonData, TexturePageColorsDepth colorDepth) -> void
+auto festation::Renderer::drawPolygonTextured(const PolygonPrimitiveData &polygonData, TexturePageColorsDepth colorDepth, bool dithering) -> void
 {
     if (m_vertices.size() >= MAX_VERTICES_PER_PRIMITIVE * MAX_PRIMITIVES_COUNT) {
         renderBatch();
@@ -355,9 +359,9 @@ auto festation::Renderer::drawPolygonTextured(const PolygonPrimitiveData &polygo
         }
         else {
             vertexColor = glm::vec4 {
-                polygonData.colors[vertexId].r / 255.0f,
-                polygonData.colors[vertexId].g / 255.0f,
-                polygonData.colors[vertexId].b / 255.0f,
+                polygonData.colors[vertexId].r,
+                polygonData.colors[vertexId].g,
+                polygonData.colors[vertexId].b,
                 polygonData.colors[vertexId].a,
             };
         }
@@ -373,6 +377,7 @@ auto festation::Renderer::drawPolygonTextured(const PolygonPrimitiveData &polygo
             .bppDepth = getBppDepthFromRegBits(colorDepth),
             .texpage = polygonData.page,
             .clut = polygonData.clut,
+            .dithering = dithering,
         });
     }
 }
