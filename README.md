@@ -3,7 +3,7 @@
 An experimental Sony Playstation 1 (PSX) emulator written in C++. This projects is currently in development and aims to be cross-platform (development under Linux).
 
 ### Progress
-<img width="1025" height="542" alt="imagen" src="https://github.com/user-attachments/assets/199762ef-9e75-49e3-ab32-ba8e26786f09" />
+<img width="1022" height="540" alt="imagen" src="https://github.com/user-attachments/assets/a9693387-96c8-4b5c-a92f-701e67064027" />
 
 ## Copyright
 
