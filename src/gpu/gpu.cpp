@@ -104,7 +104,7 @@ auto festation::PsxGpu::renderFrame() -> void
 
 auto festation::PsxGpu::parseCommandGP0(uint32_t commandWord) -> void
 {
-    LOG_DEBUG("Getting GP0 command ({:08X}h)", commandWord);
+    // LOG_DEBUG("Getting GP0 command ({:08X}h)", commandWord);
 
     uint8_t command = commandWord >> 29;
     uint8_t fullCmd = commandWord >> 24;

@@ -148,9 +148,7 @@ uint8_t festation::MIPS_R3000A_Core::executeInstruction()
 
     //LOG_DEBUG("* Executing instruction: 0x{:08X}  at address 0x{:08X} *", instruction, r3000a_regs.pc - 4);
 
-    MipsInstruction instructionCodePtr = decodeInstruction(currentInstruction);
-
-    instructionCodePtr();
+    decodeAndExecuteInstruction(currentInstruction);
 
     r3000a_regs.gpr_regs[0] = 0; // $0 or $zero is always zero
 
@@ -223,10 +221,9 @@ uint32_t festation::MIPS_R3000A_Core::fetchInstruction()
     return instruction;
 }
 
-festation::MipsInstruction festation::MIPS_R3000A_Core::decodeInstruction(uint32_t instruction)
+void festation::MIPS_R3000A_Core::decodeAndExecuteInstruction(uint32_t instruction)
 {
     uint8_t opcode = getInstOpcode(instruction);
-
 
     switch(opcode)
     {
@@ -241,71 +238,101 @@ festation::MipsInstruction festation::MIPS_R3000A_Core::decodeInstruction(uint32
             switch(function)
             {
             case 0x00:
-                return [=]() { sll(*this, rd, rt, shift); };
+                sll(*this, rd, rt, shift);
+                break;
             case 0x02:
-                return [=]() { srl(*this, rd, rt, shift); };
+                srl(*this, rd, rt, shift);
+                break;
             case 0x03:
-                return [=]() { sra(*this, rd, rt, shift); };
+                sra(*this, rd, rt, shift);
+                break;
             case 0x04:
-                return [=]() { sllv(*this, rd, rt, rs); };
+                sllv(*this, rd, rt, rs);
+                break;
             case 0x06:
-                return [=]() { srlv(*this, rd, rt, rs); };
+                srlv(*this, rd, rt, rs);
+                break;
             case 0x07:
-                return [=]() { srav(*this, rd, rt, rs); };
+                srav(*this, rd, rt, rs);
+                break;
             case 0x08:
-                return [=]() { jr(*this, rs); };
+                jr(*this, rs);
+                break;
             case 0x09:
-                return [=]() { jalr(*this, rs, rd); };
+                jalr(*this, rs, rd);
+                break;
             case 0x0C:
-                return [=]() { syscall(*this, getSyscallBreakCode(instruction)); };
+                syscall(*this, getSyscallBreakCode(instruction));
+                break;
             case 0x0D:
-                return [=]() { _break(*this, getSyscallBreakCode(instruction)); };
+                _break(*this, getSyscallBreakCode(instruction));
+                break;
             case 0x10:
-                return [=]() { mfhi(*this, rd); };
+                mfhi(*this, rd);
+                break;
             case 0x11:
-                return [=]() { mthi(*this, rs); };
+                mthi(*this, rs);
+                break;
             case 0x12:
-                return [=]() { mflo(*this, rd); };
+                mflo(*this, rd);
+                break;
             case 0x13:
-                return [=]() { mtlo(*this, rs); };
+                mtlo(*this, rs);
+                break;
             case 0x18:
-                return [=]() { mult(*this, rs, rt); };
+                mult(*this, rs, rt);
+                break;
             case 0x19:
-                return [=]() { multu(*this, rs, rt); };
+                multu(*this, rs, rt);
+                break;
             case 0x1A:
-                return [=]() { div(*this, rs, rt); };
+                div(*this, rs, rt);
+                break;
             case 0x1B:
-                return [=]() { divu(*this, rs, rt); };
+                divu(*this, rs, rt);
+                break;
             case 0x20:
-                return [=]() { add(*this, rd, rs, rt); };
+                add(*this, rd, rs, rt);
+                break;
             case 0x21:
-                return [=]() { addu(*this, rd, rs, rt); };
+                addu(*this, rd, rs, rt);
+                break;
             case 0x22:
-                return [=]() { sub(*this, rd, rs, rt); };
+                sub(*this, rd, rs, rt);
+                break;
             case 0x23:
-                return [=]() { subu(*this, rd, rs, rt); };
+                subu(*this, rd, rs, rt);
+                break;
             case 0x24:
-                return [=]() { _and(*this, rd, rs, rt); };
+                _and(*this, rd, rs, rt);
+                break;
             case 0x25:
-                return [=]() { _or(*this, rd, rs, rt); };
+                _or(*this, rd, rs, rt);
+                break;
             case 0x26:
-                return [=]() { _xor(*this, rd, rs, rt); };
+                _xor(*this, rd, rs, rt);
+                break;
             case 0x27:
-                return [=]() { nor(*this, rd, rs, rt); };
+                nor(*this, rd, rs, rt);
+                break;
             case 0x2A:
-                return [=]() { slt(*this, rd, rs, rt); };
+                slt(*this, rd, rs, rt);
+                break;
             case 0x2B:
-                return [=]() { sltu(*this, rd, rs, rt); };
+                sltu(*this, rd, rs, rt);
+                break;
             default:
                 LOG_ERROR("Unimplemented or invalid R-type instruction! Function opcode: {:02X} - from hex MIPS instruction encoding ({:08X})\n", function, instruction);
-                return []() {};
+                break;
             }
         }
         break;
     case 0x2:   // J-FORMAT INSTRUCTION "J"
-        return [=]() { j(*this, getInstAddress(instruction)); };
+        j(*this, getInstAddress(instruction));
+        break;
     case 0x3:   // J-FORMAT INSTRUCTION "JAL"
-        return [=]() { jal(*this, getInstAddress(instruction)); };
+        jal(*this, getInstAddress(instruction));
+        break;
     default:    // I-FORMAT INSTRUCTION
         {
             uint8_t opcode = getInstOpcode(instruction);
@@ -323,55 +350,67 @@ festation::MipsInstruction festation::MIPS_R3000A_Core::decodeInstruction(uint32
 
                 if (!ezBit && !linkBit)
                 {
-                    return [=]() { bltz(*this, rs, imm16); };
+                    bltz(*this, rs, imm16);
                 }
                 else if (ezBit && !linkBit)
                 {
-                    return [=]() { bgez(*this, rs, imm16); };  
+                    bgez(*this, rs, imm16);
                 }
                 else if (!ezBit && linkBit)
                 {
-                    return [=]() { bltzal(*this, rs, imm16); };
+                    bltzal(*this, rs, imm16);
                 }
                 else if (ezBit && linkBit)
                 {
-                    return [=]() { bgezal(*this, rs, imm16); };
+                    bgezal(*this, rs, imm16);
                 }
                 else
                 {
                     LOG_ERROR("Unimplemented or invalid I-type BcondZ instruction! rt bits: {:02} - from hex MIPS instruction encoding ({:08X})\n", rt, instruction);
-                    return []() {};
                 }
             }
+                break;
             case 0x04:
-                return [=]() { beq(*this, rs, rt, imm16); };
+                beq(*this, rs, rt, imm16);
+                break;
             case 0x05:
-                return [=]() { bne(*this, rs, rt, imm16); };
+                bne(*this, rs, rt, imm16);
+                break;
             case 0x06:
-                return [=]() { blez(*this, rs, imm16); };
+                blez(*this, rs, imm16);
+                break;
             case 0x07:
-                return [=]() { bgtz(*this, rs, imm16); };
+                bgtz(*this, rs, imm16);
+                break;
             case 0x08:
-                return [=]() { addi(*this, rt, rs, imm16); };
+                addi(*this, rt, rs, imm16);
+                break;
             case 0x09:
-                return [=]() { addiu(*this, rt, rs, imm16); };
+                addiu(*this, rt, rs, imm16);
+                break;
             case 0x0A:
-                return [=]() { slti(*this, rt, rs, imm16); };
+                slti(*this, rt, rs, imm16);
+                break;
             case 0x0B:
-                return [=]() { sltiu(*this, rt, rs, imm16); };
+                sltiu(*this, rt, rs, imm16);
+                break;
             case 0x0C:
-                return [=]() { andi(*this, rt, rs, imm16); };
+                andi(*this, rt, rs, imm16);
+                break;
             case 0x0D:
-                return [=]() { ori(*this, rt, rs, imm16); };
+                ori(*this, rt, rs, imm16);
+                break;
             case 0x0E:
-                return [=]() { xori(*this, rt, rs, imm16); };
+                xori(*this, rt, rs, imm16);
+                break;
             case 0x0F:
-                return [=]() { lui(*this, rt, imm16); };
+                lui(*this, rt, imm16);
+                break;
             case 0x10: // COP0
                 if (rs == 0b10000)
                 {
                     // We don't check last 6 bits because PS1 CPU doesn't have TLB
-                    return [=]() { rfe(*this); };
+                    rfe(*this);
                 }
                 else
                 {
@@ -381,72 +420,89 @@ festation::MipsInstruction festation::MIPS_R3000A_Core::decodeInstruction(uint32
                     switch (rs) // We don't need to check for more opcodes on COP0
                     {
                     case 0b00000:
-                        return [=]() { mfc0(*this, rtcop0, rdcop0); };
+                        mfc0(*this, rtcop0, rdcop0);
+                        break;
                     case 0b00100:
-                        return [=]() { mtc0(*this, rtcop0, rdcop0); };
+                        mtc0(*this, rtcop0, rdcop0);
+                        break;
                     default:
                         LOG_ERROR("Unimplemented or invalid COP0 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
-                        return []() {};
+                        break;
                     }
                 }
+                break;
             case 0x11: // COP1
                 LOG_ERROR("Unimplemented or invalid COP1 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
-                return []() {};
+                break;
             case 0x12: // COP2
                 LOG_ERROR("Unimplemented or invalid COP2 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
-                return []() {};
+                break;
             case 0x13: // COP3
                 LOG_ERROR("Unimplemented or invalid COP3 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
-                return []() {};
+                break;
             case 0x20:
-                return [=]() { lb(*this, rt, rs, imm16); };
+                lb(*this, rt, rs, imm16);
+                break;
             case 0x21:
-                return [=]() { lh(*this, rt, rs, imm16); };
+                lh(*this, rt, rs, imm16);
+                break;
             case 0x22:
-                return [=]() { lwl(*this, rt, rs, imm16); };
+                lwl(*this, rt, rs, imm16);
+                break;
             case 0x23:
-                return [=]() { lw(*this, rt, rs, imm16); };
+                lw(*this, rt, rs, imm16);
+                break;
             case 0x24:
-                return [=]() { lbu(*this, rt, rs, imm16); };
+                lbu(*this, rt, rs, imm16);
+                break;
             case 0x25:
-                return [=]() { lhu(*this, rt, rs, imm16); };
+                lhu(*this, rt, rs, imm16);
+                break;
             case 0x26:
-                return [=]() { lwr(*this, rt, rs, imm16); };
+                lwr(*this, rt, rs, imm16);
+                break;
             case 0x28:
-                return [=]() { sb(*this, rt, rs, imm16); };
+                sb(*this, rt, rs, imm16);
+                break;
             case 0x29:
-                return [=]() { sh(*this, rt, rs, imm16); };
+                sh(*this, rt, rs, imm16);
+                break;
             case 0x2A:
-                return [=]() { swl(*this, rt, rs, imm16); };
+                swl(*this, rt, rs, imm16);
+                break;
             case 0x2B:
-                return [=]() { sw(*this, rt, rs, imm16); };
+                sw(*this, rt, rs, imm16);
+                break;
             case 0x2E:
-                return [=]() { swr(*this, rt, rs, imm16); };
+                swr(*this, rt, rs, imm16);
+                break;
             case 0x30: // COP0
-                return [=]() { lwc0(*this, rt, rs, imm16); };
+                lwc0(*this, rt, rs, imm16);
+                break;
             case 0x31: // COP1
                 LOG_ERROR("Unimplemented or invalid COP1 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
-                return []() {};
+                break;
             case 0x32: // COP2
                 LOG_ERROR("Unimplemented or invalid COP2 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
-                return []() {};
+                break;
             case 0x33: // COP3
                 LOG_ERROR("Unimplemented or invalid COP3 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
-                return []() {};
+                break;
             case 0x38: // COP0
-                return [=]() { swc0(*this, rt, rs, imm16); };
+                swc0(*this, rt, rs, imm16);
+                break;
             case 0x39: // COP1
                 LOG_ERROR("Unimplemented or invalid COP1 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
-                return []() {};
+                break;
             case 0x3A: // COP2
                 LOG_ERROR("Unimplemented or invalid COP2 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
-                return []() {};
+                break;
             case 0x3B: // COP3
                 LOG_ERROR("Unimplemented or invalid COP3 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
-                return []() {};
+                break;
             default:
                 LOG_ERROR("Unimplemented or invalid I-type instruction! Instruction opcode: {:02X} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
-                return []() {};
+                break;
             } 
         }
         break;

@@ -42,6 +42,14 @@ uint8_t festation::PSXSystem::read8(uint32_t address)
     }
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
+        if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
+        {
+            LOG_DEBUG("Read8 from Timer port address 0x{:08X}", masked_address);
+        }
+        else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
+        {
+            LOG_DEBUG("Read8 from CDROM port address 0x{:08X}", masked_address);
+        }
         // LOG_DEBUG("Read8 from I/O port address 0x{:08X}", masked_address);
         return 0;
     }
@@ -82,6 +90,14 @@ uint16_t festation::PSXSystem::read16(uint32_t address)
     }
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
+        if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
+        {
+            LOG_DEBUG("Read16 from Timer port address 0x{:08X}", masked_address);
+        }
+        else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
+        {
+            LOG_DEBUG("Read16 from CDROM port address 0x{:08X}", masked_address);
+        }
         // LOG_DEBUG("Read16 from I/O port address 0x{:08X}", masked_address);
         return 0;
     }
@@ -137,7 +153,15 @@ uint32_t festation::PSXSystem::read32(uint32_t address)
             if (masked_address >= 0x1F801080 && masked_address <= 0x1F8010FF)
             {
                 readValue = m_dma.read32(masked_address);
-                LOG_DEBUG("Reading {:08X}h from DMA IO port 0x{:08X}", readValue, masked_address);
+                // LOG_DEBUG("Reading {:08X}h from DMA IO port 0x{:08X}", readValue, masked_address);
+            }
+            else if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
+            {
+                LOG_DEBUG("Read32 from Timer port address 0x{:08X}", masked_address);
+            }
+            else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
+            {
+                LOG_DEBUG("Read32 from CDROM port address 0x{:08X}", masked_address);
             }
             else
             {
@@ -188,6 +212,14 @@ void festation::PSXSystem::write8(uint32_t address, uint8_t value)
     }
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
+        if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
+        {
+            LOG_DEBUG("Write8 ({:02X}h) to Timer port address 0x{:08X}", value, masked_address);
+        }
+        else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
+        {
+            LOG_DEBUG("Write8 ({:02X}h) to CDROM port address 0x{:08X}", value, masked_address);
+        }
         // LOG_DEBUG("Write8 ({:02X}h) to I/O port address 0x{:08X}", value, masked_address);
     }
     else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
@@ -225,6 +257,14 @@ void festation::PSXSystem::write16(uint32_t address, uint16_t value)
     }
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
+        if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
+        {
+            LOG_DEBUG("Write16 ({:02X}h) to Timer port address 0x{:08X}", value, masked_address);
+        }
+        else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
+        {
+            LOG_DEBUG("Write16 ({:02X}h) to CDROM port address 0x{:08X}", value, masked_address);
+        }
         // LOG_DEBUG("Write16 ({:04X}h) to I/O port address 0x{:08X}", value, masked_address);
     }
     else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
@@ -272,9 +312,17 @@ void festation::PSXSystem::write32(uint32_t address, uint32_t value)
         default:
             if (masked_address >= 0x1F801080 && masked_address <= 0x1F8010FF)
             {
-                LOG_DEBUG("Writting {:08X}h to DMA IO port 0x{:08X}", value, masked_address);
+                // LOG_DEBUG("Writting {:08X}h to DMA IO port 0x{:08X}", value, masked_address);
                 m_dma.write32(masked_address, value);
-            } 
+            }
+            else if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
+            {
+                LOG_DEBUG("Write32 ({:02X}h) to Timer port address 0x{:08X}", value, masked_address);
+            }
+            else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
+            {
+                LOG_DEBUG("Write32 ({:02X}h) to CDROM port address 0x{:08X}", value, masked_address);
+            }
             else
             {
                 // LOG_DEBUG("Write32 ({:08X}h) to I/O port address 0x{:08X}", value, masked_address);

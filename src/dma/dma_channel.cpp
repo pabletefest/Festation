@@ -132,7 +132,7 @@ festation::Dma2Gpu::~Dma2Gpu()
 
 auto festation::Dma2Gpu::startTransfer() -> void
 {
-    LOG_DEBUG("(DMA): Starting DMA2 GPU transfer...");
+    // LOG_DEBUG("(DMA): Starting DMA2 GPU transfer...");
 
     std::function<void(uint32_t)> transferWordFn;
 
@@ -204,7 +204,7 @@ auto festation::Dma2Gpu::startTransfer() -> void
 
     endTransfer();
 
-    LOG_DEBUG("(DMA): DMA2 GPU transfer ended");
+    // LOG_DEBUG("(DMA): DMA2 GPU transfer ended");
 }
 
 festation::Dma3Cdrom::Dma3Cdrom(PSXSystem& system)
@@ -262,7 +262,7 @@ auto festation::Dma6Otc::startTransfer() -> void
         return;
     }
 
-    LOG_DEBUG("(DMA): Starting DMA6 OTC transfer...");
+    // LOG_DEBUG("(DMA): Starting DMA6 OTC transfer...");
 
     uint32_t startAddress = D_MADR.startMemoryAddress & 0x00FFFFFF;
     uint32_t wordsCount = 0;
@@ -291,7 +291,7 @@ auto festation::Dma6Otc::startTransfer() -> void
 
     endTransfer();
 
-    LOG_DEBUG("(DMA): DMA6 OTC transfer ended");
+    // LOG_DEBUG("(DMA): DMA6 OTC transfer ended");
 }
 
 auto festation::Dma6Otc::modifyControlRegister(uint32_t value) -> void
