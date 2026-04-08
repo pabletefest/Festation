@@ -27,19 +27,19 @@ auto festation::PsxGpu::read32(uint32_t address) -> uint32_t
             && m_vramCpuBlitCmdInfo.cmdState == BlittingCommandsState::ReceivingData) {               
             const auto lengthX = m_vramCpuBlitCmdInfo.size2D.x;
             const auto lengthY = m_vramCpuBlitCmdInfo.size2D.y;
-            const auto y = m_vramCpuBlitCmdInfo.srcCoord.y;
-            const auto x = m_vramCpuBlitCmdInfo.srcCoord.x;
-            const auto offsetX = (m_vramCpuBlitCmdInfo.size - m_remainingCmdArg) % lengthX;
-            const auto offsetY = (m_vramCpuBlitCmdInfo.size - m_remainingCmdArg) / lengthY;
-            const auto destY = y + offsetY;
-            const auto destX = x + offsetX;
-            size_t offsetDst = (destY * VRAM_WIDTH) + destX;
+            const auto coordY = m_vramCpuBlitCmdInfo.srcCoord.y;
+            const auto coordX = m_vramCpuBlitCmdInfo.srcCoord.x;
+            const auto offsetX = (m_vramCpuBlitCmdInfo.currentWord * 2) % lengthX;
+            const auto offsetY = (m_vramCpuBlitCmdInfo.currentWord * 2) / lengthX;
+            const auto destY = coordY + offsetY;
+            const auto destX = coordX + offsetX;
+            size_t offsetSrc = (destY * VRAM_WIDTH) + destX;
 
-            m_gp0ReadValue = m_vram[offsetDst];
-            m_gp0ReadValue |= m_vram[offsetDst + 1] << 16;
-            m_remainingCmdArg -= 2;
+            m_gp0ReadValue = m_vram[offsetSrc];
+            m_gp0ReadValue |= m_vram[offsetSrc + 1] << 16;
+            m_vramCpuBlitCmdInfo.currentWord++;
 
-            if (m_remainingCmdArg == 0) {
+            if (m_vramCpuBlitCmdInfo.currentWord == m_vramCpuBlitCmdInfo.totalWords) {
                 processResetCommandBufferCmd();
             }
         }
@@ -455,7 +455,8 @@ auto festation::PsxGpu::processGP0VramCpuBlitCmd(uint32_t parameter) -> void
             m_vramCpuBlitCmdInfo.size2D.y = (((sizeCoordParam >> 16) - 1) & 0x1FFu) + 1;
 
             m_vramCpuBlitCmdInfo.size = m_vramCpuBlitCmdInfo.size2D.x * m_vramCpuBlitCmdInfo.size2D.y;
-            m_remainingCmdArg = m_vramCpuBlitCmdInfo.size;
+            m_vramCpuBlitCmdInfo.totalWords = (m_cpuVramBlitCmdInfo.size + 1) / 2;
+            m_vramCpuBlitCmdInfo.currentWord = 0;
             m_vramCpuBlitCmdInfo.cmdState = BlittingCommandsState::ReceivingData;
         }
         break;

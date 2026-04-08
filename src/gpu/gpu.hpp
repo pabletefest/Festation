@@ -115,6 +115,8 @@ namespace festation {
             glm::u16vec2 srcCoord;
             glm::u16vec2 size2D;
             size_t size;
+            size_t totalWords;
+            size_t currentWord;
         } m_vramCpuBlitCmdInfo;
 
         uint32_t m_gp0ReadValue;

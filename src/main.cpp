@@ -85,6 +85,7 @@ int main(int, char**)
     // path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/HelloWorld/16BPP/HelloWorld16BPP.exe");
     // path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/GPU/16BPP/RenderRectangle/RenderRectangle16BPP.exe");
     // path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/GPU/16BPP/RenderPolygon/RenderPolygon16BPP.exe");
+    // path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/GPU/16BPP/RenderTexturePolygon/CLUT4BPP/RenderTexturePolygonCLUT4BPP.exe");
     // path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/GPU/16BPP/MemoryTransfer/MemoryTransfer16BPP.exe");
     // path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/GPU/24BPP/MemoryTransfer/MemoryTransfer24BPP.exe");
     // path = std::filesystem::current_path().concat("/../../../res/tests/Jakub-PSX/dma/otc-test/otc-test.exe");
