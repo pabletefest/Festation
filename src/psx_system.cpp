@@ -42,14 +42,26 @@ uint8_t festation::PSXSystem::read8(uint32_t address)
     }
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
-        if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
+        switch(masked_address)
         {
-            LOG_DEBUG("Read8 from Timer port address 0x{:08X}", masked_address);
+        case 0x1F801070:
+            LOG_DEBUG("Read16 from I_STAT INT port 0x{:08X}", masked_address);
+            break;
+        case 0x1F801074:
+            LOG_DEBUG("Read16 from I_MASK INT port 0x{:08X}", masked_address);
+            break;
+        default:
+            if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
+            {
+                LOG_DEBUG("Read8 from Timer port address 0x{:08X}", masked_address);
+            }
+            else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
+            {
+                LOG_DEBUG("Read8 from CDROM port address 0x{:08X}", masked_address);
+            }
+            break;
         }
-        else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
-        {
-            LOG_DEBUG("Read8 from CDROM port address 0x{:08X}", masked_address);
-        }
+
         // LOG_DEBUG("Read8 from I/O port address 0x{:08X}", masked_address);
         return 0;
     }
@@ -90,14 +102,26 @@ uint16_t festation::PSXSystem::read16(uint32_t address)
     }
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
-        if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
+        switch(masked_address)
         {
-            LOG_DEBUG("Read16 from Timer port address 0x{:08X}", masked_address);
+        case 0x1F801070:
+            LOG_DEBUG("Read16 from I_STAT INT port 0x{:08X}", masked_address);
+            break;
+        case 0x1F801074:
+            LOG_DEBUG("Read16 from I_MASK INT port 0x{:08X}", masked_address);
+            break;
+        default:
+            if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
+            {
+                LOG_DEBUG("Read16 from Timer port address 0x{:08X}", masked_address);
+            }
+            else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
+            {
+                LOG_DEBUG("Read16 from CDROM port address 0x{:08X}", masked_address);
+            }
+            break;
         }
-        else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
-        {
-            LOG_DEBUG("Read16 from CDROM port address 0x{:08X}", masked_address);
-        }
+
         // LOG_DEBUG("Read16 from I/O port address 0x{:08X}", masked_address);
         return 0;
     }
@@ -149,6 +173,12 @@ uint32_t festation::PSXSystem::read32(uint32_t address)
             // LOG_DEBUG("Reading {:08X}h from GPU IO port 0x{:08X}", readValue, masked_address);
             break;
         }
+        case 0x1F801070:
+            LOG_DEBUG("Read32 from I_STAT INT port 0x{:08X}", masked_address);
+            break;
+        case 0x1F801074:
+            LOG_DEBUG("Read32 from I_MASK INT port 0x{:08X}", masked_address);
+            break;
         default:
             if (masked_address >= 0x1F801080 && masked_address <= 0x1F8010FF)
             {
@@ -158,6 +188,8 @@ uint32_t festation::PSXSystem::read32(uint32_t address)
             else if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
             {
                 LOG_DEBUG("Read32 from Timer port address 0x{:08X}", masked_address);
+                // TEMP
+                return (m_totalElapsedCycles > 0) ? (0xFFFF0000 | (m_totalElapsedCycles & 0xFFFF)) : 1;
             }
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
             {
@@ -212,13 +244,24 @@ void festation::PSXSystem::write8(uint32_t address, uint8_t value)
     }
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
-        if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
+        switch(masked_address)
         {
-            LOG_DEBUG("Write8 ({:02X}h) to Timer port address 0x{:08X}", value, masked_address);
-        }
-        else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
-        {
-            LOG_DEBUG("Write8 ({:02X}h) to CDROM port address 0x{:08X}", value, masked_address);
+        case 0x1F801070:
+            LOG_DEBUG("Write8 to I_STAT INT port 0x{:08X}", masked_address);
+            break;
+        case 0x1F801074:
+            LOG_DEBUG("Write8 to I_MASK INT port 0x{:08X}", masked_address);
+            break;
+        default:
+            if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
+            {
+                LOG_DEBUG("Write8 to Timer port address 0x{:08X}", masked_address);
+            }
+            else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
+            {
+                LOG_DEBUG("Write8 to CDROM port address 0x{:08X}", masked_address);
+            }
+            break;
         }
         // LOG_DEBUG("Write8 ({:02X}h) to I/O port address 0x{:08X}", value, masked_address);
     }
@@ -257,13 +300,24 @@ void festation::PSXSystem::write16(uint32_t address, uint16_t value)
     }
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
-        if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
+        switch(masked_address)
         {
-            LOG_DEBUG("Write16 ({:02X}h) to Timer port address 0x{:08X}", value, masked_address);
-        }
-        else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
-        {
-            LOG_DEBUG("Write16 ({:02X}h) to CDROM port address 0x{:08X}", value, masked_address);
+        case 0x1F801070:
+            LOG_DEBUG("Write16 to I_STAT INT port 0x{:08X}", masked_address);
+            break;
+        case 0x1F801074:
+            LOG_DEBUG("Write16 to I_MASK INT port 0x{:08X}", masked_address);
+            break;
+        default:
+            if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
+            {
+                LOG_DEBUG("Write16 to Timer port address 0x{:08X}", masked_address);
+            }
+            else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
+            {
+                LOG_DEBUG("Write16 to CDROM port address 0x{:08X}", masked_address);
+            }
+            break;
         }
         // LOG_DEBUG("Write16 ({:04X}h) to I/O port address 0x{:08X}", value, masked_address);
     }
@@ -309,6 +363,12 @@ void festation::PSXSystem::write32(uint32_t address, uint32_t value)
             // LOG_DEBUG("Writting {:08X}h to GPU IO port 0x{:08X}", value, masked_address);
             m_gpu.write32(masked_address, value);
             break;
+        case 0x1F801070:
+            LOG_DEBUG("Write32 to I_STAT INT port 0x{:08X}", masked_address);
+            break;
+        case 0x1F801074:
+            LOG_DEBUG("Write32 to I_MASK INT port 0x{:08X}", masked_address);
+            break;
         default:
             if (masked_address >= 0x1F801080 && masked_address <= 0x1F8010FF)
             {
@@ -317,11 +377,11 @@ void festation::PSXSystem::write32(uint32_t address, uint32_t value)
             }
             else if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
             {
-                LOG_DEBUG("Write32 ({:02X}h) to Timer port address 0x{:08X}", value, masked_address);
+                LOG_DEBUG("Write32 ({:08X}h) to Timer port address 0x{:08X}", value, masked_address);
             }
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
             {
-                LOG_DEBUG("Write32 ({:02X}h) to CDROM port address 0x{:08X}", value, masked_address);
+                LOG_DEBUG("Write32 ({:08X}h) to CDROM port address 0x{:08X}", value, masked_address);
             }
             else
             {
