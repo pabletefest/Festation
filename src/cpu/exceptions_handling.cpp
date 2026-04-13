@@ -1,25 +1,20 @@
 #include "exceptions_handling.hpp"
 #include "psx_cw33300_cpu.hpp"
-#include "utils/logger.hpp"
 
 #include <cassert>
 
 namespace festation
 {
-    enum ExceptionVectorsBEV0 : uint32_t
+    enum ExceptionVectors : uint32_t
     {
-        Reset_BEV0 = 0xBFC00000,
-        UTLB_Miss_BEV0 = 0x80000000,
-        COP0_Break_BEV0 = 0x80000040,
-        General_BEV0 = 0x80000080
-    };
-
-    enum ExceptionVectorsBEV1 : uint32_t
-    {
-        Reset_BEV1 = 0xBFC00000,
-        UTLB_Miss_BEV1 = 0xBFC00100,
-        COP0_Break_BEV1 =  0xBFC00140,
-        General_BEV1 =  0xBFC00180
+        Reset_BEV0 = 0xBFC00000u,
+        UTLB_Miss_BEV0 = 0x80000000u,
+        COP0_Break_BEV0 = 0x80000040u,
+        General_BEV0 = 0x80000080u,
+        Reset_BEV1 = 0xBFC00000u,
+        UTLB_Miss_BEV1 = 0xBFC00100u,
+        COP0_Break_BEV1 =  0xBFC00140u,
+        General_BEV1 =  0xBFC00180u
     };
 
     static void jumpToExceptionVector(MIPS_R3000A_Core& cpu, ExceptionVectorType exceptionVectorType)
