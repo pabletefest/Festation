@@ -1,6 +1,8 @@
 #include "framebuffer.hpp"
 #include "hw/OpenGL/ogl_framebuffer.hpp"
 
+#include <utility>
+
 auto festation::IFramebuffer::createUnique(const FramebufferInfo &specification) -> std::unique_ptr<IFramebuffer>
 {
     return std::make_unique<OGLFramebuffer>(specification);

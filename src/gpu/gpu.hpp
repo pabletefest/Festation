@@ -58,14 +58,7 @@ namespace festation {
         auto updateRenderProjection() -> void;
 
     private:
-        union {
-            struct {
-
-            };
-
-            uint32_t raw;
-        } GPUREAD{};
-
+        uint32_t GPUREAD{};
         union {
             struct {
                 uint32_t texturePageXBase : 4;

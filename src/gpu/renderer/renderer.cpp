@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <array>
 #include <cstddef>
+#include <utility>
 
 namespace festation {
     static constexpr size_t MAX_VERTICES_PER_PRIMITIVE = 4;

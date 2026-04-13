@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <memory>
 #include <vector>
+#include <functional>
 
 namespace festation {
     class IShader {

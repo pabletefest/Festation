@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include <cstring>
 
 static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = 565045;
 

@@ -3,6 +3,7 @@
 #include "utils/logger.hpp"
 
 #include <cassert>
+#include <cstring>
 
 festation::DmaChannel::DmaChannel(PSXSystem& system)
     : D_MADR({}), D_BCR({}), D_CHCR({}), m_system(system)

@@ -4,6 +4,7 @@
 
 #include <print>
 #include <cassert>
+#include <utility>
 
 struct GLTextureFormat {
     GLenum internalFormat;

@@ -3,11 +3,12 @@
 #include "utils/logger.hpp"
 
 #include <utility>
+#include <cstring>
 
 #include <glm/gtc/matrix_transform.hpp>
 
 festation::PsxGpu::PsxGpu()
-    : GPUREAD({}), GPUSTAT({}), m_commandState(GpuCommandsState::WaitingForCommand),
+    : GPUREAD(0), GPUSTAT({}), m_commandState(GpuCommandsState::WaitingForCommand),
         m_remainingCmdArg(1), m_currentCmdParam(0), m_commandsFIFO({}), m_vram(VRAM_WIDTH * VRAM_HEIGHT), m_renderer(m_vram)
 {
     processResetGpuCmd();
@@ -44,7 +45,7 @@ auto festation::PsxGpu::read32(uint32_t address) -> uint32_t
             }
         }
         else {
-            m_gp0ReadValue = GPUREAD.raw;
+            m_gp0ReadValue = GPUREAD;
         }
 
         return m_gp0ReadValue;
