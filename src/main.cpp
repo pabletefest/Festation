@@ -1,5 +1,3 @@
-#include <print>
-#include <thread>
 #include <sstream>
 
 #include <glad/gl.h>

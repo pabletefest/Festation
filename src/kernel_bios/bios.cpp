@@ -66,9 +66,11 @@ bool festation::KernelBIOS::loadBIOSROMFile(const std::filesystem::path &filenam
 
     if (file.is_open())
     {
-        biosROM = readFile<uint8_t>(std::filesystem::path(filename));
+        std::vector<char> buffer = readFile<char>(std::filesystem::path(filename));
 
-        assert((biosROM.size() == BIOS_SIZE) && "Provided BIOS ROM file doesn't match proper PSX BIOS file size (512KB)!");
+        assert((buffer.size() == BIOS_SIZE) && "Provided BIOS ROM file doesn't match proper PSX BIOS file size (512KB)!");
+
+        biosROM = std::vector<uint8_t>(buffer.cbegin(), buffer.cend());
 
         return true;
     } 
