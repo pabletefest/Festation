@@ -1,5 +1,5 @@
 #include "renderer.hpp"
-#include "hw/OpenGL/ogl_shader.hpp"
+#include "glad/gl.h"
 
 #include <filesystem>
 #include <array>
@@ -407,7 +407,11 @@ auto festation::Renderer::renderBatch() -> void
         m_indicesCount = 0;
     }
 
+    /** @brief Clearing default framebuffer first before blitting VRAM FBO */
     glDisable(GL_SCISSOR_TEST);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     m_vramFramebuffer->blitToSwapchain();
     glEnable(GL_SCISSOR_TEST);
 }
