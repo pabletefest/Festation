@@ -64,8 +64,9 @@ if (NOT glm_FOUND)
         # add_subdirectory(${glm_SOURCE_DIR} ${glm_BINARY_DIR})
     endif()
 endif()
-set_target_properties(glm PROPERTIES FOLDER "Dependencies")
-
+if (TARGET glm::glm)
+    set_target_properties(glm::glm PROPERTIES FOLDER "Dependencies")
+endif()
 #   Project
 
 # set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
