@@ -36,6 +36,8 @@ target_sources(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/gpu/renderer/shader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/gpu/renderer/hw/OpenGL/ogl_shader.cpp
 
+    ${CMAKE_CURRENT_SOURCE_DIR}/interrupts/interrupts.cpp
+    
     ${CMAKE_CURRENT_SOURCE_DIR}/kernel_bios/bios.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/kernel_bios/tty.cpp
 
