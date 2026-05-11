@@ -1,9 +1,30 @@
 ## Festation
 
-An experimental Sony Playstation 1 (PSX) emulator written in C++. This projects is currently in development and aims to be cross-platform (currently Windows and Linux supported).
+An experimental Sony Playstation 1 (PSX) emulator written in C++ and using OpenGL for the HW renderer. This projects is currently in development and aims to be cross-platform (currently Windows and Linux supported).
 
 ### Progress
 <img width="1023" height="541" alt="imagen" src="https://github.com/user-attachments/assets/613dbd4b-26ad-4426-8370-a5f9be6475ff" />
+
+## Building
+In order to build successfully, a compiler compatible with C++23 standard is needed.
+
+The project can be built using CMake as follows:
+```sh
+git clone https://github.com/pabletefest/Festation.git
+cd Festation
+mkdir build
+cd build
+cmake ..
+```
+
+This will build the project inside the build folder using installed compiler on your system.
+
+## External dependencies
+Currently using the following third-party libraries:
+  - [GLFW 3.4](https://github.com/glfw/glfw)
+  - [Glad](https://github.com/Dav1dde/glad)
+  - [glm](https://github.com/g-truc/glm)
+  - [ImGui](https://github.com/ocornut/imgui)
 
 ## Copyright
 
