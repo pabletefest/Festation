@@ -19,6 +19,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 target_sources(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/psx_system.cpp 
 
+    ${CMAKE_CURRENT_SOURCE_DIR}/cdrom/cdrom.cpp
+
     ${CMAKE_CURRENT_SOURCE_DIR}/cpu/psx_cw33300_cpu.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/cpu/mips_r3000a_opcodes.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/cpu/coprocessor_cp0_opcodes.cpp

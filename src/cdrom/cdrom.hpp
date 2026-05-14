@@ -79,6 +79,32 @@ namespace festation {
                 
                 uint8_t raw;
             } HCLRCTL;
+
+            union {
+                struct {
+                    uint8_t ADPMUTE : 1;
+                    uint8_t reserved1 : 4;
+                    uint8_t CHNGATV : 1;
+                    uint8_t reserved2 : 2;
+                };
+                
+                uint8_t raw;
+            } ADPCTL;
+
+            union {
+                struct {
+                    uint8_t SM : 1;
+                    uint8_t reserved1 : 1;
+                    uint8_t FS : 1;
+                    uint8_t reserved2 : 1;
+                    uint8_t BITLNGTH : 1;
+                    uint8_t reserved3 : 1;
+                    uint8_t EMPHASIS : 1;
+                    uint8_t reserved4 : 1;
+                };
+                
+                uint8_t raw;
+            } CI;
         } m_regs;
     };
 };
