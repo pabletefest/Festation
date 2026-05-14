@@ -65,8 +65,16 @@ if (NOT glm_FOUND)
     endif()
 endif()
 if (TARGET glm::glm)
-    set_target_properties(glm::glm PROPERTIES FOLDER "Dependencies")
+    get_target_property(realTarget glm::glm ALIASED_TARGET)
+    if (realTarget)
+        # glm::glm is an alias → modify the real target
+        set_target_properties(${realTarget} PROPERTIES FOLDER "Dependencies")
+    else()
+        # glm::glm is a real target → modify directly
+        set_target_properties(glm::glm PROPERTIES FOLDER "Dependencies")
+    endif()
 endif()
+
 #   Project
 
 # set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
