@@ -111,23 +111,8 @@ int main(int, char**)
         delta = current - time;
         time = current;
 
-        std::stringstream strStream;
-        strStream << festation::EMU_TITLE;
-        strStream << " | ";
-
-        if (!path.empty())
-        {
-            strStream << path.filename().string();
-        }
-        else
-        {
-            strStream << "No disc";
-        }
-
-        strStream << " | ";
-        strStream << std::format("{:.2f}", 1.0f / delta);
-        strStream << " FPS";
-        glfwSetWindowTitle(window, strStream.str().c_str());
+        std::string windowTitle =  std::format("{} | {} | {:.2f} FPS", festation::EMU_TITLE, (path.empty()) ? "No disc" : path.filename().string(), 1.0f / delta);
+        glfwSetWindowTitle(window, windowTitle.c_str());
 
         psxSystem.runWholeFrame();
 
