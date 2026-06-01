@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <cstring>
+#include <utility>
 
 static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = 565045;
 
@@ -59,6 +60,7 @@ uint8_t festation::PSXSystem::read8(uint32_t address)
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
             {
                 LOG_DEBUG("Read8 from CDROM port address 0x{:08X}", masked_address);
+                return m_cdrom.read8(address);
             }
             break;
         }
@@ -119,6 +121,7 @@ uint16_t festation::PSXSystem::read16(uint32_t address)
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
             {
                 LOG_DEBUG("Read16 from CDROM port address 0x{:08X}", masked_address);
+                std::unreachable();
             }
             break;
         }
@@ -195,6 +198,7 @@ uint32_t festation::PSXSystem::read32(uint32_t address)
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
             {
                 LOG_DEBUG("Read32 from CDROM port address 0x{:08X}", masked_address);
+                std::unreachable();
             }
             else
             {
@@ -260,7 +264,8 @@ void festation::PSXSystem::write8(uint32_t address, uint8_t value)
             }
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
             {
-                LOG_DEBUG("Write8 to CDROM port address 0x{:08X}", masked_address);
+                LOG_DEBUG("Write8 ({:02X}h) to CDROM port address 0x{:08X}", value, masked_address);
+                m_cdrom.write8(address, value);
             }
             break;
         }
@@ -316,7 +321,8 @@ void festation::PSXSystem::write16(uint32_t address, uint16_t value)
             }
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
             {
-                LOG_DEBUG("Write16 to CDROM port address 0x{:08X}", masked_address);
+                LOG_DEBUG("Write16 ({:04X}h) to CDROM port address 0x{:08X}", masked_address);
+                std::unreachable();
             }
             break;
         }
@@ -383,6 +389,7 @@ void festation::PSXSystem::write32(uint32_t address, uint32_t value)
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
             {
                 LOG_DEBUG("Write32 ({:08X}h) to CDROM port address 0x{:08X}", value, masked_address);
+                std::unreachable();
             }
             else
             {

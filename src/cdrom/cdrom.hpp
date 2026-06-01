@@ -9,7 +9,6 @@ namespace festation {
         ~CdromDrive();
 
         auto read8(uint32_t address) -> uint8_t;
-        auto read16(uint32_t address) -> uint16_t;
         auto write8(uint32_t address, uint8_t value) -> void;
 
     private:
@@ -26,10 +25,10 @@ namespace festation {
                 };
 
                 uint8_t raw;
-            } HSTS;
+            } HSTS{};
 
-            uint8_t COMMAND;
-            uint8_t PARAMETER;
+            uint8_t COMMAND{};
+            uint8_t PARAMETER{};
 
             union {
                 struct {
@@ -40,10 +39,10 @@ namespace festation {
                 };
                 
                 uint8_t raw;
-            } HCHPCTL;
+            } HCHPCTL{};
 
-            uint16_t RDDATA;
-            uint8_t RESULT;
+            uint16_t RDDATA{};
+            uint8_t RESULT{};
 
             union {
                 struct {
@@ -54,7 +53,7 @@ namespace festation {
                 };
                 
                 uint8_t raw;
-            } HINTSTS;
+            } HINTSTS{};
 
             union {
                 struct {
@@ -65,7 +64,7 @@ namespace festation {
                 };
                 
                 uint8_t raw;
-            } HINTMSK;
+            } HINTMSK{};
 
             union {
                 struct {
@@ -78,7 +77,7 @@ namespace festation {
                 };
                 
                 uint8_t raw;
-            } HCLRCTL;
+            } HCLRCTL{};
 
             union {
                 struct {
@@ -89,7 +88,7 @@ namespace festation {
                 };
                 
                 uint8_t raw;
-            } ADPCTL;
+            } ADPCTL{};
 
             union {
                 struct {
@@ -104,7 +103,7 @@ namespace festation {
                 };
                 
                 uint8_t raw;
-            } CI;
+            } CI{};
         } m_regs;
     };
 };
