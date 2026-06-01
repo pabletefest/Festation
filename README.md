@@ -1,6 +1,6 @@
 ## Festation
 
-An experimental Sony Playstation 1 (PSX) emulator written in C++ and using OpenGL for the HW renderer. This projects is currently in development and aims to be cross-platform (currently Windows and Linux supported).
+An experimental Sony Playstation 1 (PSX) emulator written in C++ and using OpenGL for the HW renderer (educational purpose). This projects is currently in development and aims to be cross-platform (currently Windows and Linux supported).
 
 ### Progress
 <img width="1023" height="541" alt="imagen" src="https://github.com/user-attachments/assets/613dbd4b-26ad-4426-8370-a5f9be6475ff" />
