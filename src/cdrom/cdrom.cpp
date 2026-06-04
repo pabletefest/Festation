@@ -5,6 +5,8 @@
 festation::CdromDrive::CdromDrive()
 {
     m_regs.HINTSTS.reserved = 0x7;
+    m_regs.HSTS.PRMEMPT = 1;
+    m_regs.HSTS.PRMWRDY = 1;
 }
 
 festation::CdromDrive::~CdromDrive()
@@ -22,7 +24,7 @@ auto festation::CdromDrive::read8(uint32_t address) -> uint8_t
         return m_regs.RESULT;
     case 0x1F801802:
         /** @todo */
-        return m_regs.RDDATA & 0xFF;
+        break;
     case 0x1F801803:
         switch (m_regs.HSTS.RA)
         {
