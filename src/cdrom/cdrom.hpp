@@ -19,19 +19,26 @@ namespace festation {
         /** @todo Move this container to its own utility file */
         template<size_t N>
         class FifoCircularBuffer {
-            std::array<uint8_t, N> buffer;
-            uint8_t currentIndex;
-
+        public:
             inline auto next() -> uint8_t { 
                 uint8_t item = buffer[currentIndex];
                 currentIndex = (currentIndex + 1) & (BUFFER_SIZE - 1);
                 return item;
             }
 
+            inline auto append(uint8_t value) -> void { 
+                buffer[currentIndex] = value;
+                currentIndex = (currentIndex + 1) & (BUFFER_SIZE - 1);
+            }
+
             inline auto drain() -> void {
                 std::memset(buffer.data(), 0, N);
                 currentIndex = 0;
             }
+
+        private:
+            std::array<uint8_t, N> buffer;
+            uint8_t currentIndex;
         };
         struct CdromRegisters {
             union {

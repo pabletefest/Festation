@@ -21,7 +21,7 @@ auto festation::CdromDrive::read8(uint32_t address) -> uint8_t
     case 0x1F801800:
         return m_regs.HSTS.raw;
     case 0x1F801801:
-        return m_regs.RESULT;
+        return m_regs.RESULT.next();
     case 0x1F801802:
         /** @todo */
         break;
@@ -54,11 +54,13 @@ auto festation::CdromDrive::write8(uint32_t address, uint8_t value) -> void
         m_regs.HSTS.RA = value & 3;
         break;
     case 0x1F801801:
+
         break;
     case 0x1F801802:
         switch (m_regs.HSTS.RA)
         {
         case 0:
+            m_regs.PARAMETERS.append(value);
             break;
         case 1:
             m_regs.HINTMSK.raw = value;
