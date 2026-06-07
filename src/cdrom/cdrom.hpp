@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstdint>
+#include <array>
+#include <cstring>
 
 namespace festation {
     class CdromDrive {
@@ -12,6 +14,25 @@ namespace festation {
         auto write8(uint32_t address, uint8_t value) -> void;
 
     private:
+        constexpr static size_t BUFFER_SIZE = 16ull;
+
+        /** @todo Move this container to its own utility file */
+        template<size_t N>
+        class FifoCircularBuffer {
+            std::array<uint8_t, N> buffer;
+            uint8_t currentIndex;
+
+            inline auto next() -> uint8_t { 
+                uint8_t item = buffer[currentIndex];
+                currentIndex = (currentIndex + 1) & (BUFFER_SIZE - 1);
+                return item;
+            }
+
+            inline auto drain() -> void {
+                std::memset(buffer.data(), 0, N);
+                currentIndex = 0;
+            }
+        };
         struct CdromRegisters {
             union {
                 struct {
@@ -28,7 +49,7 @@ namespace festation {
             } HSTS{};
 
             uint8_t COMMAND{};
-            uint8_t PARAMETER{};
+            FifoCircularBuffer<BUFFER_SIZE> PARAMETERS{};
 
             union {
                 struct {
@@ -42,7 +63,8 @@ namespace festation {
             } HCHPCTL{};
 
             uint16_t RDDATA{};
-            uint8_t RESULT{};
+
+            FifoCircularBuffer<BUFFER_SIZE> RESULT{};
 
             union {
                 struct {
