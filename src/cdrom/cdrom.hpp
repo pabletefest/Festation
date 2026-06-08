@@ -5,6 +5,17 @@
 #include <cstring>
 
 namespace festation {
+    enum CdromInterruptType {
+        CDROM_INT0_NO_INTR,
+        CDROM_INT1_DATA_READY,
+        CDROM_INT2_COMPLETE,
+        CDROM_INT3_ACKNOWLEDGE,
+        CDROM_INT4_DATA_END,
+        CDROM_INT5_DISK_ERROR,
+        CDROM_INT6,
+        CDROM_INT7,
+    };
+
     class CdromDrive {
     public:
         CdromDrive();
@@ -12,6 +23,10 @@ namespace festation {
 
         auto read8(uint32_t address) -> uint8_t;
         auto write8(uint32_t address, uint8_t value) -> void;
+    
+    private:
+        auto decodeCommand() -> void;
+        auto processBiosVersionCmd() -> void;
 
     private:
         constexpr static size_t BUFFER_SIZE = 16ull;
@@ -21,24 +36,26 @@ namespace festation {
         class FifoCircularBuffer {
         public:
             inline auto next() -> uint8_t { 
-                uint8_t item = buffer[currentIndex];
-                currentIndex = (currentIndex + 1) & (BUFFER_SIZE - 1);
+                uint8_t item = buffer[lastRequestedIndex];
+                lastRequestedIndex = (lastRequestedIndex + 1) & (BUFFER_SIZE - 1);
                 return item;
             }
 
             inline auto append(uint8_t value) -> void { 
-                buffer[currentIndex] = value;
-                currentIndex = (currentIndex + 1) & (BUFFER_SIZE - 1);
+                buffer[nextFreeIndex] = value;
+                nextFreeIndex = (nextFreeIndex + 1) & (BUFFER_SIZE - 1);
             }
 
             inline auto drain() -> void {
                 std::memset(buffer.data(), 0, N);
-                currentIndex = 0;
+                lastRequestedIndex = 0;
+                nextFreeIndex = 0;
             }
 
         private:
             std::array<uint8_t, N> buffer;
-            uint8_t currentIndex;
+            uint8_t lastRequestedIndex;
+            uint8_t nextFreeIndex;
         };
         struct CdromRegisters {
             union {

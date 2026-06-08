@@ -54,7 +54,9 @@ auto festation::CdromDrive::write8(uint32_t address, uint8_t value) -> void
         m_regs.HSTS.RA = value & 3;
         break;
     case 0x1F801801:
-
+        m_regs.COMMAND = value;
+        decodeCommand();
+        m_regs.PARAMETERS.drain();
         break;
     case 0x1F801802:
         switch (m_regs.HSTS.RA)
@@ -92,5 +94,40 @@ auto festation::CdromDrive::write8(uint32_t address, uint8_t value) -> void
         break;
     default:
         std::unreachable();
+    }
+}
+
+auto festation::CdromDrive::decodeCommand() -> void
+{
+    switch (m_regs.COMMAND)
+    {
+    case 0x19:
+        switch (m_regs.PARAMETERS.next())
+        {
+        case 0x20:
+            processBiosVersionCmd();
+            break;
+        default:
+            break;
+        }
+        break;
+    default:
+        break;
+    }
+}
+
+auto festation::CdromDrive::processBiosVersionCmd() -> void
+{
+    /** @brief For now hardcoded to: PSX (PU-7)               19 Sep 1994, version vC0 (a) */
+    m_regs.RESULT.append(0x94);
+    m_regs.RESULT.append(0x09);
+    m_regs.RESULT.append(0x19);
+    m_regs.RESULT.append(0xC0);
+
+    m_regs.HINTSTS.INTSTS = CDROM_INT3_ACKNOWLEDGE;
+
+    /** @todo Throw CDROM interrupt (IRQ2) */
+    if (m_regs.HINTSTS.INTSTS & m_regs.HINTMSK.ENINT) {
+        
     }
 }
