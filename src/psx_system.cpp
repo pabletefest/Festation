@@ -1,8 +1,10 @@
 #include "psx_system.hpp"
 // #include "memory/virtual_mem_allocator_utils.hpp"
+#include "interrupts/interrupts.hpp"
 #include "memory/memory_map_masks.hpp"
 #include "utils/logger.hpp"
 #include "utils/file_reader.hpp"
+#include "cpu/exceptions_handling.hpp"
 
 #include <stdlib.h>
 #include <assert.h>
@@ -12,7 +14,7 @@
 static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = 565045;
 
 festation::PSXSystem::PSXSystem()
-    : m_cpu(this), m_mainRAM(MAIN_RAM_SIZE), m_bios(KernelBIOS(m_cpu)), m_dma(*this)
+    : m_cpu(this, m_interruptsHandler), m_mainRAM(MAIN_RAM_SIZE), m_bios(KernelBIOS(m_cpu)), m_dma(*this)
 {
 }
 
@@ -105,13 +107,17 @@ uint16_t festation::PSXSystem::read16(uint32_t address)
     }
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
+        uint16_t readValue = 0;
+
         switch(masked_address)
         {
         case 0x1F801070:
             LOG_DEBUG("Read16 from I_STAT INT port 0x{:08X}", masked_address);
+            readValue = m_interruptsHandler.read16(masked_address);
             break;
         case 0x1F801074:
             LOG_DEBUG("Read16 from I_MASK INT port 0x{:08X}", masked_address);
+            readValue = m_interruptsHandler.read16(masked_address);
             break;
         default:
             if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
@@ -127,7 +133,7 @@ uint16_t festation::PSXSystem::read16(uint32_t address)
         }
 
         // LOG_DEBUG("Read16 from I/O port address 0x{:08X}", masked_address);
-        return 0;
+        return readValue;
     }
     else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
     {
@@ -179,9 +185,11 @@ uint32_t festation::PSXSystem::read32(uint32_t address)
         }
         case 0x1F801070:
             LOG_DEBUG("Read32 from I_STAT INT port 0x{:08X}", masked_address);
+            readValue = m_interruptsHandler.read32(address);
             break;
         case 0x1F801074:
             LOG_DEBUG("Read32 from I_MASK INT port 0x{:08X}", masked_address);
+            readValue = m_interruptsHandler.read32(address);
             break;
         default:
             if (masked_address >= 0x1F801080 && masked_address <= 0x1F8010FF)
@@ -309,10 +317,12 @@ void festation::PSXSystem::write16(uint32_t address, uint16_t value)
         switch(masked_address)
         {
         case 0x1F801070:
-            LOG_DEBUG("Write16 to I_STAT INT port 0x{:08X}", masked_address);
+            LOG_DEBUG("Write16 ({:04X}h) to I_STAT INT port 0x{:08X}", value, masked_address);
+            m_interruptsHandler.write16(masked_address, value);
             break;
         case 0x1F801074:
-            LOG_DEBUG("Write16 to I_MASK INT port 0x{:08X}", masked_address);
+            LOG_DEBUG("Write16 ({:04X}h) to I_MASK INT port 0x{:08X}", value, masked_address);
+            m_interruptsHandler.write16(masked_address, value);
             break;
         default:
             if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
@@ -371,10 +381,12 @@ void festation::PSXSystem::write32(uint32_t address, uint32_t value)
             m_gpu.write32(masked_address, value);
             break;
         case 0x1F801070:
-            LOG_DEBUG("Write32 to I_STAT INT port 0x{:08X}", masked_address);
+            LOG_DEBUG("Write32 ({:08X}h) to I_STAT INT port 0x{:08X}", value, masked_address);
+            m_interruptsHandler.write32(address, value);
             break;
         case 0x1F801074:
-            LOG_DEBUG("Write32 to I_MASK INT port 0x{:08X}", masked_address);
+            LOG_DEBUG("Write32 ({:08X}h) to I_MASK INT port 0x{:08X}", value, masked_address);
+            m_interruptsHandler.write32(address, value);
             break;
         default:
             if (masked_address >= 0x1F801080 && masked_address <= 0x1F8010FF)
@@ -428,6 +440,7 @@ void festation::PSXSystem::runWholeFrame()
         totalFrameCycles -= cycles;
     }
 
+    m_interruptsHandler.setInterruptSource(festation::InterruptSource::VBlankSrc);
     m_gpu.renderFrame();
 }
 

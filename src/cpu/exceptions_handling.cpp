@@ -32,7 +32,6 @@ namespace festation
             cpu.getCPURegs().pc = (cpu.getCOP0Regs().SR.bev) ? COP0_Break_BEV1 : COP0_Break_BEV0;
             break;
         case ExceptionVectorType::General:
-            // cpu.getCPURegs().currentPC = cpu.getCPURegs().pc;
             cpu.getCPURegs().pc = (cpu.getCOP0Regs().SR.bev) ? General_BEV1 : General_BEV0;
             break;
         default:
@@ -57,29 +56,14 @@ namespace festation
 
         cpu.getCOP0Regs().SR.r = sr;
 
-        //LOG_DEBUG("New SR COP0 reg value is 0x{:08X}", cpu.getCOP0Regs().SR);
-
-
-        /* Move this later to interrupts module */
-        bool isInterrupt = false;
-
-        if ((cause & 0xFF00) && (sr & 0xFF00) && (sr & 1)
-            && excCode == ExcCode_INT) {
-            isInterrupt = true;
-        }
-        /* ------------------------------------ */
-
         uint32_t address = cpu.getCPURegs().currentPC;
 
-        if ((cpu.getCOP0Regs().CAUSE.bd) && !isInterrupt)
+        if ((cpu.getCOP0Regs().CAUSE.bd) && (excCode != ExcCode_INT))
             address -= 4;
 
         cpu.getCOP0Regs().EPC = address;
 
-        //LOG_DEBUG("New EPC COP0 reg value is 0x{:08X}", cpu.getCOP0Regs().EPC);
-
         cpu.getCOP0Regs().CAUSE.excCode = excCode;
-        //LOG_DEBUG("New CAUSE COP0 reg value is 0x{:08X}", cpu.getCOP0Regs().CAUSE);
 
         jumpToExceptionVector(cpu, ExceptionVectorType::General);
     }

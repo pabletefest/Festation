@@ -16,8 +16,8 @@ namespace festation
     static constexpr uint8_t INSTRUCTION_CYCLES_AVERAGE = 2;
 };
 
-festation::MIPS_R3000A_Core::MIPS_R3000A_Core(PSXSystem* device)
-    : system(device)
+festation::MIPS_R3000A_Core::MIPS_R3000A_Core(PSXSystem* device, InterruptsHandler& intrHndRef)
+    : system(device), m_intrHndRef(intrHndRef)
 {
     std::memset((void*) &r3000a_regs, 0, sizeof(PSXRegs));
 
@@ -138,6 +138,12 @@ void festation::MIPS_R3000A_Core::write32(uint32_t address, uint32_t value)
 uint8_t festation::MIPS_R3000A_Core::executeInstruction()
 {
     const bool isBranchDelayPending = r3000a_regs.isBranchDelaySlot();
+ 
+    cop0_state.CAUSE.ip = m_intrHndRef.isInterruptPending();
+
+    if ((cop0_state.CAUSE.r & 0xFF00) && (cop0_state.SR.r & 0xFF00) && (cop0_state.SR.r & 1)) {
+        handleException(*this, ExcCode_INT);
+    }
 
     if (r3000a_regs.currentPC & 3)
     {

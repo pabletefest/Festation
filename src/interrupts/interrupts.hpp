@@ -22,10 +22,13 @@ namespace festation {
         InterruptsHandler() = default;
         ~InterruptsHandler() = default;
 
+        auto read16(uint32_t address) -> uint16_t;
         auto read32(uint32_t address) -> uint32_t;
+        auto write16(uint32_t address, uint16_t value) -> void;
         auto write32(uint32_t address, uint32_t value) -> void;
     
-        constexpr auto setInterruptSource(InterruptSource source) -> void;
+        auto setInterruptSource(InterruptSource source) -> void;
+        auto isInterruptPending() const -> bool;
 
     private:
         union {
@@ -46,7 +49,7 @@ namespace festation {
             };
 
             uint32_t raw;
-        } I_STAT;
+        } I_STAT{};
 
         union {
             struct {
@@ -66,6 +69,6 @@ namespace festation {
             };
 
             uint32_t raw;
-        } I_MASK;
+        } I_MASK{};
     };
 };

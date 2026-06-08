@@ -1,6 +1,7 @@
 #pragma once
 #include "psx_cpu_state.hpp"
 #include "cpu_masks_types_utils.hpp"
+#include "interrupts/interrupts.hpp"
 
 #include <cstdint>
 #include <array>
@@ -16,7 +17,7 @@ namespace festation
     class MIPS_R3000A_Core
     {
     public:
-        MIPS_R3000A_Core(PSXSystem* device);
+        MIPS_R3000A_Core(PSXSystem* device, InterruptsHandler& intrHndRef);
         ~MIPS_R3000A_Core() = default;
 
         void reset();
@@ -52,6 +53,7 @@ namespace festation
         PSXRegs r3000a_regs;
         COP0SystemControlRegs cop0_state;
         uint32_t currentInstruction;
+        InterruptsHandler& m_intrHndRef;
 
         std::array<uint8_t, 1024> scratchpadCache;
     };

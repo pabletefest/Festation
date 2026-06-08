@@ -1,6 +1,7 @@
 #pragma once
 #include "cdrom/cdrom.hpp"
 #include "cpu/psx_cw33300_cpu.hpp"
+#include "interrupts/interrupts.hpp"
 #include "kernel_bios/bios.hpp"
 #include "cdrom/cdrom.hpp"
 #include "dma/dma_control.hpp"
@@ -31,6 +32,7 @@ namespace festation
         void sideloadExeFile(const std::filesystem::path& path);
 
     private:
+        InterruptsHandler m_interruptsHandler;
         MIPS_R3000A_Core m_cpu;
         //uint8_t* mainRAM = nullptr;
         std::vector<uint8_t> m_mainRAM;
