@@ -2,7 +2,8 @@
 
 #include <utility>
 
-festation::CdromDrive::CdromDrive()
+festation::CdromDrive::CdromDrive(InterruptsHandler& intrHndRef)
+    : m_interruptsHandler(intrHndRef)
 {
     m_regs.HINTSTS.reserved = 0x7;
     m_regs.HSTS.PRMEMPT = 1;
@@ -128,6 +129,6 @@ auto festation::CdromDrive::processBiosVersionCmd() -> void
 
     /** @todo Throw CDROM interrupt (IRQ2) */
     if (m_regs.HINTSTS.INTSTS & m_regs.HINTMSK.ENINT) {
-        
+        m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
     }
 }

@@ -1,5 +1,6 @@
 #include "psx_system.hpp"
 // #include "memory/virtual_mem_allocator_utils.hpp"
+#include "cdrom/cdrom.hpp"
 #include "interrupts/interrupts.hpp"
 #include "memory/memory_map_masks.hpp"
 #include "utils/logger.hpp"
@@ -11,10 +12,11 @@
 #include <cstring>
 #include <utility>
 
-static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = 565045;
+static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = 571'212;
 
 festation::PSXSystem::PSXSystem()
-    : m_cpu(this, m_interruptsHandler), m_mainRAM(MAIN_RAM_SIZE), m_bios(KernelBIOS(m_cpu)), m_dma(*this)
+    : m_cpu(this, m_interruptsHandler), m_mainRAM(MAIN_RAM_SIZE), m_bios(KernelBIOS(m_cpu)),
+        m_cdrom(m_interruptsHandler) , m_dma(*this)
 {
 }
 
@@ -112,12 +114,15 @@ uint16_t festation::PSXSystem::read16(uint32_t address)
         switch(masked_address)
         {
         case 0x1F801070:
-            LOG_DEBUG("Read16 from I_STAT INT port 0x{:08X}", masked_address);
+            // LOG_DEBUG("Read16 from I_STAT INT port 0x{:08X}", masked_address);
             readValue = m_interruptsHandler.read16(masked_address);
             break;
         case 0x1F801074:
-            LOG_DEBUG("Read16 from I_MASK INT port 0x{:08X}", masked_address);
+            // LOG_DEBUG("Read16 from I_MASK INT port 0x{:08X}", masked_address);
             readValue = m_interruptsHandler.read16(masked_address);
+            break;
+        case 0x1F801044:
+            readValue = 0xFFFF;
             break;
         default:
             if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
@@ -132,7 +137,7 @@ uint16_t festation::PSXSystem::read16(uint32_t address)
             break;
         }
 
-        // LOG_DEBUG("Read16 from I/O port address 0x{:08X}", masked_address);
+        LOG_DEBUG("Read16 from I/O port address 0x{:08X}", masked_address);
         return readValue;
     }
     else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
@@ -184,12 +189,15 @@ uint32_t festation::PSXSystem::read32(uint32_t address)
             break;
         }
         case 0x1F801070:
-            LOG_DEBUG("Read32 from I_STAT INT port 0x{:08X}", masked_address);
+            // LOG_DEBUG("Read32 from I_STAT INT port 0x{:08X}", masked_address);
             readValue = m_interruptsHandler.read32(address);
             break;
         case 0x1F801074:
-            LOG_DEBUG("Read32 from I_MASK INT port 0x{:08X}", masked_address);
+            // LOG_DEBUG("Read32 from I_MASK INT port 0x{:08X}", masked_address);
             readValue = m_interruptsHandler.read32(address);
+            break;
+        case 0x1F801044:
+            readValue = 0xFFFFFFFF;
             break;
         default:
             if (masked_address >= 0x1F801080 && masked_address <= 0x1F8010FF)
@@ -210,7 +218,7 @@ uint32_t festation::PSXSystem::read32(uint32_t address)
             }
             else
             {
-                // LOG_DEBUG("Read32 from I/O port address 0x{:08X}", masked_address);
+                LOG_DEBUG("Read32 from I/O port address 0x{:08X}", masked_address);
             }
 
             break;
@@ -277,6 +285,7 @@ void festation::PSXSystem::write8(uint32_t address, uint8_t value)
             }
             break;
         }
+
         // LOG_DEBUG("Write8 ({:02X}h) to I/O port address 0x{:08X}", value, masked_address);
     }
     else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
@@ -317,11 +326,11 @@ void festation::PSXSystem::write16(uint32_t address, uint16_t value)
         switch(masked_address)
         {
         case 0x1F801070:
-            LOG_DEBUG("Write16 ({:04X}h) to I_STAT INT port 0x{:08X}", value, masked_address);
+            // LOG_DEBUG("Write16 ({:04X}h) to I_STAT INT port 0x{:08X}", value, masked_address);
             m_interruptsHandler.write16(masked_address, value);
             break;
         case 0x1F801074:
-            LOG_DEBUG("Write16 ({:04X}h) to I_MASK INT port 0x{:08X}", value, masked_address);
+            // LOG_DEBUG("Write16 ({:04X}h) to I_MASK INT port 0x{:08X}", value, masked_address);
             m_interruptsHandler.write16(masked_address, value);
             break;
         default:
@@ -336,6 +345,7 @@ void festation::PSXSystem::write16(uint32_t address, uint16_t value)
             }
             break;
         }
+
         // LOG_DEBUG("Write16 ({:04X}h) to I/O port address 0x{:08X}", value, masked_address);
     }
     else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
@@ -381,11 +391,11 @@ void festation::PSXSystem::write32(uint32_t address, uint32_t value)
             m_gpu.write32(masked_address, value);
             break;
         case 0x1F801070:
-            LOG_DEBUG("Write32 ({:08X}h) to I_STAT INT port 0x{:08X}", value, masked_address);
+            // LOG_DEBUG("Write32 ({:08X}h) to I_STAT INT port 0x{:08X}", value, masked_address);
             m_interruptsHandler.write32(address, value);
             break;
         case 0x1F801074:
-            LOG_DEBUG("Write32 ({:08X}h) to I_MASK INT port 0x{:08X}", value, masked_address);
+            // LOG_DEBUG("Write32 ({:08X}h) to I_MASK INT port 0x{:08X}", value, masked_address);
             m_interruptsHandler.write32(address, value);
             break;
         default:

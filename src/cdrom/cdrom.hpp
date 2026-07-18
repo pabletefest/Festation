@@ -1,5 +1,7 @@
 #pragma once
 
+#include "interrupts/interrupts.hpp"
+
 #include <cstdint>
 #include <array>
 #include <cstring>
@@ -18,7 +20,7 @@ namespace festation {
 
     class CdromDrive {
     public:
-        CdromDrive();
+        CdromDrive(InterruptsHandler& intrHndRef);
         ~CdromDrive();
 
         auto read8(uint32_t address) -> uint8_t;
@@ -57,6 +59,7 @@ namespace festation {
             uint8_t lastRequestedIndex;
             uint8_t nextFreeIndex;
         };
+
         struct CdromRegisters {
             union {
                 struct {
@@ -151,5 +154,7 @@ namespace festation {
                 uint8_t raw;
             } CI{};
         } m_regs;
+
+        InterruptsHandler& m_interruptsHandler;
     };
 };
