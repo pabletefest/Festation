@@ -138,12 +138,6 @@ void festation::MIPS_R3000A_Core::write32(uint32_t address, uint32_t value)
 uint8_t festation::MIPS_R3000A_Core::executeInstruction()
 {
     const bool isBranchDelayPending = r3000a_regs.isBranchDelaySlot();
- 
-    cop0_state.CAUSE.ip = m_intrHndRef.isInterruptPending();
-
-    if ((cop0_state.CAUSE.r & 0xFF00) && (cop0_state.SR.r & 0xFF00) && (cop0_state.SR.r & 1)) {
-        handleException(*this, ExcCode_INT);
-    }
 
     if (r3000a_regs.currentPC & 3)
     {
@@ -157,6 +151,12 @@ uint8_t festation::MIPS_R3000A_Core::executeInstruction()
     decodeAndExecuteInstruction(currentInstruction);
 
     r3000a_regs.gpr_regs[0] = 0; // $0 or $zero is always zero
+
+    cop0_state.CAUSE.ip = m_intrHndRef.isInterruptPending();
+
+    if ((cop0_state.CAUSE.r & cop0_state.SR.r & 0xFF00) && (cop0_state.SR.r & 1)) {
+        handleException(*this, ExcCode_INT);
+    }
 
     if (isBranchDelayPending)
         r3000a_regs.performDelayedJump();

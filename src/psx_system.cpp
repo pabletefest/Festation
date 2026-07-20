@@ -51,10 +51,25 @@ uint8_t festation::PSXSystem::read8(uint32_t address)
         switch(masked_address)
         {
         case 0x1F801070:
-            LOG_DEBUG("Read16 from I_STAT INT port 0x{:08X}", masked_address);
+            LOG_DEBUG("Read8 from I_STAT INT port 0x{:08X}", masked_address);
             break;
         case 0x1F801074:
-            LOG_DEBUG("Read16 from I_MASK INT port 0x{:08X}", masked_address);
+            LOG_DEBUG("Read8 from I_MASK INT port 0x{:08X}", masked_address);
+            break;
+        case 0x1F801040:
+            LOG_DEBUG("Read8 from Joypad/memory Card port DATA 0x{:08X}", masked_address);
+            break;
+        case 0x1F801044:
+            LOG_DEBUG("Read8 from Joypad/memory Card port STAT 0x{:08X}", masked_address);
+            break;
+        case 0x1F801048:
+            LOG_DEBUG("Read8 from Joypad/memory Card port MODE 0x{:08X}", masked_address);
+            break;
+        case 0x1F80104A:
+            LOG_DEBUG("Read8 from Joypad/memory Card port CTRL 0x{:08X}", masked_address);
+            break;
+        case 0x1F80104E:
+            LOG_DEBUG("Read8 from Joypad/memory Card port BAUD 0x{:08X}", masked_address);
             break;
         default:
             if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
@@ -66,10 +81,14 @@ uint8_t festation::PSXSystem::read8(uint32_t address)
                 LOG_DEBUG("Read8 from CDROM port address 0x{:08X}", masked_address);
                 return m_cdrom.read8(address);
             }
+            else
+            {
+                LOG_DEBUG("Read8 from I/O port address 0x{:08X}", masked_address);
+            }
+
             break;
         }
 
-        // LOG_DEBUG("Read8 from I/O port address 0x{:08X}", masked_address);
         return 0;
     }
     else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
@@ -114,14 +133,31 @@ uint16_t festation::PSXSystem::read16(uint32_t address)
         switch(masked_address)
         {
         case 0x1F801070:
-            // LOG_DEBUG("Read16 from I_STAT INT port 0x{:08X}", masked_address);
-            readValue = m_interruptsHandler.read16(masked_address);
+        readValue = m_interruptsHandler.read16(masked_address);
+            LOG_DEBUG("Read16 ({:04X}h) from I_STAT INT port 0x{:08X}", readValue, masked_address);
             break;
         case 0x1F801074:
-            // LOG_DEBUG("Read16 from I_MASK INT port 0x{:08X}", masked_address);
-            readValue = m_interruptsHandler.read16(masked_address);
+        readValue = m_interruptsHandler.read16(masked_address);
+            LOG_DEBUG("Read16 ({:04X}h) from I_MASK INT port 0x{:08X}", readValue, masked_address);
+            break;
+        case 0x1F801040:
+            LOG_DEBUG("Read16 from Joypad/Memory Card DATA port 0x{:08X}", masked_address);
+            readValue = 0xFFFF;
             break;
         case 0x1F801044:
+            LOG_DEBUG("Read16 from Joypad/Memory Card STAT port 0x{:08X}", masked_address);
+            readValue = 0xFFFF;
+            break;
+        case 0x1F801048:
+            LOG_DEBUG("Read16 from Joypad/Memory Card MODE port 0x{:08X}", masked_address);
+            readValue = 0xFFFF;
+            break;
+        case 0x1F80104A:
+            LOG_DEBUG("Read16 from Joypad/Memory Card CTRL port 0x{:08X}", masked_address);
+            readValue = 0xFFFF;
+            break;
+        case 0x1F80104E:
+            LOG_DEBUG("Read16 from Joypad/Memory Card BAUD port 0x{:08X}", masked_address);
             readValue = 0xFFFF;
             break;
         default:
@@ -134,10 +170,14 @@ uint16_t festation::PSXSystem::read16(uint32_t address)
                 LOG_DEBUG("Read16 from CDROM port address 0x{:08X}", masked_address);
                 std::unreachable();
             }
+            else
+            {
+                LOG_DEBUG("Read16 from I/O port address 0x{:08X}", masked_address);
+            }
+
             break;
         }
 
-        LOG_DEBUG("Read16 from I/O port address 0x{:08X}", masked_address);
         return readValue;
     }
     else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
@@ -189,14 +229,23 @@ uint32_t festation::PSXSystem::read32(uint32_t address)
             break;
         }
         case 0x1F801070:
-            // LOG_DEBUG("Read32 from I_STAT INT port 0x{:08X}", masked_address);
             readValue = m_interruptsHandler.read32(address);
+            LOG_DEBUG("Read32 ({:08X}h) from I_STAT INT port 0x{:08X}", readValue, masked_address);
             break;
         case 0x1F801074:
-            // LOG_DEBUG("Read32 from I_MASK INT port 0x{:08X}", masked_address);
             readValue = m_interruptsHandler.read32(address);
+            LOG_DEBUG("Read32 ({:08X}h) from I_MASK INT port 0x{:08X}", readValue, masked_address);
+            break;
+        case 0x1F801040:
+            LOG_DEBUG("Read32 from Joypad/Memory Card DATA port 0x{:08X}", masked_address);
+            readValue = 0xFFFFFFFF;
             break;
         case 0x1F801044:
+            LOG_DEBUG("Read32 from Joypad/Memory Card STAT port 0x{:08X}", masked_address);
+            readValue = 0xFFFFFFFF;
+            break;
+        case 0x1F80104E:
+            LOG_DEBUG("Read32 from Joypad/Memory Card BAUD port 0x{:08X}", masked_address);
             readValue = 0xFFFFFFFF;
             break;
         default:
@@ -268,25 +317,40 @@ void festation::PSXSystem::write8(uint32_t address, uint8_t value)
         switch(masked_address)
         {
         case 0x1F801070:
-            LOG_DEBUG("Write8 to I_STAT INT port 0x{:08X}", masked_address);
+            LOG_DEBUG("Write8 ({:02X}h) to I_STAT INT port 0x{:08X}", masked_address);
             break;
         case 0x1F801074:
-            LOG_DEBUG("Write8 to I_MASK INT port 0x{:08X}", masked_address);
+            LOG_DEBUG("Write8 ({:02X}h) to I_MASK INT port 0x{:08X}", masked_address);
+            break;
+        case 0x1F801040:
+            LOG_DEBUG("Write8 ({:02X}h) to Joypad/Memory Card DATA port 0x{:08X}", value, masked_address);
+            break;
+        case 0x1F801048:
+            LOG_DEBUG("Write8 ({:02X}h) to Joypad/Memory Card MODE port 0x{:08X}", value, masked_address);
+            break;
+        case 0x1F80104A:
+            LOG_DEBUG("Write8 ({:02X}h) to Joypad/Memory Card CTRL port 0x{:08X}", value, masked_address);
+            break;
+        case 0x1F80104E:
+            LOG_DEBUG("Write8 ({:02X}h) to Joypad/Memory Card BAUD port 0x{:08X}", value, masked_address);
             break;
         default:
             if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
             {
-                LOG_DEBUG("Write8 to Timer port address 0x{:08X}", masked_address);
+                LOG_DEBUG("Write8 ({:02X}h) to Timer port address 0x{:08X}", masked_address);
             }
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
             {
                 LOG_DEBUG("Write8 ({:02X}h) to CDROM port address 0x{:08X}", value, masked_address);
                 m_cdrom.write8(address, value);
             }
+            else
+            {
+                LOG_DEBUG("Write8 ({:02X}h) to I/O port address 0x{:08X}", value, masked_address);
+            }
+
             break;
         }
-
-        // LOG_DEBUG("Write8 ({:02X}h) to I/O port address 0x{:08X}", value, masked_address);
     }
     else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
     {
@@ -326,12 +390,24 @@ void festation::PSXSystem::write16(uint32_t address, uint16_t value)
         switch(masked_address)
         {
         case 0x1F801070:
-            // LOG_DEBUG("Write16 ({:04X}h) to I_STAT INT port 0x{:08X}", value, masked_address);
+            LOG_DEBUG("Write16 ({:04X}h) to I_STAT INT port 0x{:08X}", value, masked_address);
             m_interruptsHandler.write16(masked_address, value);
             break;
         case 0x1F801074:
-            // LOG_DEBUG("Write16 ({:04X}h) to I_MASK INT port 0x{:08X}", value, masked_address);
+            LOG_DEBUG("Write16 ({:04X}h) to I_MASK INT port 0x{:08X}", value, masked_address);
             m_interruptsHandler.write16(masked_address, value);
+            break;
+        case 0x1F801040:
+            LOG_DEBUG("Write16 ({:04X}h) to Joypad/Memory Card DATA port 0x{:08X}", value, masked_address);
+            break;
+        case 0x1F801048:
+            LOG_DEBUG("Write16 ({:04X}h) to Joypad/Memory Card MODE port 0x{:08X}", value, masked_address);
+            break;
+        case 0x1F80104A:
+            LOG_DEBUG("Write16 ({:04X}h) to Joypad/Memory Card CTRL port 0x{:08X}", value, masked_address);
+            break;
+        case 0x1F80104E:
+            LOG_DEBUG("Write16 ({:04X}h) to Joypad/Memory Card BAUD port 0x{:08X}", value, masked_address);
             break;
         default:
             if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
@@ -343,10 +419,13 @@ void festation::PSXSystem::write16(uint32_t address, uint16_t value)
                 LOG_DEBUG("Write16 ({:04X}h) to CDROM port address 0x{:08X}", masked_address);
                 std::unreachable();
             }
+            else
+            {
+                LOG_DEBUG("Write16 ({:04X}h) to I/O port address 0x{:08X}", value, masked_address);
+            }
+
             break;
         }
-
-        // LOG_DEBUG("Write16 ({:04X}h) to I/O port address 0x{:08X}", value, masked_address);
     }
     else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
     {
@@ -398,6 +477,12 @@ void festation::PSXSystem::write32(uint32_t address, uint32_t value)
             // LOG_DEBUG("Write32 ({:08X}h) to I_MASK INT port 0x{:08X}", value, masked_address);
             m_interruptsHandler.write32(address, value);
             break;
+        case 0x1F801040:
+            LOG_DEBUG("Write32 ({:08X}h) to Joypad/Memory Card port DATA 0x{:08X}", value, masked_address);
+            break;
+        case 0x1F80104E:
+            LOG_DEBUG("Write32 ({:08X}h) to Joypad/Memory Card port DATA 0x{:08X}", value, masked_address);
+            break;
         default:
             if (masked_address >= 0x1F801080 && masked_address <= 0x1F8010FF)
             {
@@ -415,7 +500,7 @@ void festation::PSXSystem::write32(uint32_t address, uint32_t value)
             }
             else
             {
-                // LOG_DEBUG("Write32 ({:08X}h) to I/O port address 0x{:08X}", value, masked_address);
+                LOG_DEBUG("Write32 ({:08X}h) to I/O port address 0x{:08X}", value, masked_address);
             }
 
             break;
