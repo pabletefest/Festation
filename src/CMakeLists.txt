@@ -45,6 +45,8 @@ target_sources(${PROJECT_NAME} PRIVATE
 
     ${CMAKE_CURRENT_SOURCE_DIR}/memory/virtual_mem_allocator_utils.cpp
 
+    ${CMAKE_CURRENT_SOURCE_DIR}/scheduler/scheduler.cpp
+
     ${CMAKE_CURRENT_SOURCE_DIR}/utils/logger.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/utils/file_reader.cpp
 )
