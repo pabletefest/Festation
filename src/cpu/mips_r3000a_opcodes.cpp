@@ -1160,6 +1160,18 @@ namespace festation
         LOG_DEBUG("0x{:08X} {:08X}\tsyscall", \
             cpu.getCPURegs().currentPC, cpu.getCurrentInstruction());
 #endif
+        uint32_t masked_pc = cpu.getCPURegs().pc & 0x1FFFFFFF; // Only interested on the first 29 bits (any MIPS memory region)
+        uint32_t r9FunctNumber = cpu.getCPURegs().gpr_regs[9];
+
+        if ((masked_pc == 0x000000A0 && r9FunctNumber == 0x40))
+        {
+            LOG_CRITICAL("SystemErrorUnresolvedException() syscall called by the KERNEL!");
+        }
+
+        if ((masked_pc == 0x000000A0 && r9FunctNumber == 0xA1))
+        {
+            LOG_CRITICAL("SystemError() syscall called by the KERNEL!");
+        }
 
         if (cpu.getCPURegs().isLoadDelaySlot())
             cpu.getCPURegs().consumeLoadedData();

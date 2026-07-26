@@ -1,6 +1,8 @@
 #include "exceptions_handling.hpp"
 #include "psx_cw33300_cpu.hpp"
 
+#include "utils/logger.hpp"
+
 #include <cassert>
 
 namespace festation
@@ -76,6 +78,7 @@ namespace festation
         // We don't take into account MMU exceptions (not present on PS1) and outside kuseg in User mode (PS1 always runs kernel mode)
         if (badAddr % static_cast<uint32_t>(boundary) != 0)
         {
+            LOG_ERROR("Invalid address! ({:08X}h)", badAddr);
             cpu.getCOP0Regs().BadVaddr = badAddr;
             return true;
         }

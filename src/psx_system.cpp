@@ -133,11 +133,11 @@ uint16_t festation::PSXSystem::read16(uint32_t address)
         switch(masked_address)
         {
         case 0x1F801070:
-        readValue = m_interruptsHandler.read16(masked_address);
+            readValue = m_interruptsHandler.read16(masked_address);
             LOG_DEBUG("Read16 ({:04X}h) from I_STAT INT port 0x{:08X}", readValue, masked_address);
             break;
         case 0x1F801074:
-        readValue = m_interruptsHandler.read16(masked_address);
+            readValue = m_interruptsHandler.read16(masked_address);
             LOG_DEBUG("Read16 ({:04X}h) from I_MASK INT port 0x{:08X}", readValue, masked_address);
             break;
         case 0x1F801040:
@@ -163,7 +163,8 @@ uint16_t festation::PSXSystem::read16(uint32_t address)
         default:
             if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
             {
-                LOG_DEBUG("Read16 from Timer port address 0x{:08X}", masked_address);
+                readValue = (m_totalElapsedCycles > 0) ? (m_totalElapsedCycles & 0xFFFF) : 1; 
+                LOG_DEBUG("Read16 ({:04X}h) from Timer port address 0x{:08X}", readValue, masked_address);
             }
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
             {
@@ -256,9 +257,9 @@ uint32_t festation::PSXSystem::read32(uint32_t address)
             }
             else if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
             {
-                LOG_DEBUG("Read32 from Timer port address 0x{:08X}", masked_address);
                 // TEMP
-                return (m_totalElapsedCycles > 0) ? (0xFFFF0000 | (m_totalElapsedCycles & 0xFFFF)) : 1;
+                readValue = (m_totalElapsedCycles > 0) ? (m_totalElapsedCycles & 0xFFFF) : 1;
+                LOG_DEBUG("Read32 ({:08X}h) from Timer port address 0x{:08X}", readValue, masked_address);
             }
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
             {
@@ -534,7 +535,7 @@ void festation::PSXSystem::runWholeFrame()
         m_totalElapsedCycles += cycles;
         totalFrameCycles -= cycles;
     }
-
+    
     m_interruptsHandler.setInterruptSource(festation::InterruptSource::VBlankSrc);
     m_gpu.renderFrame();
 }

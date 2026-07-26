@@ -138,7 +138,7 @@ void festation::MIPS_R3000A_Core::write32(uint32_t address, uint32_t value)
 uint8_t festation::MIPS_R3000A_Core::executeInstruction()
 {
     const bool isBranchDelayPending = r3000a_regs.isBranchDelaySlot();
-
+    
     if (r3000a_regs.currentPC & 3)
     {
         handleException(*this, ExcCode_AdEL);
@@ -149,8 +149,9 @@ uint8_t festation::MIPS_R3000A_Core::executeInstruction()
     //LOG_DEBUG("* Executing instruction: 0x{:08X}  at address 0x{:08X} *", instruction, r3000a_regs.pc - 4);
 
     decodeAndExecuteInstruction(currentInstruction);
-
-    r3000a_regs.gpr_regs[0] = 0; // $0 or $zero is always zero
+    
+    if (isBranchDelayPending)
+        r3000a_regs.performDelayedJump();
 
     cop0_state.CAUSE.ip = m_intrHndRef.isInterruptPending();
 
@@ -158,8 +159,7 @@ uint8_t festation::MIPS_R3000A_Core::executeInstruction()
         handleException(*this, ExcCode_INT);
     }
 
-    if (isBranchDelayPending)
-        r3000a_regs.performDelayedJump();
+    r3000a_regs.gpr_regs[0] = 0; // $0 or $zero is always zero
 
     return INSTRUCTION_CYCLES_AVERAGE;
 }
