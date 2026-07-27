@@ -3,7 +3,8 @@
 
 auto festation::Scheduler::scheduleEvent(Event&& event) -> void
 {
-    m_eventsQueue.emplace(event);
+    event.time += m_globalTime;
+    m_eventsQueue.push(event);
 }
 
 auto festation::Scheduler::step(uint64_t cycles) -> void
@@ -17,7 +18,7 @@ auto festation::Scheduler::step(uint64_t cycles) -> void
 
 auto festation::Scheduler::eventPending() -> bool
 {
-    return m_globalTime >= m_eventsQueue.top().time;
+    return !m_eventsQueue.empty() && m_globalTime >= m_eventsQueue.top().time;
 }
 
 auto festation::Scheduler::dispatchNearestEvent() -> void

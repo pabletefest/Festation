@@ -6,6 +6,7 @@
 #include "cdrom/cdrom.hpp"
 #include "dma/dma_control.hpp"
 #include "gpu/gpu.hpp"
+#include "scheduler/scheduler.hpp"
 
 #include <vector>
 #include <filesystem>
@@ -32,9 +33,9 @@ namespace festation
         void sideloadExeFile(const std::filesystem::path& path);
 
     private:
+        Scheduler m_scheduler;
         InterruptsHandler m_interruptsHandler;
         MIPS_R3000A_Core m_cpu;
-        //uint8_t* mainRAM = nullptr;
         std::vector<uint8_t> m_mainRAM;
         KernelBIOS m_bios;
         CdromDrive m_cdrom;
