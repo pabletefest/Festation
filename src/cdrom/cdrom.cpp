@@ -2,8 +2,8 @@
 
 #include <utility>
 
-festation::CdromDrive::CdromDrive(InterruptsHandler& intrHndRef)
-    : m_interruptsHandler(intrHndRef)
+festation::CdromDrive::CdromDrive(InterruptsHandler& intrHndRef, Scheduler& scheduler)
+    : m_interruptsHandler(intrHndRef), m_scheduler(scheduler)
 {
     m_regs.HINTSTS.reserved = 0x7;
     m_regs.HSTS.PRMEMPT = 1;
@@ -119,6 +119,8 @@ auto festation::CdromDrive::decodeCommand() -> void
 
 auto festation::CdromDrive::processBiosVersionCmd() -> void
 {
+    constexpr uint64_t int3Delay = 0x4A00;
+
     /** @brief For now hardcoded to: PSX (PU-7)               19 Sep 1994, version vC0 (a) */
     m_regs.RESULT.append(0x94);
     m_regs.RESULT.append(0x09);
@@ -129,6 +131,8 @@ auto festation::CdromDrive::processBiosVersionCmd() -> void
 
     /** @todo Throw CDROM interrupt (IRQ2) */
     if (m_regs.HINTSTS.INTSTS & m_regs.HINTMSK.ENINT) {
-        m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
+        m_scheduler.scheduleEvent({ EventType::CdromInt3, int3Delay, [this]() {
+            m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
+        }});
     }
 }

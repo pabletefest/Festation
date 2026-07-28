@@ -1,6 +1,7 @@
 #pragma once
 
 #include "interrupts/interrupts.hpp"
+#include "scheduler/scheduler.hpp"
 
 #include <cstdint>
 #include <array>
@@ -20,7 +21,7 @@ namespace festation {
 
     class CdromDrive {
     public:
-        CdromDrive(InterruptsHandler& intrHndRef);
+        CdromDrive(InterruptsHandler& intrHndRef, Scheduler& scheduler);
         ~CdromDrive();
 
         auto read8(uint32_t address) -> uint8_t;
@@ -156,5 +157,6 @@ namespace festation {
         } m_regs;
 
         InterruptsHandler& m_interruptsHandler;
+        Scheduler& m_scheduler;
     };
 };
