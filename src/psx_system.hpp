@@ -19,18 +19,27 @@ namespace festation
         PSXSystem();
         ~PSXSystem();
 
-        void reset();
-
-        uint8_t read8(uint32_t address);
-        uint16_t read16(uint32_t address);
-        uint32_t read32(uint32_t address);
+        auto reset() -> void;
         
-        void write8(uint32_t address, uint8_t value);
-        void write16(uint32_t address, uint16_t value);
-        void write32(uint32_t address, uint32_t value);
+        template<class Func>
+        inline auto setFrameEndCallback(Func&& callback) -> void {
+            this->m_frameEndCallback = callback;
+        }
 
-        void runWholeFrame();
-        void sideloadExeFile(const std::filesystem::path& path);
+        auto read8(uint32_t address) -> uint8_t;
+        auto read16(uint32_t address) -> uint16_t;
+        auto read32(uint32_t address) -> uint32_t;
+        
+        auto write8(uint32_t address, uint8_t value) -> void;
+        auto write16(uint32_t address, uint16_t value) -> void;
+        auto write32(uint32_t address, uint32_t value) -> void;
+
+        auto run() -> void;
+        auto runWholeFrame() -> void;
+        auto sideloadExeFile(const std::filesystem::path& path) -> void;
+
+    private:
+        auto onFrameEnded() -> void;
 
     private:
         Scheduler m_scheduler;
@@ -42,5 +51,6 @@ namespace festation
         DmaControl m_dma;
         PsxGpu m_gpu;
         uint64_t m_totalElapsedCycles;
+        std::function<void(void)> m_frameEndCallback;
     };
 };

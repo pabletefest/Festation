@@ -1,11 +1,9 @@
 #include "psx_system.hpp"
-// #include "memory/virtual_mem_allocator_utils.hpp"
 #include "cdrom/cdrom.hpp"
 #include "interrupts/interrupts.hpp"
 #include "memory/memory_map_masks.hpp"
 #include "utils/logger.hpp"
 #include "utils/file_reader.hpp"
-#include "cpu/exceptions_handling.hpp"
 
 #include <stdlib.h>
 #include <assert.h>
@@ -18,22 +16,31 @@ festation::PSXSystem::PSXSystem()
     : m_cpu(this, m_interruptsHandler), m_mainRAM(MAIN_RAM_SIZE), m_bios(KernelBIOS(m_cpu)),
         m_cdrom(m_interruptsHandler) , m_dma(*this)
 {
+    m_scheduler.scheduleEvent({ EventType::VBlank, CYCLES_FER_FRAME_NTSC, 
+        [this]() {
+            onFrameEnded();
+        } });
 }
 
 festation::PSXSystem::~PSXSystem()
 {
 }
 
-void festation::PSXSystem::reset()
+auto festation::PSXSystem::reset() -> void
 {
     m_cpu.reset();
     m_dma.reset();
+    m_mainRAM.clear();
+    m_scheduler = Scheduler();
+    m_totalElapsedCycles = 0;
+    /** @todo Reset the rest of the components.  */
+    // m_interruptsHandler.reset();
 }
 
 // IMPLEMENT READ16 AND READ32 AS MULTIPLE READ8 SIMPLIFIES IMPLEMENTATION
 // IF PERFORMANCE IS REDUCED DUE TO OVERHEAD, TRY IMPLEMENT THEM ON THEIR OWN
 
-uint8_t festation::PSXSystem::read8(uint32_t address)
+auto festation::PSXSystem::read8(uint32_t address) -> uint8_t
 {   
     uint32_t masked_address = address & PHYSICAL_MEMORY_MASK;
 
@@ -113,7 +120,7 @@ uint8_t festation::PSXSystem::read8(uint32_t address)
     return 0;
 }
 
-uint16_t festation::PSXSystem::read16(uint32_t address)
+auto festation::PSXSystem::read16(uint32_t address) -> uint16_t
 {
     uint32_t masked_address = address & PHYSICAL_MEMORY_MASK;
 
@@ -203,7 +210,7 @@ uint16_t festation::PSXSystem::read16(uint32_t address)
     return 0;
 }
 
-uint32_t festation::PSXSystem::read32(uint32_t address)
+auto festation::PSXSystem::read32(uint32_t address) -> uint32_t
 {
     uint32_t masked_address = address & PHYSICAL_MEMORY_MASK;
 
@@ -298,7 +305,7 @@ uint32_t festation::PSXSystem::read32(uint32_t address)
     return 0;
 }
 
-void festation::PSXSystem::write8(uint32_t address, uint8_t value)
+auto festation::PSXSystem::write8(uint32_t address, uint8_t value) -> void
 {
     if (m_cpu.isCacheIsolated())
         return;
@@ -371,7 +378,7 @@ void festation::PSXSystem::write8(uint32_t address, uint8_t value)
     }
 }
 
-void festation::PSXSystem::write16(uint32_t address, uint16_t value)
+auto festation::PSXSystem::write16(uint32_t address, uint16_t value) -> void
 {
     if (m_cpu.isCacheIsolated())
         return;
@@ -446,7 +453,7 @@ void festation::PSXSystem::write16(uint32_t address, uint16_t value)
     }
 }
 
-void festation::PSXSystem::write32(uint32_t address, uint32_t value)
+auto festation::PSXSystem::write32(uint32_t address, uint32_t value) -> void
 {
     if (m_cpu.isCacheIsolated())
         return;
@@ -525,7 +532,15 @@ void festation::PSXSystem::write32(uint32_t address, uint32_t value)
     }
 }
 
-void festation::PSXSystem::runWholeFrame()
+auto festation::PSXSystem::run() -> void
+{
+    uint8_t cycles = m_cpu.executeInstruction();
+    m_bios.checkKernerlTTYOutput();
+    m_scheduler.step(cycles);
+    m_totalElapsedCycles += cycles;
+}
+
+auto festation::PSXSystem::runWholeFrame() -> void
 {
     int32_t totalFrameCycles = CYCLES_FER_FRAME_NTSC;
 
@@ -540,7 +555,7 @@ void festation::PSXSystem::runWholeFrame()
     m_gpu.renderFrame();
 }
 
-void festation::PSXSystem::sideloadExeFile(const std::filesystem::path& path)
+auto festation::PSXSystem::sideloadExeFile(const std::filesystem::path& path) -> void
 {
     uint32_t& pcRef = m_cpu.getCPURegs().pc;
 
@@ -574,4 +589,17 @@ void festation::PSXSystem::sideloadExeFile(const std::filesystem::path& path)
         exe.data() + HEADER_SIZE, exeSize);
 
     pcRef = initialPC;
+}
+
+auto festation::PSXSystem::onFrameEnded() -> void
+{
+    assert(m_frameEndCallback);
+
+    m_gpu.renderFrame();
+    m_frameEndCallback();
+
+    m_scheduler.scheduleEvent({ EventType::VBlank, CYCLES_FER_FRAME_NTSC, 
+        [this]() {
+            onFrameEnded();
+        } });
 }

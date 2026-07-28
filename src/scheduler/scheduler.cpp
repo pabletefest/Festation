@@ -16,7 +16,7 @@ auto festation::Scheduler::step(uint64_t cycles) -> void
     }
 }
 
-auto festation::Scheduler::eventPending() -> bool
+auto festation::Scheduler::eventPending() const -> bool
 {
     return !m_eventsQueue.empty() && m_globalTime >= m_eventsQueue.top().time;
 }

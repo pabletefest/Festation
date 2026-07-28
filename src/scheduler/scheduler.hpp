@@ -14,7 +14,7 @@ namespace festation {
         auto step(uint64_t cycles) -> void;
 
     private:
-        auto eventPending() -> bool;
+        auto eventPending() const -> bool;
         auto dispatchNearestEvent() -> void;
 
     private:

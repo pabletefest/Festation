@@ -77,6 +77,9 @@ int main(int, char**)
     }
 
     festation::PSXSystem psxSystem;
+
+    float time = (float)glfwGetTime();
+    float delta = 0.0f;
     
     std::filesystem::path path;
     // path = std::filesystem::current_path().concat("/../../../res/tests/psxtest_cpu.exe");
@@ -91,30 +94,13 @@ int main(int, char**)
     // path = std::filesystem::current_path().concat("/../../../res/tests/Jakub-PSX/gpu/rectangles/rectangles.exe");
     // path = std::filesystem::current_path().concat("/../../../res/tests/Jakub-PSX/gpu/triangle/triangle.exe");
 
-    if (!path.empty()) {
-        psxSystem.sideloadExeFile(path);
-    }
-    
-    float time = (float)glfwGetTime();
-    float delta = 0.0f;
-
-    /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
-    {
-        /* Render here */
-        if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0)
-        {
-            continue;
-        }
-
+    psxSystem.setFrameEndCallback([&]() {
         float current = (float)glfwGetTime();
         delta = current - time;
         time = current;
 
         std::string windowTitle =  std::format("{} | {} | {:.2f} FPS", festation::EMU_TITLE, (path.empty()) ? "No disc" : path.filename().string(), 1.0f / delta);
         glfwSetWindowTitle(window, windowTitle.c_str());
-
-        psxSystem.runWholeFrame();
 
         // int display_w, display_h;
         // glfwGetFramebufferSize(window, &display_w, &display_h);
@@ -125,6 +111,21 @@ int main(int, char**)
         
         /* Poll for and process events */
         glfwPollEvents();
+    });
+
+    if (!path.empty()) {
+        psxSystem.sideloadExeFile(path);
+    }
+
+    /* Loop until the user closes the window */
+    while (!glfwWindowShouldClose(window))
+    {
+        if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0)
+        {
+            continue;
+        }
+
+        psxSystem.run();
     }
 
     glfwTerminate();
