@@ -29,7 +29,9 @@ namespace festation {
     
     private:
         auto decodeCommand() -> void;
+        auto processNopCmd() -> void;
         auto processBiosVersionCmd() -> void;
+        auto processGetIdCmd() -> void;
 
     private:
         constexpr static size_t BUFFER_SIZE = 16ull;
@@ -155,6 +157,21 @@ namespace festation {
                 uint8_t raw;
             } CI{};
         } m_regs;
+
+        union {
+            struct {
+                uint8_t error : 1;
+                uint8_t spindleMotor : 1;
+                uint8_t seekError : 1;
+                uint8_t idError : 1;
+                uint8_t shellOpen : 1;
+                uint8_t read : 1;
+                uint8_t seek : 1;
+                uint8_t play : 1;
+            };
+
+            uint8_t raw;
+        } m_internalStatusCode{};
 
         InterruptsHandler& m_interruptsHandler;
         Scheduler& m_scheduler;

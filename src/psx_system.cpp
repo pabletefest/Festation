@@ -170,7 +170,7 @@ auto festation::PSXSystem::read16(uint32_t address) -> uint16_t
         default:
             if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
             {
-                // readValue = (m_totalElapsedCycles > 0) ? (m_totalElapsedCycles & 0xFFFF) : 1; 
+                readValue = (m_totalElapsedCycles > 0) ? (m_totalElapsedCycles & 0xFFFF) : 1; 
                 LOG_DEBUG("Read16 ({:04X}h) from Timer port address 0x{:08X}", readValue, masked_address);
             }
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)

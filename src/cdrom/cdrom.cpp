@@ -102,6 +102,9 @@ auto festation::CdromDrive::decodeCommand() -> void
 {
     switch (m_regs.COMMAND)
     {
+    case 0x01:
+        processNopCmd();
+        break;
     case 0x19:
         switch (m_regs.PARAMETERS.next())
         {
@@ -112,8 +115,27 @@ auto festation::CdromDrive::decodeCommand() -> void
             break;
         }
         break;
+    case 0x1A:
+        processGetIdCmd();
+        break;
     default:
         break;
+    }
+}
+
+auto festation::CdromDrive::processNopCmd() -> void
+{
+    constexpr uint64_t int3Delay = 0xC4E1;
+
+    m_regs.RESULT.append(m_internalStatusCode.raw);
+
+    m_internalStatusCode.shellOpen = 0;
+    m_regs.HINTSTS.INTSTS = CDROM_INT3_ACKNOWLEDGE;
+
+    if (m_regs.HINTSTS.INTSTS & m_regs.HINTMSK.ENINT) {
+        m_scheduler.scheduleEvent({ EventType::CdromInt3, int3Delay, [this]() {
+            m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
+        }});
     }
 }
 
@@ -129,10 +151,14 @@ auto festation::CdromDrive::processBiosVersionCmd() -> void
 
     m_regs.HINTSTS.INTSTS = CDROM_INT3_ACKNOWLEDGE;
 
-    /** @todo Throw CDROM interrupt (IRQ2) */
     if (m_regs.HINTSTS.INTSTS & m_regs.HINTMSK.ENINT) {
         m_scheduler.scheduleEvent({ EventType::CdromInt3, int3Delay, [this]() {
             m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
         }});
     }
+}
+
+auto festation::CdromDrive::processGetIdCmd() -> void
+{
+
 }
