@@ -141,7 +141,7 @@ auto festation::CdromDrive::processNopCmd() -> void
 
 auto festation::CdromDrive::processBiosVersionCmd() -> void
 {
-    constexpr uint64_t int3Delay = 0x4A00;
+    constexpr uint64_t int3Delay = 0xC4E1;
 
     /** @brief For now hardcoded to: PSX (PU-7)               19 Sep 1994, version vC0 (a) */
     m_regs.RESULT.append(0x94);
@@ -160,5 +160,35 @@ auto festation::CdromDrive::processBiosVersionCmd() -> void
 
 auto festation::CdromDrive::processGetIdCmd() -> void
 {
+    constexpr uint64_t int3Delay = 0xC4E1;
 
+    m_regs.RESULT.append(m_internalStatusCode.raw);
+
+    m_regs.HINTSTS.INTSTS = CDROM_INT3_ACKNOWLEDGE;
+
+    if (m_regs.HINTSTS.INTSTS & m_regs.HINTMSK.ENINT) {
+        m_scheduler.scheduleEvent({ EventType::CdromInt3, int3Delay, [this]() {
+            m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
+
+            constexpr uint64_t int3Delay = 0x4A00;
+
+            m_regs.RESULT.append(m_internalStatusCode.raw);
+            m_regs.RESULT.append(0);
+            m_regs.RESULT.append(0);
+            m_regs.RESULT.append(0);
+            m_regs.RESULT.append(0x53);
+            m_regs.RESULT.append(0x43);
+            m_regs.RESULT.append(0x45);
+            m_regs.RESULT.append(0x41);
+            
+            m_regs.HINTSTS.INTSTS = CDROM_INT2_COMPLETE;
+
+            if (m_regs.HINTSTS.INTSTS & m_regs.HINTMSK.ENINT) {
+                m_scheduler.scheduleEvent({ EventType::CdromInt3, int3Delay, [this]() {
+                    m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
+                }});
+            }
+
+        }});
+    }
 }
