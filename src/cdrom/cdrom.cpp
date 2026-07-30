@@ -35,7 +35,7 @@ auto festation::CdromDrive::read8(uint32_t address) -> uint8_t
             return m_regs.HINTMSK.raw;
         case 1:
         case 3:
-            return m_regs.HINTSTS.raw;
+            return m_regs.HINTSTS.raw | 0xE0;
         default:
             std::unreachable();
         }
