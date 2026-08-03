@@ -1,4 +1,5 @@
 #include "cdrom.hpp"
+#include "utils/logger.hpp"
 
 #include <utility>
 
@@ -100,31 +101,38 @@ auto festation::CdromDrive::write8(uint32_t address, uint8_t value) -> void
 
 auto festation::CdromDrive::decodeCommand() -> void
 {
-    switch (m_regs.COMMAND)
+    uint8_t cmd = m_regs.COMMAND;
+    switch (cmd)
     {
     case 0x01:
         processNopCmd();
         break;
     case 0x19:
-        switch (m_regs.PARAMETERS.next())
+    {
+        uint8_t param = m_regs.PARAMETERS.next();
+        switch (param)
         {
-        case 0x20:
+            case 0x20:
             processBiosVersionCmd();
             break;
-        default:
+            default:
+            LOG_DEBUG("CDROM: unimplemented test command {:02X}h", param);
             break;
         }
         break;
+    }
     case 0x1A:
         processGetIdCmd();
         break;
     default:
+        LOG_DEBUG("CDROM: unimplemented command {:02X}h", cmd);
         break;
     }
 }
 
 auto festation::CdromDrive::processNopCmd() -> void
 {
+    LOG_DEBUG("CDROM: Nop");
     constexpr uint64_t int3Delay = 0xC4E1;
 
     m_regs.RESULT.append(m_internalStatusCode.raw);
@@ -134,6 +142,7 @@ auto festation::CdromDrive::processNopCmd() -> void
 
     if (m_regs.HINTSTS.INTSTS & m_regs.HINTMSK.ENINT) {
         m_scheduler.scheduleEvent({ EventType::CdromInt3, int3Delay, [this]() {
+            LOG_DEBUG("CDROM: INT3 response");
             m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
         }});
     }
@@ -141,6 +150,7 @@ auto festation::CdromDrive::processNopCmd() -> void
 
 auto festation::CdromDrive::processBiosVersionCmd() -> void
 {
+    LOG_DEBUG("CDROM: GetBiosVersion");
     constexpr uint64_t int3Delay = 0xC4E1;
 
     /** @brief For now hardcoded to: PSX (PU-7)               19 Sep 1994, version vC0 (a) */
@@ -153,6 +163,7 @@ auto festation::CdromDrive::processBiosVersionCmd() -> void
 
     if (m_regs.HINTSTS.INTSTS & m_regs.HINTMSK.ENINT) {
         m_scheduler.scheduleEvent({ EventType::CdromInt3, int3Delay, [this]() {
+            LOG_DEBUG("CDROM: INT3 response");
             m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
         }});
     }
@@ -160,6 +171,7 @@ auto festation::CdromDrive::processBiosVersionCmd() -> void
 
 auto festation::CdromDrive::processGetIdCmd() -> void
 {
+    LOG_DEBUG("CDROM: GetId");
     constexpr uint64_t int3Delay = 0xC4E1;
 
     m_regs.RESULT.append(m_internalStatusCode.raw);
@@ -168,6 +180,7 @@ auto festation::CdromDrive::processGetIdCmd() -> void
 
     if (m_regs.HINTSTS.INTSTS & m_regs.HINTMSK.ENINT) {
         m_scheduler.scheduleEvent({ EventType::CdromInt3, int3Delay, [this]() {
+            LOG_DEBUG("CDROM: INT3 response");
             m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
 
             constexpr uint64_t int3Delay = 0x4A00;
@@ -185,6 +198,7 @@ auto festation::CdromDrive::processGetIdCmd() -> void
 
             if (m_regs.HINTSTS.INTSTS & m_regs.HINTMSK.ENINT) {
                 m_scheduler.scheduleEvent({ EventType::CdromInt3, int3Delay, [this]() {
+                    LOG_DEBUG("CDROM: INT2 response");
                     m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
                 }});
             }
