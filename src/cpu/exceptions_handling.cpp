@@ -60,7 +60,7 @@ namespace festation
 
         uint32_t address = cpu.getCPURegs().currentPC;
 
-        if ((cpu.getCOP0Regs().CAUSE.bd) && (excCode != ExcCode_INT))
+        if ((cpu.getCOP0Regs().CAUSE.bd) /*&& (excCode != ExcCode_INT)*/)
             address -= 4;
 
         cpu.getCOP0Regs().EPC = address;
@@ -80,6 +80,7 @@ namespace festation
         {
             LOG_ERROR("Invalid address! ({:08X}h)", badAddr);
             cpu.getCOP0Regs().BadVaddr = badAddr;
+            cpu.getCOP0Regs().EPC= badAddr;
             return true;
         }
 

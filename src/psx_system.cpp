@@ -141,11 +141,11 @@ auto festation::PSXSystem::read16(uint32_t address) -> uint16_t
         {
         case 0x1F801070:
             readValue = m_interruptsHandler.read16(masked_address);
-            // LOG_DEBUG("Read16 ({:04X}h) from I_STAT INT port 0x{:08X}", readValue, masked_address);
+            LOG_DEBUG("Read16 ({:04X}h) from I_STAT INT port 0x{:08X}", readValue, masked_address);
             break;
         case 0x1F801074:
             readValue = m_interruptsHandler.read16(masked_address);
-            // LOG_DEBUG("Read16 ({:04X}h) from I_MASK INT port 0x{:08X}", readValue, masked_address);
+            LOG_DEBUG("Read16 ({:04X}h) from I_MASK INT port 0x{:08X}", readValue, masked_address);
             break;
         case 0x1F801040:
             LOG_DEBUG("Read16 from Joypad/Memory Card DATA port 0x{:08X}", masked_address);
@@ -170,8 +170,9 @@ auto festation::PSXSystem::read16(uint32_t address) -> uint16_t
         default:
             if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
             {
-                readValue = (m_totalElapsedCycles > 0) ? (m_totalElapsedCycles & 0xFFFF) : 1; 
-                // LOG_DEBUG("Read16 ({:04X}h) from Timer port address 0x{:08X}", readValue, masked_address);
+                // readValue = (m_totalElapsedCycles > 0) ? (m_totalElapsedCycles & 0xFFFF) : 1; 
+                readValue = 0xFFFF;
+                LOG_DEBUG("Read16 ({:04X}h) from Timer port address 0x{:08X}", readValue, masked_address);
             }
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
             {
@@ -265,8 +266,9 @@ auto festation::PSXSystem::read32(uint32_t address) -> uint32_t
             else if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
             {
                 // TEMP
-                readValue = (m_totalElapsedCycles > 0) ? (m_totalElapsedCycles & 0xFFFF) : 1;
-                // LOG_DEBUG("Read32 ({:08X}h) from Timer port address 0x{:08X}", readValue, masked_address);
+                // readValue = (m_totalElapsedCycles > 0) ? (m_totalElapsedCycles & 0xFFFF) : 1;
+                readValue = 0xFFFF;
+                LOG_DEBUG("Read32 ({:08X}h) from Timer port address 0x{:08X}", readValue, masked_address);
             }
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
             {

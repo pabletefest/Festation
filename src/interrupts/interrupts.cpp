@@ -44,10 +44,10 @@ auto festation::InterruptsHandler::write16(uint32_t address, uint16_t value) -> 
     switch (address)
     {
     case 0x1F801070:
-        I_STAT.raw &= value; // No effect when bit is 1
+        I_STAT.raw &= (value & 0x7FF); // No effect when bit is 1
         break;
     case 0x1F801074:
-        I_MASK.raw = value;
+        I_MASK.raw = (value & 0x7FF);
         break;
     default:
         std::unreachable();
@@ -59,10 +59,10 @@ auto festation::InterruptsHandler::write32(uint32_t address, uint32_t value) -> 
     switch (address)
     {
     case 0x1F801070:
-        I_STAT.raw &= value; // No effect when bit is 1
+        I_STAT.raw &= (value & 0x7FF); // No effect when bit is 1
         break;
     case 0x1F801074:
-        I_MASK.raw = value;
+        I_MASK.raw = (value & 0x7FF);
         break;
     default:
         std::unreachable();
@@ -76,5 +76,5 @@ auto festation::InterruptsHandler::setInterruptSource(festation::InterruptSource
 
 auto festation::InterruptsHandler::isInterruptPending() const -> bool
 {
-    return I_STAT.raw & I_MASK.raw;
+    return I_STAT.raw & I_MASK.raw & 0x7FF;
 }

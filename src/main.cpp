@@ -83,16 +83,24 @@ int main(int, char**)
     
     std::filesystem::path path;
     // path = std::filesystem::current_path().concat("/../../../res/tests/psxtest_cpu.exe");
+    // path = std::filesystem::current_path().concat("/../../../res/tests/cpu.ps-exe");
+    // path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/Demo/hit-greensrc/hit-green.exe");
+    // path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/Demo/printgpu/PRINTGPU.exe");
+    // path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/Demo/PSXNICCC/PSXNICCC.exe");
+    // path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/Demo/vblank/VBLANK.exe");
     // path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/HelloWorld/16BPP/HelloWorld16BPP.exe");
     // path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/GPU/16BPP/RenderRectangle/RenderRectangle16BPP.exe");
     // path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/GPU/16BPP/RenderPolygon/RenderPolygon16BPP.exe");
     // path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/GPU/16BPP/RenderTexturePolygon/CLUT4BPP/RenderTexturePolygonCLUT4BPP.exe");
     // path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/GPU/16BPP/MemoryTransfer/MemoryTransfer16BPP.exe");
     // path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/GPU/24BPP/MemoryTransfer/MemoryTransfer24BPP.exe");
+    // path = std::filesystem::current_path().concat("/../../../res/tests/Jakub-PSX/dma/chain-looping/chain-looping.exe");
+    // path = std::filesystem::current_path().concat("/../../../res/tests/Jakub-PSX/dma/chopping/chopping.exe");
     // path = std::filesystem::current_path().concat("/../../../res/tests/Jakub-PSX/dma/otc-test/otc-test.exe");
     // path = std::filesystem::current_path().concat("/../../../res/tests/Jakub-PSX/gpu/quad/quad.exe");
     // path = std::filesystem::current_path().concat("/../../../res/tests/Jakub-PSX/gpu/rectangles/rectangles.exe");
     // path = std::filesystem::current_path().concat("/../../../res/tests/Jakub-PSX/gpu/triangle/triangle.exe");
+    // path = std::filesystem::current_path().concat("/../../../res/tests/Jakub-PSX/timers/timers.exe");
 
     psxSystem.setFrameEndCallback([&]() {
         float current = (float)glfwGetTime();
