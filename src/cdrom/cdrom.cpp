@@ -9,6 +9,9 @@ festation::CdromDrive::CdromDrive(InterruptsHandler& intrHndRef, Scheduler& sche
     m_regs.HINTSTS.reserved = 0x7;
     m_regs.HSTS.PRMEMPT = 1;
     m_regs.HSTS.PRMWRDY = 1;
+
+    // TEMP
+    m_internalStatusCode.shellOpen = 1;
 }
 
 festation::CdromDrive::~CdromDrive()
@@ -32,8 +35,7 @@ auto festation::CdromDrive::read8(uint32_t address) -> uint8_t
         {
         case 0:
         case 2:
-            m_regs.HINTMSK.reserved = 0x7;
-            return m_regs.HINTMSK.raw;
+            return m_regs.HINTMSK.raw | 0xE0;
         case 1:
         case 3:
             return m_regs.HINTSTS.raw | 0xE0;
@@ -58,7 +60,7 @@ auto festation::CdromDrive::write8(uint32_t address, uint8_t value) -> void
     case 0x1F801801:
         m_regs.COMMAND = value;
         decodeCommand();
-        m_regs.PARAMETERS.drain();
+        // m_regs.PARAMETERS.drain();
         break;
     case 0x1F801802:
         switch (m_regs.HSTS.RA)
@@ -102,25 +104,30 @@ auto festation::CdromDrive::write8(uint32_t address, uint8_t value) -> void
 auto festation::CdromDrive::decodeCommand() -> void
 {
     uint8_t cmd = m_regs.COMMAND;
+
     switch (cmd)
     {
     case 0x01:
         processNopCmd();
         break;
+    case 0x02:
+        processSetlocCmd();
+        break;
     case 0x19:
     {
         uint8_t param = m_regs.PARAMETERS.next();
+
         switch (param)
         {
-            case 0x20:
+        case 0x20:
             processBiosVersionCmd();
             break;
-            default:
+        default:
             LOG_DEBUG("CDROM: unimplemented test command {:02X}h", param);
             break;
         }
-        break;
     }
+        break;
     case 0x1A:
         processGetIdCmd();
         break;
@@ -136,16 +143,38 @@ auto festation::CdromDrive::processNopCmd() -> void
     constexpr uint64_t int3Delay = 0xC4E1;
 
     m_regs.RESULT.append(m_internalStatusCode.raw);
+    // m_internalStatusCode.shellOpen = 0;
+    
+    m_scheduler.scheduleEvent({ EventType::CdromInt3, int3Delay, [this]() {
+        LOG_DEBUG("CDROM: INT3 response");
+        m_regs.HINTSTS.INTSTS = CDROM_INT3_ACKNOWLEDGE;
 
-    m_internalStatusCode.shellOpen = 0;
-    m_regs.HINTSTS.INTSTS = CDROM_INT3_ACKNOWLEDGE;
-
-    if (m_regs.HINTSTS.INTSTS & m_regs.HINTMSK.ENINT) {
-        m_scheduler.scheduleEvent({ EventType::CdromInt3, int3Delay, [this]() {
-            LOG_DEBUG("CDROM: INT3 response");
+        if (isInterrupt()) {
             m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
-        }});
-    }
+        }
+    }});
+}
+
+auto festation::CdromDrive::processSetlocCmd() -> void
+{
+    constexpr uint64_t int3Delay = 0xC4E1;
+    
+    uint8_t amm = m_regs.PARAMETERS.next();
+    uint8_t ass = m_regs.PARAMETERS.next();
+    uint8_t asect = m_regs.PARAMETERS.next();
+    
+    LOG_DEBUG("CDROM: Setloc ({:02X}:{:02X}:{:02X})", amm, ass, asect);
+
+    m_regs.RESULT.append(m_internalStatusCode.raw);
+
+    m_scheduler.scheduleEvent({ EventType::CdromInt3, int3Delay, [this]() {
+        LOG_DEBUG("CDROM: INT3 response");
+        m_regs.HINTSTS.INTSTS = CDROM_INT3_ACKNOWLEDGE;
+
+        if (isInterrupt()) {
+            m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
+        }
+    }});
 }
 
 auto festation::CdromDrive::processBiosVersionCmd() -> void
@@ -159,14 +188,14 @@ auto festation::CdromDrive::processBiosVersionCmd() -> void
     m_regs.RESULT.append(0x19);
     m_regs.RESULT.append(0xC0);
 
-    m_regs.HINTSTS.INTSTS = CDROM_INT3_ACKNOWLEDGE;
+    m_scheduler.scheduleEvent({ EventType::CdromInt3, int3Delay, [this]() {
+        LOG_DEBUG("CDROM: INT3 response");
+        m_regs.HINTSTS.INTSTS = CDROM_INT3_ACKNOWLEDGE;
 
-    if (m_regs.HINTSTS.INTSTS & m_regs.HINTMSK.ENINT) {
-        m_scheduler.scheduleEvent({ EventType::CdromInt3, int3Delay, [this]() {
-            LOG_DEBUG("CDROM: INT3 response");
+        if (isInterrupt()) {
             m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
-        }});
-    }
+        }
+    }});
 }
 
 auto festation::CdromDrive::processGetIdCmd() -> void
@@ -176,33 +205,37 @@ auto festation::CdromDrive::processGetIdCmd() -> void
 
     m_regs.RESULT.append(m_internalStatusCode.raw);
 
-    m_regs.HINTSTS.INTSTS = CDROM_INT3_ACKNOWLEDGE;
+    m_scheduler.scheduleEvent({ EventType::CdromInt3, int3Delay, [this]() {
+        LOG_DEBUG("CDROM: INT3 response");
+        m_regs.HINTSTS.INTSTS = CDROM_INT3_ACKNOWLEDGE;
 
-    if (m_regs.HINTSTS.INTSTS & m_regs.HINTMSK.ENINT) {
-        m_scheduler.scheduleEvent({ EventType::CdromInt3, int3Delay, [this]() {
-            LOG_DEBUG("CDROM: INT3 response");
+        if (isInterrupt()) {
             m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
+        }
 
-            constexpr uint64_t int3Delay = 0x4A00;
+        constexpr uint64_t int2Delay = 0x4A00;
 
-            m_regs.RESULT.append(m_internalStatusCode.raw);
-            m_regs.RESULT.append(0);
-            m_regs.RESULT.append(0);
-            m_regs.RESULT.append(0);
-            m_regs.RESULT.append(0x53);
-            m_regs.RESULT.append(0x43);
-            m_regs.RESULT.append(0x45);
-            m_regs.RESULT.append(0x41);
-            
+        m_regs.RESULT.append(m_internalStatusCode.raw);
+        m_regs.RESULT.append(0);
+        m_regs.RESULT.append(0);
+        m_regs.RESULT.append(0);
+        m_regs.RESULT.append(0x53);
+        m_regs.RESULT.append(0x43);
+        m_regs.RESULT.append(0x45);
+        m_regs.RESULT.append(0x41);
+
+        m_scheduler.scheduleEvent({ EventType::CdromInt3, int2Delay, [this]() {
+            LOG_DEBUG("CDROM: INT2 response");
             m_regs.HINTSTS.INTSTS = CDROM_INT2_COMPLETE;
 
-            if (m_regs.HINTSTS.INTSTS & m_regs.HINTMSK.ENINT) {
-                m_scheduler.scheduleEvent({ EventType::CdromInt3, int3Delay, [this]() {
-                    LOG_DEBUG("CDROM: INT2 response");
-                    m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
-                }});
+            if (isInterrupt()) {
+                m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
             }
-
         }});
-    }
+    }});
+}
+
+auto festation::CdromDrive::isInterrupt() const -> bool
+{
+    return (m_regs.HINTSTS.raw & 0x1F) && (m_regs.HINTMSK.raw & 0x1F);
 }

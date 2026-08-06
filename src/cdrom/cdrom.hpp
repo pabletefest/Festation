@@ -30,8 +30,11 @@ namespace festation {
     private:
         auto decodeCommand() -> void;
         auto processNopCmd() -> void;
+        auto processSetlocCmd() -> void;
         auto processBiosVersionCmd() -> void;
         auto processGetIdCmd() -> void;
+
+        auto isInterrupt() const -> bool;
 
     private:
         constexpr static size_t BUFFER_SIZE = 16ull;
