@@ -130,6 +130,7 @@ int main(int, char**)
     {
         if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0)
         {
+            glfwPollEvents();
             continue;
         }
 
