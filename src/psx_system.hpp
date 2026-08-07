@@ -7,8 +7,10 @@
 #include "dma/dma_control.hpp"
 #include "gpu/gpu.hpp"
 #include "scheduler/scheduler.hpp"
+#include "timer/timer.hpp"
 
 #include <vector>
+#include <array>
 #include <filesystem>
 
 namespace festation
@@ -50,6 +52,7 @@ namespace festation
         CdromDrive m_cdrom;
         DmaControl m_dma;
         PsxGpu m_gpu;
+        std::array<Timer, 3> m_timers;
         uint64_t m_totalElapsedCycles;
         std::function<void(void)> m_frameEndCallback;
     };

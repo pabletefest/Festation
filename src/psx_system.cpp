@@ -14,7 +14,8 @@ static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = 571'212;
 
 festation::PSXSystem::PSXSystem()
     : m_cpu(this, m_interruptsHandler), m_mainRAM(MAIN_RAM_SIZE), m_bios(KernelBIOS(m_cpu)),
-        m_cdrom(m_interruptsHandler, m_scheduler) , m_dma(*this)
+        m_cdrom(m_interruptsHandler, m_scheduler) , m_dma(*this), 
+            m_timers({ m_scheduler, m_scheduler, m_scheduler })
 {
     m_scheduler.scheduleEvent({ EventType::VBlank, CYCLES_FER_FRAME_NTSC, 
         [this]() {
@@ -55,6 +56,8 @@ auto festation::PSXSystem::read8(uint32_t address) -> uint8_t
     }
     else if (masked_address >= IO_PORTS_START && masked_address <= IO_PORTS_END)
     {
+        uint8_t readValue = 0;
+
         switch(masked_address)
         {
         case 0x1F801070:
@@ -81,12 +84,14 @@ auto festation::PSXSystem::read8(uint32_t address) -> uint8_t
         default:
             if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
             {
-                LOG_DEBUG("Read8 from Timer port address 0x{:08X}", masked_address);
+                size_t timerId = (masked_address >> 4) & 3;
+                readValue = m_timers[timerId].read8(masked_address);
+                LOG_DEBUG("Read8 ({:02X}h) from Timer port address 0x{:08X}", readValue,  masked_address);
             }
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
             {
-                LOG_DEBUG("Read8 from CDROM port address 0x{:08X}", masked_address);
-                return m_cdrom.read8(address);
+                readValue = m_cdrom.read8(address);
+                LOG_DEBUG("Read8 ({:02X}h) from CDROM port address 0x{:08X}",readValue,  masked_address);
             }
             else
             {
@@ -96,7 +101,7 @@ auto festation::PSXSystem::read8(uint32_t address) -> uint8_t
             break;
         }
 
-        return 0;
+        return readValue;
     }
     else if (masked_address >= EXPANSION_REGION2_START && masked_address <= EXPANSION_REGION2_END)
     {
@@ -170,8 +175,8 @@ auto festation::PSXSystem::read16(uint32_t address) -> uint16_t
         default:
             if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
             {
-                // readValue = (m_totalElapsedCycles > 0) ? (m_totalElapsedCycles & 0xFFFF) : 1; 
-                readValue = 0xFFFF;
+                size_t timerId = (masked_address >> 4) & 3;
+                readValue = m_timers[timerId].read16(masked_address);
                 LOG_DEBUG("Read16 ({:04X}h) from Timer port address 0x{:08X}", readValue, masked_address);
             }
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
@@ -265,9 +270,8 @@ auto festation::PSXSystem::read32(uint32_t address) -> uint32_t
             }
             else if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
             {
-                // TEMP
-                // readValue = (m_totalElapsedCycles > 0) ? (m_totalElapsedCycles & 0xFFFF) : 1;
-                readValue = 0xFFFF;
+                size_t timerId = (masked_address >> 4) & 3;
+                readValue = m_timers[timerId].read32(masked_address);
                 LOG_DEBUG("Read32 ({:08X}h) from Timer port address 0x{:08X}", readValue, masked_address);
             }
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
@@ -347,7 +351,9 @@ auto festation::PSXSystem::write8(uint32_t address, uint8_t value) -> void
         default:
             if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
             {
-                LOG_DEBUG("Write8 ({:02X}h) to Timer port address 0x{:08X}", masked_address);
+                LOG_DEBUG("Write8 ({:02X}h) to Timer port address 0x{:08X}", value, masked_address);
+                size_t timerId = (masked_address >> 4) & 3;
+                m_timers[timerId].write8(masked_address, value);
             }
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
             {
@@ -422,11 +428,13 @@ auto festation::PSXSystem::write16(uint32_t address, uint16_t value) -> void
         default:
             if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
             {
-                LOG_DEBUG("Write16 to Timer port address 0x{:08X}", masked_address);
+                LOG_DEBUG("Write16 ({:04X}h) to Timer port address 0x{:08X}", value, masked_address);
+                size_t timerId = (masked_address >> 4) & 3;
+                m_timers[timerId].write16(masked_address, value);
             }
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
             {
-                LOG_DEBUG("Write16 ({:04X}h) to CDROM port address 0x{:08X}", masked_address);
+                LOG_DEBUG("Write16 ({:04X}h) to CDROM port address 0x{:08X}", value, masked_address);
                 std::unreachable();
             }
             else
@@ -502,6 +510,8 @@ auto festation::PSXSystem::write32(uint32_t address, uint32_t value) -> void
             else if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
             {
                 LOG_DEBUG("Write32 ({:08X}h) to Timer port address 0x{:08X}", value, masked_address);
+                size_t timerId = (masked_address >> 4) & 3;
+                m_timers[timerId].write32(masked_address, value);
             }
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
             {
