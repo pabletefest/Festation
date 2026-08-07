@@ -8,6 +8,7 @@
 
 #include <cstring>
 #include <cassert>
+#include <utility>
 
 namespace festation
 {
@@ -328,8 +329,7 @@ void festation::MIPS_R3000A_Core::decodeAndExecuteInstruction(uint32_t instructi
                 sltu(*this, rd, rs, rt);
                 break;
             default:
-                LOG_ERROR("Unimplemented or invalid R-type instruction! Function opcode: {:02X} - from hex MIPS instruction encoding ({:08X})\n", function, instruction);
-                break;
+                std::unreachable();
             }
         }
         break;
@@ -372,7 +372,7 @@ void festation::MIPS_R3000A_Core::decodeAndExecuteInstruction(uint32_t instructi
                 }
                 else
                 {
-                    LOG_ERROR("Unimplemented or invalid I-type BcondZ instruction! rt bits: {:02} - from hex MIPS instruction encoding ({:08X})\n", rt, instruction);
+                    std::unreachable();
                 }
             }
                 break;
@@ -432,20 +432,17 @@ void festation::MIPS_R3000A_Core::decodeAndExecuteInstruction(uint32_t instructi
                         mtc0(*this, rtcop0, rdcop0);
                         break;
                     default:
-                        LOG_ERROR("Unimplemented or invalid COP0 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
-                        break;
+                        std::unreachable();
                     }
                 }
                 break;
             case 0x11: // COP1
-                LOG_ERROR("Unimplemented or invalid COP1 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
-                break;
+                std::unreachable();
             case 0x12: // COP2
-                LOG_ERROR("Unimplemented or invalid COP2 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
+                LOG_ERROR("Unimplemented GTE command ({:02}h) from ({:08X})", opcode, instruction);
                 break;
             case 0x13: // COP3
-                LOG_ERROR("Unimplemented or invalid COP3 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
-                break;
+                std::unreachable();
             case 0x20:
                 lb(*this, rt, rs, imm16);
                 break;
@@ -486,29 +483,24 @@ void festation::MIPS_R3000A_Core::decodeAndExecuteInstruction(uint32_t instructi
                 lwc0(*this, rt, rs, imm16);
                 break;
             case 0x31: // COP1
-                LOG_ERROR("Unimplemented or invalid COP1 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
-                break;
+                std::unreachable();
             case 0x32: // COP2
-                LOG_ERROR("Unimplemented or invalid COP2 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
+                LOG_ERROR("Unimplemented GTE command: lwc2 {:02x}, [{:02x}+{:02x}]", rt, rs, imm16);
                 break;
             case 0x33: // COP3
-                LOG_ERROR("Unimplemented or invalid COP3 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
-                break;
+                std::unreachable();
             case 0x38: // COP0
                 swc0(*this, rt, rs, imm16);
                 break;
             case 0x39: // COP1
-                LOG_ERROR("Unimplemented or invalid COP1 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
-                break;
+                std::unreachable();
             case 0x3A: // COP2
-                LOG_ERROR("Unimplemented or invalid COP2 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
+                LOG_ERROR("Unimplemented GTE command: swc2 {:02x}, [{:02x}+{:02x}]", rt, rs, imm16);
                 break;
             case 0x3B: // COP3
-                LOG_ERROR("Unimplemented or invalid COP3 instruction! Instruction opcode: {:02} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
-                break;
+                std::unreachable();
             default:
-                LOG_ERROR("Unimplemented or invalid I-type instruction! Instruction opcode: {:02X} - from hex MIPS instruction encoding ({:08X})\n", opcode, instruction);
-                break;
+                std::unreachable();
             } 
         }
         break;
