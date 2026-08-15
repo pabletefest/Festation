@@ -147,18 +147,24 @@ uint8_t festation::MIPS_R3000A_Core::executeInstruction()
 
     currentInstruction = fetchInstruction();
 
-    //LOG_DEBUG("* Executing instruction: 0x{:08X}  at address 0x{:08X} *", instruction, r3000a_regs.pc - 4);
+ 
+        
+    // if (r3000a_regs.pc == 0x8003D708) {
+    //     printCPUState();
+    // }
+
+    // LOG_DEBUG("* Executing instruction: 0x{:08X} at address 0x{:08X} *", currentInstruction, r3000a_regs.pc - 4);
 
     decodeAndExecuteInstruction(currentInstruction);
+
+    if (isBranchDelayPending)
+        r3000a_regs.performDelayedJump();
 
     cop0_state.CAUSE.ip = m_intrHndRef.isInterruptPending();
 
     if ((cop0_state.CAUSE.r & cop0_state.SR.r & 0xFF00) && (cop0_state.SR.r & 1)) {
         handleException(*this, ExcCode_INT);
     }
-
-    if (isBranchDelayPending)
-        r3000a_regs.performDelayedJump();
 
     r3000a_regs.gpr_regs[0] = 0; // $0 or $zero is always zero
 

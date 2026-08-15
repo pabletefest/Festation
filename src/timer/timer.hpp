@@ -1,11 +1,12 @@
 #pragma once
 
+#include "interrupts/interrupts.hpp"
 #include "scheduler/scheduler.hpp"
 
 namespace festation {
     class Timer {
     public:
-        Timer(Scheduler& scheduler);
+        Timer(InterruptsHandler& interruptsHandler, Scheduler& scheduler);
 
         auto read8(uint32_t address) -> uint8_t;
         auto read16(uint32_t address) -> uint16_t;
@@ -15,6 +16,10 @@ namespace festation {
         auto write32(uint32_t address, uint32_t value) -> void;
 
     private:
+        auto processCounterModeChange() -> void;
+
+    private:
+        InterruptsHandler& m_interruptsHandler;
         Scheduler& m_scheduler;
         float clockDivisor{};
 
@@ -25,7 +30,7 @@ namespace festation {
             };
 
             uint32_t raw;
-        } m_currentCounterValue{};
+        } m_currentCounterReg{};
 
         union {
             struct {
@@ -45,7 +50,7 @@ namespace festation {
             };
 
             uint32_t raw;
-        } m_counterMode{};
+        } m_counterModeReg{};
 
         union {
             struct {
@@ -54,6 +59,6 @@ namespace festation {
             };
 
             uint32_t raw;
-        } m_counterTargetValue{};
+        } m_targetCounterReg{};
     };
 };

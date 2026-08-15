@@ -11,7 +11,7 @@ festation::CdromDrive::CdromDrive(InterruptsHandler& intrHndRef, Scheduler& sche
     m_regs.HSTS.PRMWRDY = 1;
 
     // TEMP
-    m_internalStatusCode.shellOpen = 1;
+    // m_internalStatusCode.shellOpen = 1;
 }
 
 festation::CdromDrive::~CdromDrive()
@@ -143,7 +143,7 @@ auto festation::CdromDrive::processNopCmd() -> void
     constexpr uint64_t int3Delay = 0xC4E1;
 
     m_regs.RESULT.append(m_internalStatusCode.raw);
-    // m_internalStatusCode.shellOpen = 0;
+    m_internalStatusCode.shellOpen = 0;
     
     m_scheduler.scheduleEvent({ EventType::CdromInt3, int3Delay, [this]() {
         LOG_DEBUG("CDROM: INT3 response");

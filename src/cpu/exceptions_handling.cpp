@@ -58,7 +58,8 @@ namespace festation
 
         cpu.getCOP0Regs().SR.r = sr;
 
-        uint32_t address = cpu.getCPURegs().currentPC;
+        // uint32_t address = cpu.getCPURegs().currentPC;
+        uint32_t address = (excCode != ExcCode_INT) ? cpu.getCPURegs().currentPC : cpu.getCPURegs().pc;
 
         if ((cpu.getCOP0Regs().CAUSE.bd) /*&& (excCode != ExcCode_INT)*/)
             address -= 4;

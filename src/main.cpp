@@ -83,6 +83,7 @@ int main(int, char**)
     
     std::filesystem::path path;
     // path = std::filesystem::current_path().concat("/../../../res/tests/psxtest_cpu.exe");
+    // path = std::filesystem::current_path().concat("/../../../res/tests/psxtest_cpx.exe");
     // path = std::filesystem::current_path().concat("/../../../res/tests/cpu.ps-exe");
     // path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/Demo/hit-greensrc/hit-green.exe");
     // path = std::filesystem::current_path().concat("/../../../res/tests/PeterLemon-PSX/Demo/printgpu/PRINTGPU.exe");

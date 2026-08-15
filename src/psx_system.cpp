@@ -11,11 +11,13 @@
 #include <utility>
 
 static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = 571'212;
+static bool canSend = false;
+static uint8_t currentByte = 0;
 
 festation::PSXSystem::PSXSystem()
     : m_cpu(this, m_interruptsHandler), m_mainRAM(MAIN_RAM_SIZE), m_bios(KernelBIOS(m_cpu)),
         m_cdrom(m_interruptsHandler, m_scheduler) , m_dma(*this), 
-            m_timers({ m_scheduler, m_scheduler, m_scheduler })
+            m_timers({{m_interruptsHandler, m_scheduler}, {m_interruptsHandler, m_scheduler}, {m_interruptsHandler, m_scheduler}})
 {
     m_scheduler.scheduleEvent({ EventType::VBlank, CYCLES_FER_FRAME_NTSC, 
         [this]() {
@@ -68,6 +70,22 @@ auto festation::PSXSystem::read8(uint32_t address) -> uint8_t
             break;
         case 0x1F801040:
             LOG_DEBUG("Read8 from Joypad/memory Card port DATA 0x{:08X}", masked_address);
+            {
+                static uint8_t stubStartResponse[5] = { 0xFF, 0x41, 0x5A, 0xFF, 0xBF };
+
+                if (!canSend)
+                    return 0xFF;
+
+                uint8_t byte = stubStartResponse[currentByte++];
+
+                if (currentByte == 5)
+                {
+                    canSend = false;
+                    currentByte = 0;
+                }
+
+                return byte;
+            }
             break;
         case 0x1F801044:
             LOG_DEBUG("Read8 from Joypad/memory Card port STAT 0x{:08X}", masked_address);
@@ -166,7 +184,7 @@ auto festation::PSXSystem::read16(uint32_t address) -> uint16_t
             break;
         case 0x1F80104A:
             LOG_DEBUG("Read16 from Joypad/Memory Card CTRL port 0x{:08X}", masked_address);
-            readValue = 0xFFFF;
+            readValue = 0x3FAF;
             break;
         case 0x1F80104E:
             LOG_DEBUG("Read16 from Joypad/Memory Card BAUD port 0x{:08X}", masked_address);
@@ -337,6 +355,12 @@ auto festation::PSXSystem::write8(uint32_t address, uint8_t value) -> void
             LOG_DEBUG("Write8 ({:02X}h) to I_MASK INT port 0x{:08X}", masked_address);
             break;
         case 0x1F801040:
+            {
+                if (value == 0x01) {
+                    currentByte = 0;
+                    canSend = true;
+                } 
+            }
             LOG_DEBUG("Write8 ({:02X}h) to Joypad/Memory Card DATA port 0x{:08X}", value, masked_address);
             break;
         case 0x1F801048:
@@ -488,11 +512,11 @@ auto festation::PSXSystem::write32(uint32_t address, uint32_t value) -> void
             m_gpu.write32(masked_address, value);
             break;
         case 0x1F801070:
-            // LOG_DEBUG("Write32 ({:08X}h) to I_STAT INT port 0x{:08X}", value, masked_address);
+            LOG_DEBUG("Write32 ({:08X}h) to I_STAT INT port 0x{:08X}", value, masked_address);
             m_interruptsHandler.write32(address, value);
             break;
         case 0x1F801074:
-            // LOG_DEBUG("Write32 ({:08X}h) to I_MASK INT port 0x{:08X}", value, masked_address);
+            LOG_DEBUG("Write32 ({:08X}h) to I_MASK INT port 0x{:08X}", value, masked_address);
             m_interruptsHandler.write32(address, value);
             break;
         case 0x1F801040:
