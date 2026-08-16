@@ -146,8 +146,6 @@ uint8_t festation::MIPS_R3000A_Core::executeInstruction()
     }
 
     currentInstruction = fetchInstruction();
-
- 
         
     // if (r3000a_regs.pc == 0x8003D708) {
     //     printCPUState();

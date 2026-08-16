@@ -10,7 +10,7 @@
 #include <cstring>
 #include <utility>
 
-static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = 571'212;
+static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = 565'045;
 static bool canSend = false;
 static uint8_t currentByte = 0;
 
