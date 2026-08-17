@@ -1,7 +1,27 @@
 #include "cdrom.hpp"
 #include "utils/logger.hpp"
 
+#include <cassert>
 #include <utility>
+
+/** @brief Average seek time of 1/60th of a second in CPU cycles (should be dynamic to emulate it properly) */
+static constexpr uint64_t FIXED_SEEK_TIME = 33868800 / 60;
+
+static constexpr auto convertBCDtoBinary(uint8_t numberBCD) -> uint8_t
+{
+    return (numberBCD & 0xF) + ((numberBCD >> 4) & 0xF) * 10;
+}
+
+static constexpr auto isValidBCD(uint8_t numberBCD) -> bool
+{
+    return ((numberBCD & 0xF) <= 9) && (((numberBCD >> 4) & 0xF) <= 9);
+}
+
+static constexpr auto convertMSFtoLDA(uint8_t minutes, uint8_t seconds, uint8_t sector) -> uint32_t
+{
+    /** @brief We substract 150 because data tracks start at second 2 of a CD (00:02:00), equivalent of 150 sectors */
+    return (((minutes * 60) + seconds) * 75 + sector) - 150;
+}
 
 festation::CdromDrive::CdromDrive(InterruptsHandler& intrHndRef, Scheduler& scheduler)
     : m_interruptsHandler(intrHndRef), m_scheduler(scheduler)
@@ -113,6 +133,9 @@ auto festation::CdromDrive::decodeCommand() -> void
     case 0x02:
         processSetlocCmd();
         break;
+    case 0x15:
+        processSeekLCmd();
+        break;
     case 0x19:
     {
         uint8_t param = m_regs.PARAMETERS.next();
@@ -157,23 +180,93 @@ auto festation::CdromDrive::processNopCmd() -> void
 
 auto festation::CdromDrive::processSetlocCmd() -> void
 {
-    constexpr uint64_t int3Delay = 0xC4E1;
+    constexpr uint64_t firstIntDelay = 0xC4E1;
     
     uint8_t amm = m_regs.PARAMETERS.next();
     uint8_t ass = m_regs.PARAMETERS.next();
     uint8_t asect = m_regs.PARAMETERS.next();
     
+    assert(convertMSFtoLDA(convertBCDtoBinary(amm), 
+        convertBCDtoBinary(ass), 
+            convertBCDtoBinary(asect)) >= 0);
+    
     LOG_DEBUG("CDROM: Setloc ({:02X}:{:02X}:{:02X})", amm, ass, asect);
 
+    bool areParamsValidBCD = isValidBCD(amm) && isValidBCD(ass) 
+        && isValidBCD(asect);
+
+    bool areParamsValidInput = (amm < 0x75) && (ass < 0x60) && (asect < 0x75);
+
+    if (areParamsValidBCD && areParamsValidInput) {
+        m_seekTargetBCD.minutes = amm;
+        m_seekTargetBCD.seconds = ass;
+        m_seekTargetBCD.sector = asect;
+
+        m_regs.RESULT.append(m_internalStatusCode.raw);
+
+        m_scheduler.scheduleEvent({ EventType::CdromInt3, firstIntDelay, [this]() {
+            LOG_DEBUG("CDROM: INT3 response");
+            m_regs.HINTSTS.INTSTS = CDROM_INT3_ACKNOWLEDGE;
+
+            if (isInterrupt()) {
+                m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
+            }
+        }});
+    }
+    else {
+        m_internalStatusCode.error = 1;
+        m_regs.RESULT.append(m_internalStatusCode.raw);
+        m_regs.RESULT.append(0x10);
+
+        m_scheduler.scheduleEvent({ EventType::CdromInt5, firstIntDelay, [this]() {
+            LOG_DEBUG("CDROM: INT5 response");
+            m_regs.HINTSTS.INTSTS = CDROM_INT5_DISK_ERROR;
+
+            if (isInterrupt()) {
+                m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
+            }
+        }});
+    }
+}
+
+auto festation::CdromDrive::processSeekLCmd() -> void
+{
+    constexpr uint64_t int3Delay = 0xC4E1;
+
+    LOG_DEBUG("CDROM: SeekL");
+
+    /** @brief This could also be done on the Setloc command implementation */
+    uint8_t minutes = convertBCDtoBinary(m_seekTargetBCD.minutes); 
+    uint8_t seconds = convertBCDtoBinary(m_seekTargetBCD.seconds); 
+    uint8_t sector = convertBCDtoBinary(m_seekTargetBCD.sector);
+    m_lda = convertMSFtoLDA(minutes, seconds, sector);
+
+    m_internalStatusCode.raw &= 0x1F;
+    m_internalStatusCode.seek = 1;
     m_regs.RESULT.append(m_internalStatusCode.raw);
 
     m_scheduler.scheduleEvent({ EventType::CdromInt3, int3Delay, [this]() {
         LOG_DEBUG("CDROM: INT3 response");
         m_regs.HINTSTS.INTSTS = CDROM_INT3_ACKNOWLEDGE;
 
+        m_internalStatusCode.raw &= 0x1F;
+        m_internalStatusCode.read = 1;
+        m_regs.RESULT.append(m_internalStatusCode.raw);
+
         if (isInterrupt()) {
             m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
         }
+
+        constexpr uint64_t int2Delay = FIXED_SEEK_TIME;
+
+        m_scheduler.scheduleEvent({ EventType::CdromInt2, int2Delay, [this]() {
+            LOG_DEBUG("CDROM: INT2 response");
+            m_regs.HINTSTS.INTSTS = CDROM_INT2_COMPLETE;
+
+            if (isInterrupt()) {
+                m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
+            }
+        }});
     }});
 }
 
@@ -224,7 +317,7 @@ auto festation::CdromDrive::processGetIdCmd() -> void
         m_regs.RESULT.append(0x45);
         m_regs.RESULT.append(0x41);
 
-        m_scheduler.scheduleEvent({ EventType::CdromInt3, int2Delay, [this]() {
+        m_scheduler.scheduleEvent({ EventType::CdromInt2, int2Delay, [this]() {
             LOG_DEBUG("CDROM: INT2 response");
             m_regs.HINTSTS.INTSTS = CDROM_INT2_COMPLETE;
 

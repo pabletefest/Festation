@@ -19,6 +19,12 @@ namespace festation {
         CDROM_INT7,
     };
 
+    enum SectorSize {
+        SECTOR_SIZE_800H = 0,
+        SECTOR_SIZE_924H,
+        SECTOR_SIZE_COUNT,
+    };
+
     class CdromDrive {
     public:
         CdromDrive(InterruptsHandler& intrHndRef, Scheduler& scheduler);
@@ -31,6 +37,7 @@ namespace festation {
         auto decodeCommand() -> void;
         auto processNopCmd() -> void;
         auto processSetlocCmd() -> void;
+        auto processSeekLCmd() -> void;
         auto processBiosVersionCmd() -> void;
         auto processGetIdCmd() -> void;
 
@@ -96,7 +103,6 @@ namespace festation {
             } HCHPCTL{};
 
             uint16_t RDDATA{};
-
             FifoCircularBuffer<BUFFER_SIZE> RESULT{};
 
             union {
@@ -176,6 +182,14 @@ namespace festation {
             uint8_t raw;
         } m_internalStatusCode{};
 
+        struct SeekTargetBCD {
+            uint8_t minutes;
+            uint8_t seconds;
+            uint8_t sector;
+        } m_seekTargetBCD{};
+
+        uint32_t m_lda{};
+        SectorSize m_sectorSize{};
         InterruptsHandler& m_interruptsHandler;
         Scheduler& m_scheduler;
     };
