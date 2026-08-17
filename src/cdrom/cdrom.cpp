@@ -133,6 +133,9 @@ auto festation::CdromDrive::decodeCommand() -> void
     case 0x02:
         processSetlocCmd();
         break;
+    case 0x06:
+        processReadNCmd();
+        break;
     case 0x0E:
         processSetmodeCmd();
         break;
@@ -167,7 +170,15 @@ auto festation::CdromDrive::processNopCmd() -> void
 {
     LOG_DEBUG("CDROM: Nop");
     constexpr uint64_t int3Delay = 0xC4E1;
-
+    /**
+     * @brief 
+     * In reality, error bits are cleared after lid is opened and the CD reinserted. 
+     * SW later on call NOP to check the state so we simulate that here.
+     */
+    m_internalStatusCode.error = 0;
+    m_internalStatusCode.idError = 0;
+    m_internalStatusCode.seekError = 0;
+    
     m_regs.RESULT.append(m_internalStatusCode.raw);
     m_internalStatusCode.shellOpen = 0;
     
@@ -232,13 +243,20 @@ auto festation::CdromDrive::processSetlocCmd() -> void
     }
 }
 
+auto festation::CdromDrive::processReadNCmd() -> void
+{
+    LOG_DEBUG("CDROM: ReadN");
+    constexpr uint64_t int3Delay = 0xC4E1;
+}
+
 auto festation::CdromDrive::processSetmodeCmd() -> void
 {
-    LOG_DEBUG("CDROM: Setmode");
     constexpr uint64_t int3Delay = 0xC4E1;
-
+    
     uint8_t sectorSize = m_mode.sectorSize;
     m_mode.raw = m_regs.PARAMETERS.next();
+
+    LOG_DEBUG("CDROM: Setmode ({:02X}h)", m_mode.raw);
 
     if (m_mode.ignoreBit) {
         m_mode.sectorSize = sectorSize;

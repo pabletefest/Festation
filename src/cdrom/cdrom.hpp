@@ -31,6 +31,7 @@ namespace festation {
         auto decodeCommand() -> void;
         auto processNopCmd() -> void;
         auto processSetlocCmd() -> void;
+        auto processReadNCmd() -> void;
         auto processSetmodeCmd() -> void;
         auto processSeekLCmd() -> void;
         auto processBiosVersionCmd() -> void;
