@@ -133,6 +133,9 @@ auto festation::CdromDrive::decodeCommand() -> void
     case 0x02:
         processSetlocCmd();
         break;
+    case 0x0E:
+        processSetmodeCmd();
+        break;
     case 0x15:
         processSeekLCmd();
         break;
@@ -229,11 +232,34 @@ auto festation::CdromDrive::processSetlocCmd() -> void
     }
 }
 
-auto festation::CdromDrive::processSeekLCmd() -> void
+auto festation::CdromDrive::processSetmodeCmd() -> void
 {
+    LOG_DEBUG("CDROM: Setmode");
     constexpr uint64_t int3Delay = 0xC4E1;
 
+    uint8_t sectorSize = m_mode.sectorSize;
+    m_mode.raw = m_regs.PARAMETERS.next();
+
+    if (m_mode.ignoreBit) {
+        m_mode.sectorSize = sectorSize;
+    }
+
+    m_regs.RESULT.append(m_internalStatusCode.raw);
+    
+    m_scheduler.scheduleEvent({ EventType::CdromInt3, int3Delay, [this]() {
+        LOG_DEBUG("CDROM: INT3 response");
+        m_regs.HINTSTS.INTSTS = CDROM_INT3_ACKNOWLEDGE;
+
+        if (isInterrupt()) {
+            m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
+        }
+    }});
+}
+
+auto festation::CdromDrive::processSeekLCmd() -> void
+{
     LOG_DEBUG("CDROM: SeekL");
+    constexpr uint64_t int3Delay = 0xC4E1;
 
     /** @brief This could also be done on the Setloc command implementation */
     uint8_t minutes = convertBCDtoBinary(m_seekTargetBCD.minutes); 
