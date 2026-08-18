@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <array>
 #include <cstring>
+#include <vector>
 
 namespace festation {
     enum CdromInterruptType {
@@ -58,7 +59,7 @@ namespace festation {
             }
 
             inline auto drain() -> void {
-                std::memset(buffer.data(), 0, N);
+                // std::memset(buffer.data(), 0, N);
                 lastRequestedIndex = 0;
                 nextFreeIndex = 0;
             }
@@ -200,6 +201,8 @@ namespace festation {
 
             uint8_t raw;
         } m_mode{};
+
+        std::vector<uint8_t> m_sectorBlock;
 
         InterruptsHandler& m_interruptsHandler;
         Scheduler& m_scheduler;

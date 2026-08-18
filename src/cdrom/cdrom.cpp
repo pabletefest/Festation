@@ -7,6 +7,8 @@
 /** @brief Average seek time of 1/60th of a second in CPU cycles (should be dynamic to emulate it properly) */
 static constexpr uint64_t FIXED_SEEK_TIME = 33868800 / 60;
 
+static constexpr std::array<size_t, 2> CD_SECTOR_SIZES = { 0x800, 0x924 };
+
 static constexpr auto convertBCDtoBinary(uint8_t numberBCD) -> uint8_t
 {
     return (numberBCD & 0xF) + ((numberBCD >> 4) & 0xF) * 10;
@@ -80,7 +82,7 @@ auto festation::CdromDrive::write8(uint32_t address, uint8_t value) -> void
     case 0x1F801801:
         m_regs.COMMAND = value;
         decodeCommand();
-        // m_regs.PARAMETERS.drain();
+        m_regs.PARAMETERS.drain();
         break;
     case 0x1F801802:
         switch (m_regs.HSTS.RA)
@@ -178,7 +180,7 @@ auto festation::CdromDrive::processNopCmd() -> void
     m_internalStatusCode.error = 0;
     m_internalStatusCode.idError = 0;
     m_internalStatusCode.seekError = 0;
-    
+
     m_regs.RESULT.append(m_internalStatusCode.raw);
     m_internalStatusCode.shellOpen = 0;
     
@@ -261,6 +263,8 @@ auto festation::CdromDrive::processSetmodeCmd() -> void
     if (m_mode.ignoreBit) {
         m_mode.sectorSize = sectorSize;
     }
+
+    m_sectorBlock.resize(CD_SECTOR_SIZES[m_mode.sectorSize]);
 
     m_regs.RESULT.append(m_internalStatusCode.raw);
     
