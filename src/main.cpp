@@ -1,3 +1,4 @@
+#include <chrono>
 #include <sstream>
 
 #include <glad/gl.h>
@@ -7,6 +8,7 @@
 #include "utils/logger.hpp"
 
 #include <glm/vec4.hpp>
+#include <thread>
 
 namespace festation
 {
@@ -120,6 +122,13 @@ int main(int, char**)
         
         /* Poll for and process events */
         glfwPollEvents();
+
+        float idleTime = (1.f / 60) - delta;
+
+        if (idleTime > 0) {
+            int64_t sleepTimeMs = idleTime * 1000;
+            std::this_thread::sleep_for(std::chrono::milliseconds(sleepTimeMs));
+        }
     });
 
     if (!path.empty()) {
