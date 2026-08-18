@@ -39,6 +39,7 @@ namespace festation {
         auto processGetIdCmd() -> void;
 
         auto isInterrupt() const -> bool;
+        auto checkAndScheduleReadINT1() -> void;
 
     private:
         constexpr static size_t BUFFER_SIZE = 16ull;

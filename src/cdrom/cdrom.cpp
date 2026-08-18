@@ -51,6 +51,7 @@ auto festation::CdromDrive::read8(uint32_t address) -> uint8_t
         return m_regs.RESULT.next();
     case 0x1F801802:
         /** @todo */
+        assert(false);
         break;
     case 0x1F801803:
         switch (m_regs.HSTS.RA)
@@ -155,6 +156,7 @@ auto festation::CdromDrive::decodeCommand() -> void
             break;
         default:
             LOG_DEBUG("CDROM: unimplemented test command {:02X}h", param);
+            assert(false);
             break;
         }
     }
@@ -164,6 +166,7 @@ auto festation::CdromDrive::decodeCommand() -> void
         break;
     default:
         LOG_DEBUG("CDROM: unimplemented command {:02X}h", cmd);
+        assert(false);
         break;
     }
 }
@@ -249,6 +252,21 @@ auto festation::CdromDrive::processReadNCmd() -> void
 {
     LOG_DEBUG("CDROM: ReadN");
     constexpr uint64_t int3Delay = 0xC4E1;
+
+    m_internalStatusCode.raw &= 0x1F;
+    m_regs.RESULT.append(m_internalStatusCode.raw);
+    m_internalStatusCode.read = 1;
+    
+    m_scheduler.scheduleEvent({ EventType::CdromInt3, int3Delay, [this]() {
+        LOG_DEBUG("CDROM: INT3 response");
+        m_regs.HINTSTS.INTSTS = CDROM_INT3_ACKNOWLEDGE;
+
+        if (isInterrupt()) {
+            m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
+        }
+
+        checkAndScheduleReadINT1();
+    }});
 }
 
 auto festation::CdromDrive::processSetmodeCmd() -> void
@@ -290,22 +308,21 @@ auto festation::CdromDrive::processSeekLCmd() -> void
     m_lda = convertMSFtoLDA(minutes, seconds, sector);
 
     m_internalStatusCode.raw &= 0x1F;
-    m_internalStatusCode.seek = 1;
     m_regs.RESULT.append(m_internalStatusCode.raw);
+    m_internalStatusCode.seek = 1;
 
     m_scheduler.scheduleEvent({ EventType::CdromInt3, int3Delay, [this]() {
         LOG_DEBUG("CDROM: INT3 response");
         m_regs.HINTSTS.INTSTS = CDROM_INT3_ACKNOWLEDGE;
-
-        m_internalStatusCode.raw &= 0x1F;
-        m_internalStatusCode.read = 1;
-        m_regs.RESULT.append(m_internalStatusCode.raw);
 
         if (isInterrupt()) {
             m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
         }
 
         constexpr uint64_t int2Delay = FIXED_SEEK_TIME;
+
+        m_internalStatusCode.raw &= 0x1F;
+        m_regs.RESULT.append(m_internalStatusCode.raw);
 
         m_scheduler.scheduleEvent({ EventType::CdromInt2, int2Delay, [this]() {
             LOG_DEBUG("CDROM: INT2 response");
@@ -358,7 +375,7 @@ auto festation::CdromDrive::processGetIdCmd() -> void
 
         m_regs.RESULT.append(m_internalStatusCode.raw);
         m_regs.RESULT.append(0);
-        m_regs.RESULT.append(0);
+        m_regs.RESULT.append(0x20); // Assuming Mode 2 (should be checked paring CUE)
         m_regs.RESULT.append(0);
         m_regs.RESULT.append(0x53);
         m_regs.RESULT.append(0x43);
@@ -379,4 +396,22 @@ auto festation::CdromDrive::processGetIdCmd() -> void
 auto festation::CdromDrive::isInterrupt() const -> bool
 {
     return (m_regs.HINTSTS.raw & 0x1F) && (m_regs.HINTMSK.raw & 0x1F);
+}
+
+auto festation::CdromDrive::checkAndScheduleReadINT1() -> void
+{ 
+    if (m_internalStatusCode.read) {
+        constexpr uint64_t int1Delay = 0x4A00;
+
+        m_regs.RESULT.append(m_internalStatusCode.raw);
+
+        m_scheduler.scheduleEvent({ EventType::CdromInt1, int1Delay, [this]() {
+            LOG_DEBUG("CDROM: INT1 response");
+            m_regs.HINTSTS.INTSTS = CDROM_INT1_DATA_READY;
+
+            if (isInterrupt()) {
+                m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
+            }
+        }});
+    }
 }
