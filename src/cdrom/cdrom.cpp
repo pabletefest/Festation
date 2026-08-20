@@ -7,24 +7,6 @@
 /** @brief Average seek time of 1/60th of a second in CPU cycles (should be dynamic to emulate it properly) */
 static constexpr uint64_t FIXED_SEEK_TIME = 33868800 / 60;
 
-static constexpr std::array<size_t, 2> CD_SECTOR_SIZES = { 0x800, 0x924 };
-
-static constexpr auto convertBCDtoBinary(uint8_t numberBCD) -> uint8_t
-{
-    return (numberBCD & 0xF) + ((numberBCD >> 4) & 0xF) * 10;
-}
-
-static constexpr auto isValidBCD(uint8_t numberBCD) -> bool
-{
-    return ((numberBCD & 0xF) <= 9) && (((numberBCD >> 4) & 0xF) <= 9);
-}
-
-static constexpr auto convertMSFtoLDA(uint8_t minutes, uint8_t seconds, uint8_t sector) -> uint32_t
-{
-    /** @brief We substract 150 because data tracks start at second 2 of a CD (00:02:00), equivalent of 150 sectors */
-    return (((minutes * 60) + seconds) * 75 + sector) - 150;
-}
-
 festation::CdromDrive::CdromDrive(InterruptsHandler& intrHndRef, Scheduler& scheduler)
     : m_interruptsHandler(intrHndRef), m_scheduler(scheduler)
 {

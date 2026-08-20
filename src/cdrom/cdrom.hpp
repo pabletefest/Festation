@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cdrom_common.hpp"
 #include "interrupts/interrupts.hpp"
 #include "scheduler/scheduler.hpp"
 
@@ -180,12 +181,7 @@ namespace festation {
             uint8_t raw;
         } m_internalStatusCode{};
 
-        struct SeekTargetBCD {
-            uint8_t minutes;
-            uint8_t seconds;
-            uint8_t sector;
-        } m_seekTargetBCD{};
-
+        MSFFormat m_seekTargetBCD{};
         uint32_t m_lda{};
         
         union {
