@@ -437,9 +437,7 @@ auto festation::CdromDrive::checkAndScheduleReadINT1() -> void
 auto festation::CdromDrive::readSectorByte() -> uint8_t
 {
     if (m_sectorBlock.nextByte == 0) {
-        m_lda++;
-
-        auto result = m_cdReader.readCdSector(m_lda, m_sectorBlock.data);
+        auto result = m_cdReader.readCdSector(m_lda++, m_sectorBlock.data);
 
         if (!result) {
             /** @todo */

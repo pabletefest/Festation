@@ -36,7 +36,7 @@ namespace festation {
     protected:
         virtual auto startTransfer() -> void = 0;
         virtual auto modifyControlRegister(uint32_t value) -> void;
-        auto endTransfer() -> void;
+        auto endTransfer(uint32_t endAddress) -> void;
 
     protected:
         union DmaBaseAddress {

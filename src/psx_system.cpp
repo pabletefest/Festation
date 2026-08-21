@@ -200,7 +200,7 @@ auto festation::PSXSystem::read16(uint32_t address) -> uint16_t
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
             {
                 LOG_DEBUG("Read16 from CDROM port address 0x{:08X}", masked_address);
-                std::unreachable();
+                readValue = m_cdrom.read16(masked_address);
             }
             else
             {
@@ -295,7 +295,7 @@ auto festation::PSXSystem::read32(uint32_t address) -> uint32_t
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
             {
                 LOG_DEBUG("Read32 from CDROM port address 0x{:08X}", masked_address);
-                std::unreachable();
+                readValue = m_cdrom.read32(masked_address);
             }
             else
             {
