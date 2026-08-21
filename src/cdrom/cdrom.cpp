@@ -382,18 +382,20 @@ auto festation::CdromDrive::isInterrupt() const -> bool
 
 auto festation::CdromDrive::checkAndScheduleReadINT1() -> void
 { 
-    if (m_internalStatusCode.read) {
-        constexpr uint64_t int1Delay = 0x4A00;
+    constexpr uint64_t int1Delay = 0x4A00;
 
-        m_regs.RESULT.append(m_internalStatusCode.raw);
+    m_regs.RESULT.append(m_internalStatusCode.raw);
 
-        m_scheduler.scheduleEvent({ EventType::CdromInt1, int1Delay, [this]() {
-            LOG_DEBUG("CDROM: INT1 response");
-            m_regs.HINTSTS.INTSTS = CDROM_INT1_DATA_READY;
+    m_scheduler.scheduleEvent({ EventType::CdromInt1, int1Delay, [this]() {
+        LOG_DEBUG("CDROM: INT1 response");
+        m_regs.HINTSTS.INTSTS = CDROM_INT1_DATA_READY;
 
-            if (isInterrupt()) {
-                m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
-            }
-        }});
-    }
+        if (isInterrupt()) {
+            m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
+        }
+
+        if (m_internalStatusCode.read) {
+            checkAndScheduleReadINT1();
+        }
+    }});
 }

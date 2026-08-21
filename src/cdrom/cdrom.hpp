@@ -182,7 +182,7 @@ namespace festation {
         } m_internalStatusCode{};
 
         MSFFormat m_seekTargetBCD{};
-        uint32_t m_lda{};
+        size_t m_lda{};
         
         union {
             struct {
