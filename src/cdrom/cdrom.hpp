@@ -1,9 +1,11 @@
 #pragma once
 
+#include "cd_reader.hpp"
 #include "cdrom_common.hpp"
 #include "interrupts/interrupts.hpp"
 #include "scheduler/scheduler.hpp"
 
+#include <cstddef>
 #include <cstdint>
 #include <array>
 #include <cstring>
@@ -27,6 +29,8 @@ namespace festation {
         ~CdromDrive();
 
         auto read8(uint32_t address) -> uint8_t;
+        auto read16(uint32_t address) -> uint16_t;
+        auto read32(uint32_t address) -> uint32_t;
         auto write8(uint32_t address, uint8_t value) -> void;
     
     private:
@@ -41,6 +45,7 @@ namespace festation {
 
         auto isInterrupt() const -> bool;
         auto checkAndScheduleReadINT1() -> void;
+        auto readSectorByte() -> uint8_t;
 
     private:
         constexpr static size_t BUFFER_SIZE = 16ull;
@@ -199,7 +204,12 @@ namespace festation {
             uint8_t raw;
         } m_mode{};
 
-        std::vector<uint8_t> m_sectorBlock;
+        struct SectorBlock {
+            std::vector<std::byte> data;
+            size_t nextByte;
+        } m_sectorBlock{};
+
+        CDReader m_cdReader{};
 
         InterruptsHandler& m_interruptsHandler;
         Scheduler& m_scheduler;

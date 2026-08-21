@@ -2,6 +2,8 @@
 #include "utils/logger.hpp"
 
 #include <cassert>
+#include <cstddef>
+#include <cstdint>
 #include <utility>
 
 /** @brief Average seek time of 1/60th of a second in CPU cycles (should be dynamic to emulate it properly) */
@@ -32,9 +34,7 @@ auto festation::CdromDrive::read8(uint32_t address) -> uint8_t
     case 0x1F801801:
         return m_regs.RESULT.next();
     case 0x1F801802:
-        /** @todo */
-        assert(false);
-        break;
+        return readSectorByte();
     case 0x1F801803:
         switch (m_regs.HSTS.RA)
         {
@@ -53,6 +53,40 @@ auto festation::CdromDrive::read8(uint32_t address) -> uint8_t
     }
 
     return 0;
+}
+
+auto festation::CdromDrive::read16(uint32_t address) -> uint16_t
+{
+    uint16_t result{};
+
+    switch (address)
+    {
+    case 0x1F801802:
+        result = read8(address);
+        result |= read8(address) << 8;
+        break;
+    default:
+        std::unreachable();
+    }
+
+    return result;
+}
+
+auto festation::CdromDrive::read32(uint32_t address) -> uint32_t
+{
+    uint32_t result{};
+
+    switch (address)
+    {
+    case 0x1F801802:
+        result = read16(address);
+        result |= read16(address) << 16;
+        break;
+    default:
+        std::unreachable();
+    }
+
+    return result;
 }
 
 auto festation::CdromDrive::write8(uint32_t address, uint8_t value) -> void
@@ -264,7 +298,7 @@ auto festation::CdromDrive::processSetmodeCmd() -> void
         m_mode.sectorSize = sectorSize;
     }
 
-    m_sectorBlock.resize(CD_SECTOR_SIZES[m_mode.sectorSize]);
+    m_sectorBlock.data.resize(CD_SECTOR_SIZES[m_mode.sectorSize]);
 
     m_regs.RESULT.append(m_internalStatusCode.raw);
     
@@ -398,4 +432,21 @@ auto festation::CdromDrive::checkAndScheduleReadINT1() -> void
             checkAndScheduleReadINT1();
         }
     }});
+}
+
+auto festation::CdromDrive::readSectorByte() -> uint8_t
+{
+    if (m_sectorBlock.nextByte == 0) {
+        m_lda++;
+
+        auto result = m_cdReader.readCdSector(m_lda, m_sectorBlock.data);
+
+        if (!result) {
+            /** @todo */
+            LOG_ERROR("Error reading a CD sector");
+            assert(false);
+        }
+    }
+
+    return std::to_integer<uint8_t>(m_sectorBlock.data[m_sectorBlock.nextByte++]);
 }
