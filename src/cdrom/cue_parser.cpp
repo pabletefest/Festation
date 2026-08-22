@@ -9,6 +9,7 @@
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <utility>
 
 static constexpr std::string_view FILE_TOKEN = "FILE";
@@ -138,6 +139,10 @@ auto festation::parseCueFile(const std::filesystem::path& cuePath) -> std::expec
 
             for (const auto& value : msfElements) {
                 auto [ptr, ec] = std::from_chars(value.data(), value.data() + value.size(), msf[msfIndex++]);
+
+                if (ec == std::errc::invalid_argument) {
+                    return std::unexpected(CdFileError::CueParsingError);
+                }
             }
 
             assert(trackInfoPtr);
@@ -170,6 +175,10 @@ auto festation::parseCueFile(const std::filesystem::path& cuePath) -> std::expec
 
             for (const auto& value : msfElements) {
                 auto [ptr, ec] = std::from_chars(value.data(), value.data() + value.size(), msf[msfIndex++]);
+
+                if (ec == std::errc::invalid_argument) {
+                    return std::unexpected(CdFileError::CueParsingError);
+                }
             }
 
             indexInfo.address = {
