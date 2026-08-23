@@ -9,9 +9,9 @@
 #include "scheduler/scheduler.hpp"
 #include "timer/timer.hpp"
 
-#include <vector>
 #include <array>
 #include <filesystem>
+#include <vector>
 
 namespace festation
 {
@@ -27,6 +27,9 @@ namespace festation
         inline auto setFrameEndCallback(Func&& callback) -> void {
             this->m_frameEndCallback = callback;
         }
+
+        auto openDiscImage(const std::filesystem::path& cuePath, const std::vector<std::filesystem::path>& binPaths) -> void;
+        auto openDiscImage(const std::filesystem::path& cuePath) -> void;
 
         auto read8(uint32_t address) -> uint8_t;
         auto read16(uint32_t address) -> uint16_t;

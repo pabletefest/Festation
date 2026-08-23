@@ -1,4 +1,5 @@
 #include "cdrom.hpp"
+#include "cdrom_common.hpp"
 #include "utils/logger.hpp"
 
 #include <cassert>
@@ -138,6 +139,16 @@ auto festation::CdromDrive::write8(uint32_t address, uint8_t value) -> void
     default:
         std::unreachable();
     }
+}
+
+auto festation::CdromDrive::openDiscImage(const std::filesystem::path& cuePath, const std::vector<std::filesystem::path>& binPaths) -> std::expected<void, CdFileError>
+{
+    return m_cdReader.openDiscImage(cuePath, binPaths);
+}
+
+auto festation::CdromDrive::openDiscImage(const std::filesystem::path& cuePath) -> std::expected<void, CdFileError>
+{
+    return m_cdReader.openDiscImage(cuePath);
 }
 
 auto festation::CdromDrive::decodeCommand() -> void
@@ -298,7 +309,9 @@ auto festation::CdromDrive::processSetmodeCmd() -> void
         m_mode.sectorSize = sectorSize;
     }
 
-    m_sectorBlock.data.resize(CD_SECTOR_SIZES[m_mode.sectorSize]);
+    size_t sectorSizeInBytes = CD_SECTOR_SIZES[m_mode.sectorSize];
+    m_sectorBlock.initialOffset = RAW_SECTOR_SIZE - sectorSizeInBytes;
+    m_sectorBlock.data.resize(RAW_SECTOR_SIZE);
 
     m_regs.RESULT.append(m_internalStatusCode.raw);
     
@@ -321,7 +334,8 @@ auto festation::CdromDrive::processSeekLCmd() -> void
     uint8_t minutes = convertBCDtoBinary(m_seekTargetBCD.minutes); 
     uint8_t seconds = convertBCDtoBinary(m_seekTargetBCD.seconds); 
     uint8_t sector = convertBCDtoBinary(m_seekTargetBCD.sector);
-    m_lda = convertMSFtoLDA(minutes, seconds, sector);
+    /** @brief We substract 150 because data tracks start at second 2 of a CD (00:02:00), equivalent of 150 sectors */
+    m_lda = convertMSFtoLDA(minutes, seconds, sector) - 150;
 
     m_internalStatusCode.raw &= 0x1F;
     m_regs.RESULT.append(m_internalStatusCode.raw);
@@ -437,14 +451,11 @@ auto festation::CdromDrive::checkAndScheduleReadINT1() -> void
 auto festation::CdromDrive::readSectorByte() -> uint8_t
 {
     if (m_sectorBlock.nextByte == 0) {
-        auto result = m_cdReader.readCdSector(m_lda++, m_sectorBlock.data);
-
-        if (!result) {
-            /** @todo */
-            LOG_ERROR("Error reading a CD sector");
-            assert(false);
-        }
+        m_cdReader.readCdSector(m_lda++, m_sectorBlock.data);
     }
 
-    return std::to_integer<uint8_t>(m_sectorBlock.data[m_sectorBlock.nextByte++]);
+    size_t offset = (m_sectorBlock.initialOffset + m_sectorBlock.nextByte) % RAW_SECTOR_SIZE;
+    m_sectorBlock.nextByte = (m_sectorBlock.nextByte + 1) % CD_SECTOR_SIZES[m_mode.sectorSize];
+
+    return std::to_integer<uint8_t>(m_sectorBlock.data[offset]);
 }

@@ -1,9 +1,12 @@
+#include <algorithm>
+#include <cctype>
 #include <chrono>
 #include <sstream>
 
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
 
+#include "cdrom/cd_reader.hpp"
 #include "psx_system.hpp"
 #include "utils/logger.hpp"
 
@@ -104,6 +107,7 @@ int main(int, char**)
     // path = std::filesystem::current_path().concat("/../../../res/tests/Jakub-PSX/gpu/rectangles/rectangles.exe");
     // path = std::filesystem::current_path().concat("/../../../res/tests/Jakub-PSX/gpu/triangle/triangle.exe");
     // path = std::filesystem::current_path().concat("/../../../res/tests/Jakub-PSX/timers/timers.exe");
+    path = std::filesystem::current_path().concat("/../../../roms/Mortal Kombat II (Japan).cue");
 
     psxSystem.setFrameEndCallback([&]() {
         float current = (float)glfwGetTime();
@@ -132,7 +136,17 @@ int main(int, char**)
     });
 
     if (!path.empty()) {
-        psxSystem.sideloadExeFile(path);
+        std::string extension = path.extension().string();
+        std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char chr) {
+            return std::tolower(chr);
+        });
+
+        if (extension == ".exe") {
+            psxSystem.sideloadExeFile(path);
+        }
+        else if (extension == ".cue") {
+            psxSystem.openDiscImage(path);
+        }
     }
 
     /* Loop until the user closes the window */

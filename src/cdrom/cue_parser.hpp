@@ -22,11 +22,13 @@ namespace festation {
 
     struct TrackPregapInfo {
         MSFFormat address;
+        size_t lda;
     };
 
     struct TrackIndexInfo {
         size_t id;
         MSFFormat address;
+        size_t lda;
     };
 
     struct FileTrackInfo {
@@ -39,6 +41,7 @@ namespace festation {
     struct BinFileInfo {
         std::string filename;
         std::vector<FileTrackInfo> tracks;
+        size_t ldaStartOffset;
     };
 
     auto parseCueFile(const std::filesystem::path& cuePath) -> std::expected<std::vector<BinFileInfo>, CdFileError>;

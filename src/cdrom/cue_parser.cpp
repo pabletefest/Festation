@@ -152,6 +152,7 @@ auto festation::parseCueFile(const std::filesystem::path& cuePath) -> std::expec
                     .seconds = msf[1],
                     .sector = msf[2],
                 },
+                .lda = convertMSFtoLDA(msf[0], msf[1], msf[2]),
             };
         }
 
@@ -186,6 +187,8 @@ auto festation::parseCueFile(const std::filesystem::path& cuePath) -> std::expec
                 .seconds = msf[1],
                 .sector = msf[2],
             };
+
+            indexInfo.lda = convertMSFtoLDA(indexInfo.address);
 
             assert(trackInfoPtr);
             trackInfoPtr->indices.push_back(indexInfo);

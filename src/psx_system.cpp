@@ -40,6 +40,26 @@ auto festation::PSXSystem::reset() -> void
     // m_interruptsHandler.reset();
 }
 
+auto festation::PSXSystem::openDiscImage(const std::filesystem::path& cuePath, const std::vector<std::filesystem::path>& binPaths) -> void
+{
+    auto result = m_cdrom.openDiscImage(cuePath, binPaths);
+
+    if (!result) {
+        /** @todo */
+        assert(false);
+    }
+}
+
+auto festation::PSXSystem::openDiscImage(const std::filesystem::path& cuePath) -> void
+{
+    auto result = m_cdrom.openDiscImage(cuePath);
+
+    if (!result) {
+        /** @todo */
+        assert(false);
+    }
+}
+
 // IMPLEMENT READ16 AND READ32 AS MULTIPLE READ8 SIMPLIFIES IMPLEMENTATION
 // IF PERFORMANCE IS REDUCED DUE TO OVERHEAD, TRY IMPLEMENT THEM ON THEIR OWN
 

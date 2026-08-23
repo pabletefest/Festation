@@ -5,10 +5,11 @@
 #include "interrupts/interrupts.hpp"
 #include "scheduler/scheduler.hpp"
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
-#include <array>
 #include <cstring>
+#include <filesystem>
 #include <vector>
 
 namespace festation {
@@ -32,6 +33,9 @@ namespace festation {
         auto read16(uint32_t address) -> uint16_t;
         auto read32(uint32_t address) -> uint32_t;
         auto write8(uint32_t address, uint8_t value) -> void;
+
+        auto openDiscImage(const std::filesystem::path& cuePath, const std::vector<std::filesystem::path>& binPaths) -> std::expected<void, CdFileError>;
+        auto openDiscImage(const std::filesystem::path& cuePath) -> std::expected<void, CdFileError>;
     
     private:
         auto decodeCommand() -> void;
@@ -206,6 +210,7 @@ namespace festation {
 
         struct SectorBlock {
             std::vector<std::byte> data;
+            size_t initialOffset;
             size_t nextByte;
         } m_sectorBlock{};
 
