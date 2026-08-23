@@ -114,7 +114,7 @@ int main(int, char**)
         delta = current - time;
         time = current;
 
-        std::string windowTitle =  std::format("{} | {} | {:.2f} FPS", festation::EMU_TITLE, (path.empty()) ? "No disc" : path.filename().string(), 1.0f / delta);
+        std::string windowTitle =  std::format("{} | {} | {:.2f} FPS", festation::EMU_TITLE, (path.empty()) ? "No disc" : path.stem().string(), 1.0f / delta);
         glfwSetWindowTitle(window, windowTitle.c_str());
 
         // int display_w, display_h;
