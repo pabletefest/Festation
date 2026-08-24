@@ -166,6 +166,9 @@ auto festation::CdromDrive::decodeCommand() -> void
     case 0x06:
         processReadNCmd();
         break;
+    case 0x09:
+        processPauseCmd();
+        break;
     case 0x0E:
         processSetmodeCmd();
         break;
@@ -294,6 +297,65 @@ auto festation::CdromDrive::processReadNCmd() -> void
 
         checkAndScheduleReadINT1();
     }});
+}
+
+auto festation::CdromDrive::processPauseCmd() -> void
+{
+    LOG_DEBUG("CDROM: Pause");
+    constexpr uint64_t firstIntDelay = 0xC4E1;
+    bool isPaused = !m_internalStatusCode.play && !m_internalStatusCode.read;
+
+    if (!m_internalStatusCode.seek) {
+        m_regs.RESULT.append(m_internalStatusCode.raw);
+        m_internalStatusCode.raw &= 0x1F;
+
+        m_scheduler.scheduleEvent({ EventType::CdromInt3, firstIntDelay, [this, isPaused]() {
+        LOG_DEBUG("CDROM: INT3 response");
+        m_regs.HINTSTS.INTSTS = CDROM_INT3_ACKNOWLEDGE;
+
+        if (isInterrupt()) {
+            m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
+        }
+
+        uint64_t secondIntDelay{};
+
+        if (isPaused) {
+            secondIntDelay = 0x1DF2;
+        }
+        else if (m_mode.speed) {
+            secondIntDelay = 0x10BD93;
+        }
+        else {
+            secondIntDelay = 0x21181C;
+        }
+
+        m_internalStatusCode.raw &= 0x1F;
+        m_regs.RESULT.append(m_internalStatusCode.raw);
+
+        m_scheduler.scheduleEvent({ EventType::CdromInt2, secondIntDelay, [this]() {
+            LOG_DEBUG("CDROM: INT2 response");
+            m_regs.HINTSTS.INTSTS = CDROM_INT2_COMPLETE;
+
+            if (isInterrupt()) {
+                m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
+            }
+        }});
+    }});
+    }
+    else {
+        m_internalStatusCode.error = 1;
+        m_regs.RESULT.append(m_internalStatusCode.raw);
+        m_regs.RESULT.append(0x80);
+
+        m_scheduler.scheduleEvent({ EventType::CdromInt5, firstIntDelay, [this]() {
+            LOG_DEBUG("CDROM: INT5 response");
+            m_regs.HINTSTS.INTSTS = CDROM_INT5_DISK_ERROR;
+
+            if (isInterrupt()) {
+                m_interruptsHandler.setInterruptSource(InterruptSource::CdromSrc);
+            }
+        }});
+    }
 }
 
 auto festation::CdromDrive::processSetmodeCmd() -> void
