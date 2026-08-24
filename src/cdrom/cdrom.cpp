@@ -492,7 +492,14 @@ auto festation::CdromDrive::isInterrupt() const -> bool
 
 auto festation::CdromDrive::checkAndScheduleReadINT1() -> void
 { 
-    constexpr uint64_t int1Delay = 0x4A00;
+    uint64_t int1Delay{};
+
+    if (m_mode.speed) {
+        int1Delay = 0x36CD2;
+    }
+    else {
+        int1Delay = 0x6E1CD;
+    }
 
     m_regs.RESULT.append(m_internalStatusCode.raw);
 
