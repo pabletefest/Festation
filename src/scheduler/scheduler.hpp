@@ -2,6 +2,7 @@
 
 #include "event_types.hpp"
 
+#include <cstdint>
 #include <queue>
 
 namespace festation {
@@ -12,6 +13,9 @@ namespace festation {
     public:
         auto scheduleEvent(Event&& event) -> void;
         auto step(uint64_t cycles) -> void;
+        auto advanceFor(uint64_t cycles) -> void;
+        auto nextEventTime() -> uint64_t;
+        auto dispatchPastEvents() -> void;
 
     private:
         auto eventPending() const -> bool;

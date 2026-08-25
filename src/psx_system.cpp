@@ -2,9 +2,11 @@
 #include "cdrom/cdrom.hpp"
 #include "interrupts/interrupts.hpp"
 #include "memory/memory_map_masks.hpp"
+#include "scheduler/event_types.hpp"
 #include "utils/logger.hpp"
 #include "utils/file_reader.hpp"
 
+#include <cstdint>
 #include <stdlib.h>
 #include <assert.h>
 #include <cstring>
@@ -590,10 +592,17 @@ auto festation::PSXSystem::write32(uint32_t address, uint32_t value) -> void
 
 auto festation::PSXSystem::run() -> void
 {
-    uint8_t cycles = m_cpu.executeInstruction();
-    m_bios.checkKernerlTTYOutput();
-    m_scheduler.step(cycles);
-    m_totalElapsedCycles += cycles;
+    uint64_t nextEventCycles = m_scheduler.nextEventTime();
+    uint64_t elapsedCycles = 0;
+
+    while (elapsedCycles < nextEventCycles) {
+        elapsedCycles += m_cpu.executeInstruction();
+        m_bios.checkKernerlTTYOutput();
+    }
+
+    m_scheduler.advanceFor(nextEventCycles);
+    m_scheduler.dispatchPastEvents();
+    m_totalElapsedCycles += nextEventCycles;
 }
 
 auto festation::PSXSystem::runWholeFrame() -> void
