@@ -3,16 +3,16 @@
 
 #include <algorithm>
 
-festation::DmaControl::DmaControl(PSXSystem& system)
+festation::DmaControl::DmaControl(PSXSystem& system, Scheduler& scheduler)
     : m_system(system)
 {
-    m_channels[0] = std::make_unique<Dma0MdecIn>(system);
-    m_channels[1] = std::make_unique<Dma1MdecOut>(system);
-    m_channels[2] = std::make_unique<Dma2Gpu>(system);
-    m_channels[3] = std::make_unique<Dma3Cdrom>(system);
-    m_channels[4] = std::make_unique<Dma4Spu>(system);
-    m_channels[5] = std::make_unique<Dma5Pio>(system);
-    m_channels[6] = std::make_unique<Dma6Otc>(system);
+    m_channels[0] = std::make_unique<Dma0MdecIn>(system, scheduler);
+    m_channels[1] = std::make_unique<Dma1MdecOut>(system, scheduler);
+    m_channels[2] = std::make_unique<Dma2Gpu>(system, scheduler);
+    m_channels[3] = std::make_unique<Dma3Cdrom>(system, scheduler);
+    m_channels[4] = std::make_unique<Dma4Spu>(system, scheduler);
+    m_channels[5] = std::make_unique<Dma5Pio>(system, scheduler);
+    m_channels[6] = std::make_unique<Dma6Otc>(system, scheduler);
 
     reset();
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "scheduler/scheduler.hpp"
+
 #include <cstdint>
 
 namespace festation {
@@ -24,7 +26,7 @@ namespace festation {
 
     class DmaChannel {
     public:
-        DmaChannel(PSXSystem& system);
+        DmaChannel(PSXSystem& system, Scheduler& scheduler);
         virtual ~DmaChannel();
 
         auto read32(uint32_t address) -> uint32_t;
@@ -90,12 +92,13 @@ namespace festation {
         } D_CHCR;
 
         PSXSystem& m_system;
+        Scheduler& m_scheduler;
         bool m_isEnabled;
     };
 
     class Dma0MdecIn : public DmaChannel {
     public:
-        Dma0MdecIn(PSXSystem& system);
+        Dma0MdecIn(PSXSystem& system, Scheduler& scheduler);
         virtual ~Dma0MdecIn();
 
     protected:
@@ -104,7 +107,7 @@ namespace festation {
 
     class Dma1MdecOut : public DmaChannel {
     public:
-        Dma1MdecOut(PSXSystem& system);
+        Dma1MdecOut(PSXSystem& system, Scheduler& scheduler);
         virtual ~Dma1MdecOut();
 
     protected:
@@ -113,7 +116,7 @@ namespace festation {
 
     class Dma2Gpu : public DmaChannel {
     public:
-        Dma2Gpu(PSXSystem& system);
+        Dma2Gpu(PSXSystem& system, Scheduler& scheduler);
         virtual ~Dma2Gpu();
     
     protected:
@@ -122,7 +125,7 @@ namespace festation {
 
     class Dma3Cdrom : public DmaChannel {
     public:
-        Dma3Cdrom(PSXSystem& system);
+        Dma3Cdrom(PSXSystem& system, Scheduler& scheduler);
         virtual ~Dma3Cdrom();
 
     protected:
@@ -131,7 +134,7 @@ namespace festation {
 
     class Dma4Spu : public DmaChannel {
     public:
-        Dma4Spu(PSXSystem& system);
+        Dma4Spu(PSXSystem& system, Scheduler& scheduler);
         virtual ~Dma4Spu();
 
     protected:
@@ -140,7 +143,7 @@ namespace festation {
 
     class Dma5Pio : public DmaChannel {
     public:
-        Dma5Pio(PSXSystem& system);
+        Dma5Pio(PSXSystem& system, Scheduler& scheduler);
         virtual ~Dma5Pio();
 
     protected:
@@ -149,7 +152,7 @@ namespace festation {
 
     class Dma6Otc : public DmaChannel {
     public:
-        Dma6Otc(PSXSystem& system);
+        Dma6Otc(PSXSystem& system, Scheduler& scheduler);
         virtual ~Dma6Otc();
 
     protected:

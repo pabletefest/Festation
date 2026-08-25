@@ -20,6 +20,30 @@ namespace festation {
         uint8_t sector;
     };
 
+    union CdSectorData {
+        struct Mode2 {
+            std::byte sync[0x0C];
+            std::byte header[0x04];
+            std::byte subHeader[0x04];
+            std::byte subHeaderCopy[0x04];
+
+            union {
+                struct Form1 {
+                    std::byte data[0x800];
+                    std::byte edc[0x04];
+                    std::byte ecc [0x114];
+                } form1;
+
+                struct Form2 {
+                    std::byte data[0x914];
+                    std::byte edc[0x04];
+                } form2;
+            };
+        } mode2;
+
+        std::byte raw[0x930];
+    };
+
     inline constexpr auto convertBCDtoBinary(uint8_t numberBCD) -> uint8_t
     {
         return (numberBCD & 0xF) + ((numberBCD >> 4) & 0xF) * 10;

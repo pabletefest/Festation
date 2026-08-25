@@ -16,7 +16,7 @@ static uint8_t currentByte = 0;
 
 festation::PSXSystem::PSXSystem()
     : m_cpu(this, m_interruptsHandler), m_mainRAM(MAIN_RAM_SIZE), m_bios(KernelBIOS(m_cpu)),
-        m_cdrom(m_interruptsHandler, m_scheduler) , m_dma(*this), 
+        m_cdrom(m_interruptsHandler, m_scheduler) , m_dma(*this, m_scheduler), 
             m_timers({{m_interruptsHandler, m_scheduler}, {m_interruptsHandler, m_scheduler}, {m_interruptsHandler, m_scheduler}})
 {
     m_scheduler.scheduleEvent({ EventType::VBlank, CYCLES_FER_FRAME_NTSC, 
@@ -281,11 +281,11 @@ auto festation::PSXSystem::read32(uint32_t address) -> uint32_t
             break;
         }
         case 0x1F801070:
-            readValue = m_interruptsHandler.read32(address);
+            readValue = m_interruptsHandler.read32(masked_address);
             LOG_DEBUG("Read32 ({:08X}h) from I_STAT INT port 0x{:08X}", readValue, masked_address);
             break;
         case 0x1F801074:
-            readValue = m_interruptsHandler.read32(address);
+            readValue = m_interruptsHandler.read32(masked_address);
             LOG_DEBUG("Read32 ({:08X}h) from I_MASK INT port 0x{:08X}", readValue, masked_address);
             break;
         case 0x1F801040:
@@ -304,7 +304,7 @@ auto festation::PSXSystem::read32(uint32_t address) -> uint32_t
             if (masked_address >= 0x1F801080 && masked_address <= 0x1F8010FF)
             {
                 readValue = m_dma.read32(masked_address);
-                // LOG_DEBUG("Reading {:08X}h from DMA IO port 0x{:08X}", readValue, masked_address);
+                LOG_DEBUG("Reading {:08X}h from DMA IO port 0x{:08X}", readValue, masked_address);
             }
             else if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
             {
@@ -533,11 +533,11 @@ auto festation::PSXSystem::write32(uint32_t address, uint32_t value) -> void
             break;
         case 0x1F801070:
             LOG_DEBUG("Write32 ({:08X}h) to I_STAT INT port 0x{:08X}", value, masked_address);
-            m_interruptsHandler.write32(address, value);
+            m_interruptsHandler.write32(masked_address, value);
             break;
         case 0x1F801074:
             LOG_DEBUG("Write32 ({:08X}h) to I_MASK INT port 0x{:08X}", value, masked_address);
-            m_interruptsHandler.write32(address, value);
+            m_interruptsHandler.write32(masked_address, value);
             break;
         case 0x1F801040:
             LOG_DEBUG("Write32 ({:08X}h) to Joypad/Memory Card port DATA 0x{:08X}", value, masked_address);
@@ -548,7 +548,7 @@ auto festation::PSXSystem::write32(uint32_t address, uint32_t value) -> void
         default:
             if (masked_address >= 0x1F801080 && masked_address <= 0x1F8010FF)
             {
-                // LOG_DEBUG("Writting {:08X}h to DMA IO port 0x{:08X}", value, masked_address);
+                LOG_DEBUG("Writting {:08X}h to DMA IO port 0x{:08X}", value, masked_address);
                 m_dma.write32(masked_address, value);
             }
             else if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)

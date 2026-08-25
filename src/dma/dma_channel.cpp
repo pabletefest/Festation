@@ -5,8 +5,8 @@
 #include <cassert>
 #include <cstring>
 
-festation::DmaChannel::DmaChannel(PSXSystem& system)
-    : D_MADR({}), D_BCR({}), D_CHCR({}), m_system(system)
+festation::DmaChannel::DmaChannel(PSXSystem& system, Scheduler& scheduler)
+    : D_MADR({}), D_BCR({}), D_CHCR({}), m_system(system), m_scheduler(scheduler)
 {
 }
 
@@ -101,8 +101,8 @@ auto festation::DmaChannel::endTransfer(uint32_t endAddress) -> void
     }
 }
 
-festation::Dma0MdecIn::Dma0MdecIn(PSXSystem& system)
-    : DmaChannel(system)
+festation::Dma0MdecIn::Dma0MdecIn(PSXSystem& system, Scheduler& scheduler)
+    : DmaChannel(system, scheduler)
 {
 }
 
@@ -112,10 +112,12 @@ festation::Dma0MdecIn::~Dma0MdecIn()
 
 auto festation::Dma0MdecIn::startTransfer() -> void
 {
+    LOG_DEBUG("DMA0 MDEC In transfer");
+    assert(false);
 }
 
-festation::Dma1MdecOut::Dma1MdecOut(PSXSystem& system)
-    : DmaChannel(system)
+festation::Dma1MdecOut::Dma1MdecOut(PSXSystem& system, Scheduler& scheduler)
+    : DmaChannel(system, scheduler)
 {
 }
 
@@ -125,10 +127,12 @@ festation::Dma1MdecOut::~Dma1MdecOut()
 
 auto festation::Dma1MdecOut::startTransfer() -> void
 {
+    LOG_DEBUG("DMA1 MDEC Out transfer");
+    assert(false);
 }
 
-festation::Dma2Gpu::Dma2Gpu(PSXSystem& system)
-    : DmaChannel(system)
+festation::Dma2Gpu::Dma2Gpu(PSXSystem& system, Scheduler& scheduler)
+    : DmaChannel(system, scheduler)
 {
 }
 
@@ -138,7 +142,7 @@ festation::Dma2Gpu::~Dma2Gpu()
 
 auto festation::Dma2Gpu::startTransfer() -> void
 {
-    // LOG_DEBUG("(DMA): Starting DMA2 GPU transfer...");
+    LOG_DEBUG("DMA2 GPU transfer");
 
     std::function<void(uint32_t)> transferWordFn;
 
@@ -212,8 +216,8 @@ auto festation::Dma2Gpu::startTransfer() -> void
     // LOG_DEBUG("(DMA): DMA2 GPU transfer ended");
 }
 
-festation::Dma3Cdrom::Dma3Cdrom(PSXSystem& system)
-    : DmaChannel(system)
+festation::Dma3Cdrom::Dma3Cdrom(PSXSystem& system, Scheduler& scheduler)
+    : DmaChannel(system, scheduler)
 {
 }
 
@@ -223,6 +227,7 @@ festation::Dma3Cdrom::~Dma3Cdrom()
 
 auto festation::Dma3Cdrom::startTransfer() -> void
 {
+    LOG_DEBUG("DMA3 CDROM transfer");
     assert(D_CHCR.transferSyncMode == BurstMode);
 
     uint32_t address = D_MADR.startMemoryAddress & 0x00FFFFFC;
@@ -254,8 +259,8 @@ auto festation::Dma3Cdrom::startTransfer() -> void
     endTransfer(address);
 }
 
-festation::Dma4Spu::Dma4Spu(PSXSystem& system)
-    : DmaChannel(system)
+festation::Dma4Spu::Dma4Spu(PSXSystem& system, Scheduler& scheduler)
+    : DmaChannel(system, scheduler)
 {
 }
 
@@ -265,10 +270,12 @@ festation::Dma4Spu::~Dma4Spu()
 
 auto festation::Dma4Spu::startTransfer() -> void
 {
+    LOG_DEBUG("DMA4 SPU transfer");
+    assert(false);
 }
 
-festation::Dma5Pio::Dma5Pio(PSXSystem& system)
-    : DmaChannel(system)
+festation::Dma5Pio::Dma5Pio(PSXSystem& system, Scheduler& scheduler)
+    : DmaChannel(system, scheduler)
 {
 }
 
@@ -278,10 +285,12 @@ festation::Dma5Pio::~Dma5Pio()
 
 auto festation::Dma5Pio::startTransfer() -> void
 {
+    LOG_DEBUG("DMA5 PIO transfer");
+    assert(false);
 }
 
-festation::Dma6Otc::Dma6Otc(PSXSystem& system)
-    : DmaChannel(system)
+festation::Dma6Otc::Dma6Otc(PSXSystem& system, Scheduler& scheduler)
+    : DmaChannel(system, scheduler)
 {
     D_CHCR.raw = 0x00000002;
 }
@@ -296,7 +305,7 @@ auto festation::Dma6Otc::startTransfer() -> void
         return;
     }
 
-    // LOG_DEBUG("(DMA): Starting DMA6 OTC transfer...");
+    LOG_DEBUG("DMA6 OTC transfer");
 
     uint32_t address = D_MADR.startMemoryAddress & 0x00FFFFFC;
     uint32_t wordsCount = 0;

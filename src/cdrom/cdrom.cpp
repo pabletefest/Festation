@@ -1,5 +1,6 @@
 #include "cdrom.hpp"
 #include "cdrom_common.hpp"
+#include "cpu/psx_cw33300_cpu.hpp"
 #include "utils/logger.hpp"
 
 #include <cassert>
@@ -16,6 +17,8 @@ festation::CdromDrive::CdromDrive(InterruptsHandler& intrHndRef, Scheduler& sche
     m_regs.HINTSTS.reserved = 0x7;
     m_regs.HSTS.PRMEMPT = 1;
     m_regs.HSTS.PRMWRDY = 1;
+    m_regs.HSTS.RSLRRDY = 1;
+    m_regs.HSTS.DRQSTS = 1;
 
     // TEMP
     // m_internalStatusCode.shellOpen = 1;
@@ -124,9 +127,12 @@ auto festation::CdromDrive::write8(uint32_t address, uint8_t value) -> void
         switch (m_regs.HSTS.RA)
         {
         case 0:
+            m_regs.HCHPCTL.raw = value & 0xE0;
             break;
         case 1:
             m_regs.HCLRCTL.raw = value;
+            m_regs.HINTSTS.raw &= ~(value & 0x1F);
+            m_regs.RESULT.drain();
             break;
         case 2:
             break;
@@ -371,8 +377,7 @@ auto festation::CdromDrive::processSetmodeCmd() -> void
         m_mode.sectorSize = sectorSize;
     }
 
-    size_t sectorSizeInBytes = CD_SECTOR_SIZES[m_mode.sectorSize];
-    m_sectorBlock.initialOffset = RAW_SECTOR_SIZE - sectorSizeInBytes;
+    m_sectorBlock.initialOffset = (m_mode.sectorSize) ? offsetof(CdSectorData, mode2.header) : offsetof(CdSectorData, mode2.form2.data);
     m_sectorBlock.data.resize(RAW_SECTOR_SIZE);
 
     m_regs.RESULT.append(m_internalStatusCode.raw);
@@ -465,14 +470,17 @@ auto festation::CdromDrive::processGetIdCmd() -> void
 
         constexpr uint64_t int2Delay = 0x4A00;
 
-        m_regs.RESULT.append(m_internalStatusCode.raw);
+        // m_regs.RESULT.append(m_internalStatusCode.raw);
+        m_regs.RESULT.append(0x02);
         m_regs.RESULT.append(0);
         m_regs.RESULT.append(0x20); // Assuming Mode 2 (should be checked paring CUE)
         m_regs.RESULT.append(0);
         m_regs.RESULT.append(0x53);
         m_regs.RESULT.append(0x43);
         m_regs.RESULT.append(0x45);
-        m_regs.RESULT.append(0x41);
+        m_regs.RESULT.append(0x41); // America/NTSC
+        // m_regs.RESULT.append(0x49); // Japan/NTSC
+        // m_regs.RESULT.append(0x45); // Europe/PAL
 
         m_scheduler.scheduleEvent({ EventType::CdromInt2, int2Delay, [this]() {
             LOG_DEBUG("CDROM: INT2 response");
@@ -492,14 +500,17 @@ auto festation::CdromDrive::isInterrupt() const -> bool
 
 auto festation::CdromDrive::checkAndScheduleReadINT1() -> void
 { 
-    uint64_t int1Delay{};
+    
+    /** @todo Investigate */
+    // constexpr uint64_t int1Delay{ CPU_CLOCKS_PER_SECOND * RAW_SECTOR_SIZE / 4 / 44100 };
+    constexpr uint64_t int1Delay = 0x6E1CD; // using Single Speed delay
 
-    if (m_mode.speed) {
-        int1Delay = 0x36CD2;
-    }
-    else {
-        int1Delay = 0x6E1CD;
-    }
+    // if (m_mode.speed) {
+    //     int1Delay = 0x36CD2;
+    // }
+    // else {
+    //     int1Delay = 0x6E1CD;
+    // }
 
     m_regs.RESULT.append(m_internalStatusCode.raw);
 

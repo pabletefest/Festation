@@ -108,6 +108,8 @@ int main(int, char**)
     // path = std::filesystem::current_path().concat("/../../../res/tests/Jakub-PSX/gpu/triangle/triangle.exe");
     // path = std::filesystem::current_path().concat("/../../../res/tests/Jakub-PSX/timers/timers.exe");
     path = std::filesystem::current_path().concat("/../../../roms/Mortal Kombat II (Japan).cue");
+    // path = std::filesystem::current_path().concat("/../../../res/tests/redux-cdrom/cdlnop.ps-exe");
+    // psxSystem.openDiscImage(std::filesystem::current_path().concat("/../../../res/tests/redux-cdrom/test.cue"));
 
     psxSystem.setFrameEndCallback([&]() {
         float current = (float)glfwGetTime();
@@ -141,7 +143,7 @@ int main(int, char**)
             return std::tolower(chr);
         });
 
-        if (extension == ".exe") {
+        if (extension == ".exe" || extension == ".ps-exe") {
             psxSystem.sideloadExeFile(path);
         }
         else if (extension == ".cue") {

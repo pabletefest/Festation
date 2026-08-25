@@ -1,6 +1,7 @@
 #pragma once
 
 #include "dma/dma_channel.hpp"
+#include "scheduler/scheduler.hpp"
 
 #include <cstdint>
 #include <array>
@@ -11,7 +12,7 @@ namespace festation {
 
     class DmaControl {
     public:
-        DmaControl(PSXSystem& system);
+        DmaControl(PSXSystem& system, Scheduler& scheduler);
         ~DmaControl();
 
         auto reset() -> void;
