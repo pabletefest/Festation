@@ -113,6 +113,7 @@ auto festation::PsxGpu::parseCommandGP0(uint32_t commandWord) -> void
     switch(command)
     {
     case Gpu0Commands::PolygonPrimitive:
+        LOG_DEBUG("(GPU): Polygon Command");
         m_polyData.isGouraudShading = (commandWord >> 28) & 0x1;
         m_polyData.verticesCount = ((commandWord >> 27) & 0x1) ? 4 : 3;
         m_polyData.isTextured = (commandWord >> 26) & 0x1;
@@ -131,8 +132,10 @@ auto festation::PsxGpu::parseCommandGP0(uint32_t commandWord) -> void
         m_commandState = GpuCommandsState::ProcessingPolygonCmdParams;
         break;
     case Gpu0Commands::LinePrimitive:
+        LOG_DEBUG("(GPU): Line Command");
         break;
     case Gpu0Commands::RectanglePrimitive:
+        LOG_DEBUG("(GPU): Rectangle Command");
         m_rectData.sizeType = RectanglePrimitiveData::RectSizeType((commandWord >> 27) & 0x3);
         m_rectData.isTextured = (commandWord >> 26) & 0x1;
         m_rectData.isSemiTransparent = (commandWord >> 25) & 0x1;
@@ -152,17 +155,20 @@ auto festation::PsxGpu::parseCommandGP0(uint32_t commandWord) -> void
         m_commandState = GpuCommandsState::ProcessingRectCmdParams;
         break;
     case Gpu0Commands::VramToVramBlit:
+        LOG_DEBUG("(GPU): VRAM to VRAM Command");
         m_remainingCmdArg = 3;
         m_commandsFIFO[m_currentCmdParam++] = commandWord;
         m_commandState = GpuCommandsState::ProcessingVramVramBlitCmdParams;
         break;
     case Gpu0Commands::CpuToVramBlit:
+        LOG_DEBUG("(GPU): CPU to VRAM Command");
         m_remainingCmdArg = 2;
         m_cpuVramBlitCmdInfo.cmdState = BlittingCommandsState::ReceivingParams;
         m_commandsFIFO[m_currentCmdParam++] = commandWord;
         m_commandState = GpuCommandsState::ProcessingCpuVramBlitCmd;
         break;
     case Gpu0Commands::VramToCpuBlit:
+        LOG_DEBUG("(GPU): VRAM to CPU Command");
         m_remainingCmdArg = 2;
         m_vramCpuBlitCmdInfo.cmdState = BlittingCommandsState::ReceivingParams;
         m_commandsFIFO[m_currentCmdParam++] = commandWord;
@@ -173,34 +179,44 @@ auto festation::PsxGpu::parseCommandGP0(uint32_t commandWord) -> void
         switch(fullCmd)
         {
         case Gpu0Commands::NOP:
+            LOG_DEBUG("(GPU): NOP Command");
             break;
         case Gpu0Commands::ClearCache:
+            LOG_DEBUG("(GPU): Clear Cache Command");
             processGP0ClearCacheCmd();
             break;
         case Gpu0Commands::QuickRectangleFill:
+            LOG_DEBUG("(GPU): Quick Rectangle Fill Command");
             m_remainingCmdArg = 2;
             m_commandsFIFO[m_currentCmdParam++] = commandWord;
             m_commandState = GpuCommandsState::ProcessingQuickRectFillCmdParams;
             break;
         case Gpu0Commands::InterruptRequest:
+            LOG_DEBUG("(GPU): Interrupt Request Command");
             processGP0InterruptRequestCmd();
             break;
         case Gpu0Commands::DrawMode:
+            LOG_DEBUG("(GPU): Draw Mode Command");
             processGP0DrawModeCmd(commandWord);
             break;
         case Gpu0Commands::TextureWindow:
+            LOG_DEBUG("(GPU): Texture Window Command");
             processGP0TextureWindowCmd(commandWord);
             break;
         case Gpu0Commands::SetDrawingAreaX1Y1:
+            LOG_DEBUG("(GPU): Set Drawing Area X1Y1 Command");
             processGP0SetDrawingAreaX1Y1Cmd(commandWord);
             break;
         case Gpu0Commands::SetDrawingAreaX2Y2:
+            LOG_DEBUG("(GPU): Set Drawing Area X2Y2 Command");
             processGP0SetDrawingAreaX2Y2Cmd(commandWord);
             break;
         case Gpu0Commands::SetDrawingOffset:
+            LOG_DEBUG("(GPU): Set Drawing Offset Command");
             processGP0SetDrawingOffsetCmd(commandWord);
             break;
         case Gpu0Commands::MaskBitSetting:
+            LOG_DEBUG("(GPU): Mask Bit Setting Command");
             processGP0MaskBitSettingCmd(commandWord);
             break;
         default:
