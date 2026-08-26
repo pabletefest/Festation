@@ -12,7 +12,9 @@
 #include <cstring>
 #include <utility>
 
-static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = 565'045;
+// static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = 565'045;
+static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = 571'212;
+static constexpr const uint32_t NSTC_VBLANK_START_CYCLE = 521'258;
 static bool canSend = false;
 static uint8_t currentByte = 0;
 
@@ -21,9 +23,9 @@ festation::PSXSystem::PSXSystem()
         m_cdrom(m_interruptsHandler, m_scheduler) , m_dma(*this, m_scheduler), 
             m_timers({{m_interruptsHandler, m_scheduler}, {m_interruptsHandler, m_scheduler}, {m_interruptsHandler, m_scheduler}})
 {
-    m_scheduler.scheduleEvent({ EventType::VBlank, CYCLES_FER_FRAME_NTSC, 
+    m_scheduler.scheduleEvent({ EventType::VBlank, NSTC_VBLANK_START_CYCLE, 
         [this]() {
-            onFrameEnded();
+            onVBlankStart();
         } });
 }
 
@@ -656,15 +658,30 @@ auto festation::PSXSystem::sideloadExeFile(const std::filesystem::path& path) ->
     pcRef = initialPC;
 }
 
+auto festation::PSXSystem::onVBlankStart() -> void
+{
+    assert(m_onVBlankCallback);
+    LOG_DEBUG("VBlank start");
+
+    m_interruptsHandler.setInterruptSource(festation::InterruptSource::VBlankSrc);
+    m_gpu.renderFrame();
+    m_onVBlankCallback();
+
+    m_scheduler.scheduleEvent({ EventType::VBlank, CYCLES_FER_FRAME_NTSC - NSTC_VBLANK_START_CYCLE, 
+        [this]() {
+        onFrameEnded();
+    } });
+}
+
 auto festation::PSXSystem::onFrameEnded() -> void
 {
-    assert(m_frameEndCallback);
+    LOG_DEBUG("VBlank end");
 
-    m_gpu.renderFrame();
-    m_frameEndCallback();
-
-    m_scheduler.scheduleEvent({ EventType::VBlank, CYCLES_FER_FRAME_NTSC, 
+    /** @todo Check if SW clears VBlank IRQ bit in I_STAT */
+    m_interruptsHandler.clearInterruptSource(festation::InterruptSource::VBlankSrc);
+    
+    m_scheduler.scheduleEvent({ EventType::VBlank, NSTC_VBLANK_START_CYCLE, 
         [this]() {
-            onFrameEnded();
-        } });
+        onVBlankStart();
+    } });
 }

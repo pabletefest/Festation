@@ -24,8 +24,8 @@ namespace festation
         auto reset() -> void;
         
         template<class Func>
-        inline auto setFrameEndCallback(Func&& callback) -> void {
-            this->m_frameEndCallback = callback;
+        inline auto setOnVBlankCallback(Func&& callback) -> void {
+            this->m_onVBlankCallback = callback;
         }
 
         auto openDiscImage(const std::filesystem::path& cuePath, const std::vector<std::filesystem::path>& binPaths) -> void;
@@ -44,6 +44,7 @@ namespace festation
         auto sideloadExeFile(const std::filesystem::path& path) -> void;
 
     private:
+        auto onVBlankStart() -> void;
         auto onFrameEnded() -> void;
 
     private:
@@ -57,6 +58,6 @@ namespace festation
         PsxGpu m_gpu;
         std::array<Timer, 3> m_timers;
         uint64_t m_totalElapsedCycles;
-        std::function<void(void)> m_frameEndCallback;
+        std::function<void(void)> m_onVBlankCallback;
     };
 };

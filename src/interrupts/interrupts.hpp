@@ -28,6 +28,7 @@ namespace festation {
         auto write32(uint32_t address, uint32_t value) -> void;
     
         auto setInterruptSource(InterruptSource source) -> void;
+        auto clearInterruptSource(InterruptSource source) -> void;
         auto isInterruptPending() const -> bool;
 
     private:

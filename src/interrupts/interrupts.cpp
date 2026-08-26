@@ -74,6 +74,11 @@ auto festation::InterruptsHandler::setInterruptSource(festation::InterruptSource
     I_STAT.raw |= source;
 }
 
+auto festation::InterruptsHandler::clearInterruptSource(festation::InterruptSource source) -> void
+{
+    I_STAT.raw &= ~source;
+}
+
 auto festation::InterruptsHandler::isInterruptPending() const -> bool
 {
     return I_STAT.raw & I_MASK.raw & 0x7FF;

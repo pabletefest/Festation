@@ -111,7 +111,7 @@ int main(int, char**)
     // path = std::filesystem::current_path().concat("/../../../res/tests/redux-cdrom/cdlnop.ps-exe");
     // psxSystem.openDiscImage(std::filesystem::current_path().concat("/../../../res/tests/redux-cdrom/test.cue"));
 
-    psxSystem.setFrameEndCallback([&]() {
+    psxSystem.setOnVBlankCallback([&]() {
         float current = (float)glfwGetTime();
         delta = current - time;
         time = current;
