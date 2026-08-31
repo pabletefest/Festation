@@ -8,6 +8,7 @@ static std::mutex s_loggerMutex;
 enum class OutputColor {
 	DEFAULT,
 	LIGHT_BLUE,
+	LIGHT_GREEN,
 	YELLOW,
 	RED
 };
@@ -19,6 +20,9 @@ static void printColoredLine(OutputColor color, std::string& message) {
 		break;
 	case OutputColor::LIGHT_BLUE:
 		std::println("\033[96m{}\033[0m", message);
+		break;
+	case OutputColor::LIGHT_GREEN:
+		std::println("\033[92m{}\033[0m", message);
 		break;
 	case OutputColor::YELLOW:
 		std::println("\033[33m{}\033[0m", message);
@@ -52,7 +56,7 @@ void festation::Logger::log(festation::Logger::LogLevel level, const std::string
 	case LogLevel::INFO:
 		{
 			std::string res = std::format("{:8} - {}", "[INFO]", message);
-			printColoredLine(OutputColor::DEFAULT, res);
+			printColoredLine(OutputColor::LIGHT_GREEN, res);
 		}
 		break;
 	case LogLevel::WARN:
