@@ -15,7 +15,7 @@
 // static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = 564'480;
 // static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = 565'045;
 static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = UINT32_C(3413 * 263 / 11 * 7);
-static constexpr const uint32_t NSTC_VBLANK_START_CYCLE = UINT32_C(3413 * 241 / 11 * 7);
+static constexpr const uint32_t NSTC_VBLANK_START_CYCLE = UINT32_C(3413 * 240 / 11 * 7);
 static bool canSend = false;
 static uint8_t currentByte = 0;
 
