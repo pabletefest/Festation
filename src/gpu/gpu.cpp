@@ -1,5 +1,4 @@
 #include "gpu.hpp"
-#include "gpu_commands.h"
 #include "utils/logger.hpp"
 
 #include <utility>
@@ -100,7 +99,14 @@ auto festation::PsxGpu::write32(uint32_t address, uint32_t value) -> void
 
 auto festation::PsxGpu::renderFrame() -> void
 {
+    m_frameCount++;
+    GPUSTAT.drawingEvenOddLinesInInterlaceMode = 0;
     m_renderer.renderBatch();
+}
+
+auto festation::PsxGpu::onFrameEnded() -> void
+{
+    GPUSTAT.drawingEvenOddLinesInInterlaceMode = m_frameCount & 1;
 }
 
 auto festation::PsxGpu::parseCommandGP0(uint32_t commandWord) -> void
@@ -629,6 +635,7 @@ auto festation::PsxGpu::processResetGpuCmd() -> void
     GPUSTAT.readyToReceiveCmdWord = 1;
     GPUSTAT.readyToSendVRAMtoCPU = 1; // TODO: TEMP
     GPUSTAT.readyToReceiveDMABlock = 1;
+    GPUSTAT.drawingEvenOddLinesInInterlaceMode = 0;
     m_commandState = GpuCommandsState::WaitingForCommand;
 }
 

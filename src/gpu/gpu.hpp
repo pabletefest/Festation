@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gpu_commands.h"
+#include "gpu_commands.hpp"
 #include "primitives_data.hpp"
 #include "renderer/renderer.hpp"
 
@@ -23,6 +23,7 @@ namespace festation {
         auto write32(uint32_t address, uint32_t value) -> void;
 
         auto renderFrame() -> void;
+        auto onFrameEnded() -> void;
 
     private:
         auto parseCommandGP0(uint32_t commandWord) -> void;
@@ -126,5 +127,6 @@ namespace festation {
         std::vector<uint16_t> m_vram{};
 
         Renderer m_renderer;
+        uint64_t m_frameCount{};
     };
 };

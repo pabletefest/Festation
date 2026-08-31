@@ -12,9 +12,10 @@
 #include <cstring>
 #include <utility>
 
+// static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = 564'480;
 // static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = 565'045;
-static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = 571'212;
-static constexpr const uint32_t NSTC_VBLANK_START_CYCLE = 521'258;
+static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = UINT32_C(3413 * 263 / 11 * 7);
+static constexpr const uint32_t NSTC_VBLANK_START_CYCLE = UINT32_C(3413 * 241 / 11 * 7);
 static bool canSend = false;
 static uint8_t currentByte = 0;
 
@@ -23,7 +24,7 @@ festation::PSXSystem::PSXSystem()
         m_cdrom(m_interruptsHandler, m_scheduler) , m_dma(*this, m_scheduler), 
             m_timers({{m_interruptsHandler, m_scheduler}, {m_interruptsHandler, m_scheduler}, {m_interruptsHandler, m_scheduler}})
 {
-    m_scheduler.scheduleEvent({ EventType::VBlank, NSTC_VBLANK_START_CYCLE, 
+    m_scheduler.scheduleEvent({ EventType::VBlankStart, NSTC_VBLANK_START_CYCLE, 
         [this]() {
             onVBlankStart();
         } });
@@ -281,7 +282,7 @@ auto festation::PSXSystem::read32(uint32_t address) -> uint32_t
         case 0x1F801814:
         {
             readValue = m_gpu.read32(masked_address);
-            // LOG_DEBUG("Reading {:08X}h from GPU IO port 0x{:08X}", readValue, masked_address);
+            LOG_DEBUG("Reading {:08X}h from GPU IO port 0x{:08X}", readValue, masked_address);
             break;
         }
         case 0x1F801070:
@@ -661,13 +662,13 @@ auto festation::PSXSystem::sideloadExeFile(const std::filesystem::path& path) ->
 auto festation::PSXSystem::onVBlankStart() -> void
 {
     assert(m_onVBlankCallback);
-    LOG_DEBUG("VBlank start");
+    // LOG_DEBUG("VBlank start");
 
     m_interruptsHandler.setInterruptSource(festation::InterruptSource::VBlankSrc);
     m_gpu.renderFrame();
     m_onVBlankCallback();
 
-    m_scheduler.scheduleEvent({ EventType::VBlank, CYCLES_FER_FRAME_NTSC - NSTC_VBLANK_START_CYCLE, 
+    m_scheduler.scheduleEvent({ EventType::VBlankEnd, CYCLES_FER_FRAME_NTSC - NSTC_VBLANK_START_CYCLE, 
         [this]() {
         onFrameEnded();
     } });
@@ -675,12 +676,12 @@ auto festation::PSXSystem::onVBlankStart() -> void
 
 auto festation::PSXSystem::onFrameEnded() -> void
 {
-    LOG_DEBUG("VBlank end");
+    // LOG_DEBUG("VBlank end");
 
-    /** @todo Check if SW clears VBlank IRQ bit in I_STAT */
-    m_interruptsHandler.clearInterruptSource(festation::InterruptSource::VBlankSrc);
+    // m_interruptsHandler.clearInterruptSource(festation::InterruptSource::VBlankSrc);
+    m_gpu.onFrameEnded();
     
-    m_scheduler.scheduleEvent({ EventType::VBlank, NSTC_VBLANK_START_CYCLE, 
+    m_scheduler.scheduleEvent({ EventType::VBlankStart, NSTC_VBLANK_START_CYCLE, 
         [this]() {
         onVBlankStart();
     } });
