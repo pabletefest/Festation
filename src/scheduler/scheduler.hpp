@@ -3,12 +3,11 @@
 #include "event_types.hpp"
 
 #include <cstdint>
-#include <queue>
+#include <set>
 
 namespace festation {
     class Scheduler {
-        /** @brief Greater-comparison performed to achieve a min-heap */
-        using EventsQueue = std::priority_queue<Event, std::vector<Event>, std::greater<Event>>;
+        using EventsQueue = std::multiset<Event>;
 
     public:
         auto scheduleEvent(Event&& event) -> void;
@@ -16,6 +15,8 @@ namespace festation {
         auto advanceFor(uint64_t cycles) -> void;
         auto nextEventTime() -> uint64_t;
         auto dispatchPastEvents() -> void;
+        auto getGlobalTime() const -> uint64_t;
+        auto descheduleEvent(EventType type) -> void;
 
     private:
         auto eventPending() const -> bool;
