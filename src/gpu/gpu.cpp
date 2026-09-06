@@ -109,6 +109,28 @@ auto festation::PsxGpu::onFrameEnded() -> void
     GPUSTAT.drawingEvenOddLinesInInterlaceMode = m_frameCount & 1;
 }
 
+auto festation::PsxGpu::dotclockFactor() -> uint8_t
+{
+    if (GPUSTAT.horizontalResolution2) {
+        return 7;
+    }
+    else {
+        switch (GPUSTAT.horizontalResolution1)
+        {
+        case 0:
+            return 10;
+        case 1:
+            return 8;
+        case 2:
+            return 5;
+        case 3:
+            return 4;
+        default:
+            std::unreachable();
+        }
+    }
+}
+
 auto festation::PsxGpu::parseCommandGP0(uint32_t commandWord) -> void
 {
     // LOG_DEBUG("Getting GP0 command ({:08X}h)", commandWord);
@@ -312,6 +334,7 @@ auto festation::PsxGpu::processGP0PolygonCmd(uint32_t parameter) -> void
 
 auto festation::PsxGpu::processGP0LineCmd(uint32_t parameter) -> void
 {
+    /** @todo */
 }
 
 auto festation::PsxGpu::processGP0RectangleCmd(uint32_t parameter) -> void
@@ -492,6 +515,7 @@ auto festation::PsxGpu::processGP0VramCpuBlitCmd(uint32_t parameter) -> void
 
 auto festation::PsxGpu::processGP0ClearCacheCmd() -> void
 {
+    /** @todo */
 }
 
 auto festation::PsxGpu::processGP0QuickRectFillCmd(uint32_t parameter) -> void
@@ -530,6 +554,7 @@ auto festation::PsxGpu::processGP0QuickRectFillCmd(uint32_t parameter) -> void
 
 auto festation::PsxGpu::processGP0InterruptRequestCmd() -> void
 {
+    /** @todo */
 }
 
 auto festation::PsxGpu::processGP0DrawModeCmd(uint32_t parameter) -> void
@@ -541,6 +566,7 @@ auto festation::PsxGpu::processGP0DrawModeCmd(uint32_t parameter) -> void
 
 auto festation::PsxGpu::processGP0TextureWindowCmd(uint32_t parameter) -> void
 { 
+    /** @todo */
 }
 
 auto festation::PsxGpu::processGP0SetDrawingAreaX1Y1Cmd(uint32_t parameter) -> void
@@ -654,6 +680,7 @@ auto festation::PsxGpu::processAckGpuIntCmd() -> void
 
 auto festation::PsxGpu::processDisplayEnableCmd(uint32_t parameter) -> void
 {
+    /** @todo */
 }
 
 auto festation::PsxGpu::processDmaDirectionDataRequestCmd(uint32_t parameter) -> void
@@ -681,26 +708,38 @@ auto festation::PsxGpu::processDmaDirectionDataRequestCmd(uint32_t parameter) ->
 
 auto festation::PsxGpu::processStartDisplayAreaCmd(uint32_t parameter) -> void
 {
+    /** @todo */
 }
 
 auto festation::PsxGpu::processHorizontalDisplayRangeCmd(uint32_t parameter) -> void
 {
+    /** @todo */
 }
 
 auto festation::PsxGpu::processVerticalDisplayRangeCmd(uint32_t parameter) -> void
 {
+    /** @todo */
 }
 
 auto festation::PsxGpu::processDisplayModeCmd(uint32_t parameter) -> void
 {
+    GPUSTAT.horizontalResolution1 = parameter & 3;
+    GPUSTAT.verticalResolution = (parameter >> 2) & 1;
+    GPUSTAT.videoMode = (parameter >> 3) & 1;
+    GPUSTAT.displayAreaColorDepth = (parameter >> 4) & 1;
+    GPUSTAT.verticalInterlace = (parameter >> 5) & 1;
+    GPUSTAT.horizontalResolution2 = (parameter >> 6) & 1;
+    GPUSTAT.flipScreenHorizontally = (parameter >> 7) & 1;
 }
 
 auto festation::PsxGpu::processSetVramSizeCmd(uint32_t parameter) -> void
 {
+    /** @todo */
 }
 
 auto festation::PsxGpu::processReadGpuInternalRegCmd(uint32_t parameter) -> void
 {
+    /** @todo */
 }
 
 auto festation::PsxGpu::updateRenderProjection() -> void

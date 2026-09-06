@@ -3,6 +3,7 @@
 #include "interrupts/interrupts.hpp"
 #include "memory/memory_map_masks.hpp"
 #include "scheduler/event_types.hpp"
+#include "timers/timers.hpp"
 #include "utils/logger.hpp"
 #include "utils/file_reader.hpp"
 
@@ -16,17 +17,28 @@
 // static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = 565'045;
 static constexpr const uint32_t CYCLES_FER_FRAME_NTSC = UINT32_C(3413 * 263 / 11 * 7);
 static constexpr const uint32_t NSTC_VBLANK_START_CYCLE = UINT32_C(3413 * 240 / 11 * 7);
+static constexpr float GPU_CLOCK_FACTOR = 7.f / 11.f;
+static constexpr float TIMER1_HBLANK_FACTOR = UINT32_C(3413.f * 7 / 11);
+static constexpr float TIMER2_SYS_DIV_8_FACTOR = 8u;
 static bool canSend = false;
 static uint8_t currentByte = 0;
 
 festation::PSXSystem::PSXSystem()
     : m_cpu(this, m_interruptsHandler), m_mainRAM(MAIN_RAM_SIZE), m_bios(KernelBIOS(m_cpu)),
-        m_cdrom(m_interruptsHandler, m_scheduler) , m_dma(*this, m_scheduler), 
-            m_timers({{m_interruptsHandler, m_scheduler}, {m_interruptsHandler, m_scheduler}, {m_interruptsHandler, m_scheduler}})
+        m_cdrom(m_interruptsHandler, m_scheduler) , m_dma(*this, m_scheduler)
 {
+    m_timers[0] = std::make_unique<Timer0>(GPU_CLOCK_FACTOR, m_interruptsHandler, m_scheduler, m_gpu);
+    m_timers[1] = std::make_unique<Timer1>(TIMER1_HBLANK_FACTOR, m_interruptsHandler, m_scheduler, m_gpu);
+    m_timers[2] = std::make_unique<Timer2>(TIMER2_SYS_DIV_8_FACTOR, m_interruptsHandler, m_scheduler, m_gpu);
+
     m_scheduler.scheduleEvent({ EventType::VBlankStart, NSTC_VBLANK_START_CYCLE, 
         [this]() {
             onVBlankStart();
+        } });
+
+    m_scheduler.scheduleEvent({ EventType::HBlank, static_cast<uint64_t>(TIMER1_HBLANK_FACTOR), 
+        [this]() {
+            onHBlankEvent();
         } });
 }
 
@@ -128,7 +140,7 @@ auto festation::PSXSystem::read8(uint32_t address) -> uint8_t
             if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
             {
                 size_t timerId = (masked_address >> 4) & 3;
-                readValue = m_timers[timerId].read8(masked_address);
+                readValue = m_timers[timerId]->read8(masked_address);
                 LOG_DEBUG("Read8 ({:02X}h) from Timer port address 0x{:08X}", readValue,  masked_address);
             }
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
@@ -219,7 +231,7 @@ auto festation::PSXSystem::read16(uint32_t address) -> uint16_t
             if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
             {
                 size_t timerId = (masked_address >> 4) & 3;
-                readValue = m_timers[timerId].read16(masked_address);
+                readValue = m_timers[timerId]->read16(masked_address);
                 LOG_DEBUG("Read16 ({:04X}h) from Timer port address 0x{:08X}", readValue, masked_address);
             }
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
@@ -282,7 +294,7 @@ auto festation::PSXSystem::read32(uint32_t address) -> uint32_t
         case 0x1F801814:
         {
             readValue = m_gpu.read32(masked_address);
-            LOG_DEBUG("Reading {:08X}h from GPU IO port 0x{:08X}", readValue, masked_address);
+            // LOG_DEBUG("Reading {:08X}h from GPU IO port 0x{:08X}", readValue, masked_address);
             break;
         }
         case 0x1F801070:
@@ -314,7 +326,7 @@ auto festation::PSXSystem::read32(uint32_t address) -> uint32_t
             else if (masked_address >= 0x1F801100 && masked_address <= 0x1F80112F)
             {
                 size_t timerId = (masked_address >> 4) & 3;
-                readValue = m_timers[timerId].read32(masked_address);
+                readValue = m_timers[timerId]->read32(masked_address);
                 LOG_DEBUG("Read32 ({:08X}h) from Timer port address 0x{:08X}", readValue, masked_address);
             }
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
@@ -402,7 +414,7 @@ auto festation::PSXSystem::write8(uint32_t address, uint8_t value) -> void
             {
                 LOG_DEBUG("Write8 ({:02X}h) to Timer port address 0x{:08X}", value, masked_address);
                 size_t timerId = (masked_address >> 4) & 3;
-                m_timers[timerId].write8(masked_address, value);
+                m_timers[timerId]->write8(masked_address, value);
             }
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
             {
@@ -479,7 +491,7 @@ auto festation::PSXSystem::write16(uint32_t address, uint16_t value) -> void
             {
                 LOG_DEBUG("Write16 ({:04X}h) to Timer port address 0x{:08X}", value, masked_address);
                 size_t timerId = (masked_address >> 4) & 3;
-                m_timers[timerId].write16(masked_address, value);
+                m_timers[timerId]->write16(masked_address, value);
             }
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
             {
@@ -560,7 +572,7 @@ auto festation::PSXSystem::write32(uint32_t address, uint32_t value) -> void
             {
                 LOG_DEBUG("Write32 ({:08X}h) to Timer port address 0x{:08X}", value, masked_address);
                 size_t timerId = (masked_address >> 4) & 3;
-                m_timers[timerId].write32(masked_address, value);
+                m_timers[timerId]->write32(masked_address, value);
             }
             else if (masked_address >= 0x1F801800 && masked_address <= 0x1F801803)
             {
@@ -599,11 +611,12 @@ auto festation::PSXSystem::run() -> void
     uint64_t elapsedCycles = 0;
 
     while (elapsedCycles < nextEventCycles) {
-        elapsedCycles += m_cpu.executeInstruction();
+        uint8_t cycles = m_cpu.executeInstruction();
+        m_scheduler.advanceFor(cycles);
+        elapsedCycles += cycles;
         m_bios.checkKernerlTTYOutput();
     }
 
-    m_scheduler.advanceFor(nextEventCycles);
     m_scheduler.dispatchPastEvents();
     m_totalElapsedCycles += nextEventCycles;
 }
@@ -657,6 +670,18 @@ auto festation::PSXSystem::sideloadExeFile(const std::filesystem::path& path) ->
         exe.data() + HEADER_SIZE, exeSize);
 
     pcRef = initialPC;
+}
+
+auto festation::PSXSystem::onHBlankEvent() -> void
+{
+    if (Timer1* timer1 = dynamic_cast<Timer1*>(m_timers[1].get())) {
+        timer1->onHBlankTimer1Update();
+
+        m_scheduler.scheduleEvent({ EventType::HBlank, static_cast<uint64_t>(TIMER1_HBLANK_FACTOR), 
+        [this]() {
+            onHBlankEvent();
+        } });
+    }
 }
 
 auto festation::PSXSystem::onVBlankStart() -> void

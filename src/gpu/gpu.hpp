@@ -24,6 +24,7 @@ namespace festation {
 
         auto renderFrame() -> void;
         auto onFrameEnded() -> void;
+        auto dotclockFactor() -> uint8_t;
 
     private:
         auto parseCommandGP0(uint32_t commandWord) -> void;

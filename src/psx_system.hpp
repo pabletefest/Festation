@@ -7,7 +7,7 @@
 #include "dma/dma_control.hpp"
 #include "gpu/gpu.hpp"
 #include "scheduler/scheduler.hpp"
-#include "timer/timer.hpp"
+#include "timers/timers.hpp"
 
 #include <array>
 #include <filesystem>
@@ -44,6 +44,7 @@ namespace festation
         auto sideloadExeFile(const std::filesystem::path& path) -> void;
 
     private:
+        auto onHBlankEvent() -> void;
         auto onVBlankStart() -> void;
         auto onFrameEnded() -> void;
 
@@ -56,7 +57,7 @@ namespace festation
         CdromDrive m_cdrom;
         DmaControl m_dma;
         PsxGpu m_gpu;
-        std::array<Timer, 3> m_timers;
+        std::array<std::unique_ptr<Timer>, 3> m_timers;
         uint64_t m_totalElapsedCycles;
         std::function<void(void)> m_onVBlankCallback;
     };
