@@ -1,6 +1,8 @@
 #pragma once
 
 #include <array>
+#include <cstddef>
+#include <cstdint>
 
 namespace festation {
     static constexpr std::array<size_t, 2> CD_SECTOR_SIZES = { 0x800, 0x924 };
@@ -28,13 +30,13 @@ namespace festation {
             std::byte subHeaderCopy[0x04];
 
             union {
-                struct Form1 {
+                struct {
                     std::byte data[0x800];
                     std::byte edc[0x04];
                     std::byte ecc [0x114];
                 } form1;
 
-                struct Form2 {
+                struct {
                     std::byte data[0x914];
                     std::byte edc[0x04];
                 } form2;
