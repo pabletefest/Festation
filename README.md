@@ -28,7 +28,7 @@ Currently using the following third-party libraries:
 
 ## Copyright
 
-Festation is Copyright © 2024 - 2024 pabletefest. It is licensed under the terms of the GNU General Public License (GPL) 3.0 or any later version. See LICENSE for details.
+Festation is Copyright © 2024 - 2026 pabletefest. It is licensed under the terms of the GNU General Public License (GPL) 3.0 or any later version. See LICENSE for details.
 
 Sony Playstation is a registered trademark of Sony Group Corporation.
 
