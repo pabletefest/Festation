@@ -18,6 +18,8 @@ namespace festation {
         auto reset() -> void;
 
         auto read32(uint32_t address) -> uint32_t;
+        auto write8(uint32_t address, uint8_t value) -> void;
+        auto write16(uint32_t address, uint16_t value) -> void;
         auto write32(uint32_t address, uint32_t value) -> void;
 
     private:

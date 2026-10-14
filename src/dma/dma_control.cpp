@@ -1,7 +1,7 @@
 #include <dma/dma_control.hpp>
 #include "dma_control.hpp"
 
-#include <algorithm>
+#include <utility>
 
 festation::DmaControl::DmaControl(PSXSystem& system, Scheduler& scheduler)
     : m_system(system)
@@ -43,6 +43,48 @@ auto festation::DmaControl::read32(uint32_t address) -> uint32_t
     }
 
     return 0;
+}
+
+auto festation::DmaControl::write8(uint32_t address, uint8_t value) -> void
+{
+    switch(address)
+    {
+    case 0x1F8010F4: // Check DICR write bug
+        write32(address, static_cast<uint32_t>(value));
+        break;
+    case 0x1F8010F5: // Check DICR write bug
+        write32(address, static_cast<uint32_t>(value << 8));
+        break;
+    case 0x1F8010F6: // Check DICR write bug
+        write32(address, static_cast<uint32_t>(value << 16));
+        break;
+    case 0x1F8010F7: // Check DICR write bug
+        write32(address, static_cast<uint32_t>(value << 24));
+        break;
+    default:
+        std::unreachable();
+    }
+}
+
+auto festation::DmaControl::write16(uint32_t address, uint16_t value) -> void
+{
+    switch(address)
+    {
+    case 0x1F8010F4: // Check DICR write bug
+        write32(address, static_cast<uint32_t>(value));
+        break;
+    case 0x1F8010F5: // Check DICR write bug
+        write32(address, static_cast<uint32_t>(value << 8));
+        break;
+    case 0x1F8010F6: // Check DICR write bug
+        write32(address, static_cast<uint32_t>(value << 16));
+        break;
+    case 0x1F8010F7: // Check DICR write bug
+        write32(address, static_cast<uint32_t>(value << 24));
+        break;
+    default:
+        std::unreachable();
+    }
 }
 
 auto festation::DmaControl::write32(uint32_t address, uint32_t value) -> void
