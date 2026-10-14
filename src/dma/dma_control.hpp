@@ -1,6 +1,7 @@
 #pragma once
 
 #include "dma/dma_channel.hpp"
+#include "interrupts/interrupts.hpp"
 #include "scheduler/scheduler.hpp"
 
 #include <cstdint>
@@ -12,7 +13,7 @@ namespace festation {
 
     class DmaControl {
     public:
-        DmaControl(PSXSystem& system, Scheduler& scheduler);
+        DmaControl(PSXSystem& system, InterruptsHandler& interruptsHandler, Scheduler& scheduler);
         ~DmaControl();
 
         auto reset() -> void;
@@ -62,5 +63,6 @@ namespace festation {
 
         std::array<std::unique_ptr<DmaChannel>, DMA_CHANNELS_COUNT> m_channels;
         PSXSystem& m_system;
+        InterruptsHandler& m_interruptsHandler;
     };
 };

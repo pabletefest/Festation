@@ -1,10 +1,11 @@
 #include <dma/dma_control.hpp>
 #include "dma_control.hpp"
+#include "interrupts/interrupts.hpp"
 
 #include <utility>
 
-festation::DmaControl::DmaControl(PSXSystem& system, Scheduler& scheduler)
-    : m_system(system)
+festation::DmaControl::DmaControl(PSXSystem& system, InterruptsHandler& interruptsHandler, Scheduler& scheduler)
+    : m_system(system), m_interruptsHandler(interruptsHandler)
 {
     m_channels[0] = std::make_unique<Dma0MdecIn>(system, scheduler);
     m_channels[1] = std::make_unique<Dma1MdecOut>(system, scheduler);
@@ -100,7 +101,25 @@ auto festation::DmaControl::write32(uint32_t address, uint32_t value) -> void
         }
         break;
     case 0x1F8010F4: // Check DICR write bug
-        DICR.raw = value;
+        DICR.channelsCompletionInterruptsControl = value & 0x7F;
+        DICR.unused = 0;
+        DICR.busErrorFlag = (value >> 15) & 1;
+        DICR.channelsInterruptMask = (value >> 16) & 0x7F;
+        DICR.masterChannelInterruptEnable = (value >> 23) & 1;
+        DICR.channelsInterruptFlags &= ~((value >> 24) & 0x7F); 
+
+        if (DICR.busErrorFlag || (DICR.masterChannelInterruptEnable && (DICR.masterInterruptFlag > 0))) {
+
+            if (DICR.masterInterruptFlag == 0) {
+                /** @brief Only raise IRQ3 flag when transitioning from 0 to 1 */
+                m_interruptsHandler.setInterruptSource(InterruptSource::DmaSrc);
+            }
+
+            DICR.masterInterruptFlag = 1;
+        }
+        else {
+            DICR.masterInterruptFlag = 0;
+        }
         break;
     default:
         size_t channelId = ((address >> 4) & 0xFu) - 8u;

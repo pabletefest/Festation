@@ -25,7 +25,7 @@ static uint8_t currentByte = 0;
 
 festation::PSXSystem::PSXSystem()
     : m_cpu(this, m_interruptsHandler), m_mainRAM(MAIN_RAM_SIZE), m_bios(KernelBIOS(m_cpu)),
-        m_cdrom(m_interruptsHandler, m_scheduler) , m_dma(*this, m_scheduler)
+        m_cdrom(m_interruptsHandler, m_scheduler) , m_dma(*this, m_interruptsHandler, m_scheduler)
 {
     m_timers[0] = std::make_unique<Timer0>(GPU_CLOCK_FACTOR, m_interruptsHandler, m_scheduler, m_gpu);
     m_timers[1] = std::make_unique<Timer1>(TIMER1_HBLANK_FACTOR, m_interruptsHandler, m_scheduler, m_gpu);
