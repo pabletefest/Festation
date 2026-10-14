@@ -1,12 +1,13 @@
 #include "dma_channel.hpp"
+#include "dma_type.hpp"
 #include "psx_system.hpp"
 #include "utils/logger.hpp"
 
 #include <cassert>
 #include <cstring>
 
-festation::DmaChannel::DmaChannel(PSXSystem& system, Scheduler& scheduler)
-    : D_MADR({}), D_BCR({}), D_CHCR({}), m_system(system), m_scheduler(scheduler)
+festation::DmaChannel::DmaChannel(DmaControl& dmaControl, PSXSystem& system, Scheduler& scheduler)
+    : D_MADR({}), D_BCR({}), D_CHCR({}), m_dmaControl(dmaControl), m_system(system), m_scheduler(scheduler)
 {
 }
 
@@ -83,7 +84,7 @@ auto festation::DmaChannel::modifyControlRegister(uint32_t value) -> void
     D_CHCR.raw = value;
 }
 
-auto festation::DmaChannel::endTransfer(uint32_t endAddress) -> void
+auto festation::DmaChannel::endTransfer(uint32_t endAddress, festation::DmaType type) -> void
 {
     D_CHCR.startTransfer = 0;
     D_CHCR.forceTransferStartWithoutDREQWaiting = 0;
@@ -99,10 +100,13 @@ auto festation::DmaChannel::endTransfer(uint32_t endAddress) -> void
         || D_CHCR.transferSyncMode == SliceMode || D_CHCR.transferSyncMode == LinkedListMode) {
             D_MADR.startMemoryAddress = endAddress;
     }
+
+    /** @todo Schedule this with a delay instead of doing it instantly */
+    m_dmaControl.setIntFlag(type);
 }
 
-festation::Dma0MdecIn::Dma0MdecIn(PSXSystem& system, Scheduler& scheduler)
-    : DmaChannel(system, scheduler)
+festation::Dma0MdecIn::Dma0MdecIn(DmaControl& dmaControl, PSXSystem& system, Scheduler& scheduler)
+    : DmaChannel(dmaControl, system, scheduler)
 {
 }
 
@@ -116,8 +120,8 @@ auto festation::Dma0MdecIn::startTransfer() -> void
     assert(false);
 }
 
-festation::Dma1MdecOut::Dma1MdecOut(PSXSystem& system, Scheduler& scheduler)
-    : DmaChannel(system, scheduler)
+festation::Dma1MdecOut::Dma1MdecOut(DmaControl& dmaControl, PSXSystem& system, Scheduler& scheduler)
+    : DmaChannel(dmaControl, system, scheduler)
 {
 }
 
@@ -131,8 +135,8 @@ auto festation::Dma1MdecOut::startTransfer() -> void
     assert(false);
 }
 
-festation::Dma2Gpu::Dma2Gpu(PSXSystem& system, Scheduler& scheduler)
-    : DmaChannel(system, scheduler)
+festation::Dma2Gpu::Dma2Gpu(DmaControl& dmaControl, PSXSystem& system, Scheduler& scheduler)
+    : DmaChannel(dmaControl, system, scheduler)
 {
 }
 
@@ -211,13 +215,13 @@ auto festation::Dma2Gpu::startTransfer() -> void
         }
     }
 
-    endTransfer(address);
+    endTransfer(address, DmaType::GPU);
 
     // LOG_DEBUG("(DMA): DMA2 GPU transfer ended");
 }
 
-festation::Dma3Cdrom::Dma3Cdrom(PSXSystem& system, Scheduler& scheduler)
-    : DmaChannel(system, scheduler)
+festation::Dma3Cdrom::Dma3Cdrom(DmaControl& dmaControl, PSXSystem& system, Scheduler& scheduler)
+    : DmaChannel(dmaControl, system, scheduler)
 {
 }
 
@@ -256,11 +260,11 @@ auto festation::Dma3Cdrom::startTransfer() -> void
         wordsCount--;
     }
 
-    endTransfer(address);
+    endTransfer(address, DmaType::CDROM);
 }
 
-festation::Dma4Spu::Dma4Spu(PSXSystem& system, Scheduler& scheduler)
-    : DmaChannel(system, scheduler)
+festation::Dma4Spu::Dma4Spu(DmaControl& dmaControl, PSXSystem& system, Scheduler& scheduler)
+    : DmaChannel(dmaControl, system, scheduler)
 {
 }
 
@@ -274,8 +278,8 @@ auto festation::Dma4Spu::startTransfer() -> void
     assert(false);
 }
 
-festation::Dma5Pio::Dma5Pio(PSXSystem& system, Scheduler& scheduler)
-    : DmaChannel(system, scheduler)
+festation::Dma5Pio::Dma5Pio(DmaControl& dmaControl, PSXSystem& system, Scheduler& scheduler)
+    : DmaChannel(dmaControl, system, scheduler)
 {
 }
 
@@ -289,8 +293,8 @@ auto festation::Dma5Pio::startTransfer() -> void
     assert(false);
 }
 
-festation::Dma6Otc::Dma6Otc(PSXSystem& system, Scheduler& scheduler)
-    : DmaChannel(system, scheduler)
+festation::Dma6Otc::Dma6Otc(DmaControl& dmaControl, PSXSystem& system, Scheduler& scheduler)
+    : DmaChannel(dmaControl, system, scheduler)
 {
     D_CHCR.raw = 0x00000002;
 }
@@ -332,7 +336,7 @@ auto festation::Dma6Otc::startTransfer() -> void
         wordsCount--;
     } while (wordsCount > 0);
 
-    endTransfer(address);
+    endTransfer(address, DmaType::OTC);
 
     // LOG_DEBUG("(DMA): DMA6 OTC transfer ended");
 }

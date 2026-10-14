@@ -1,6 +1,7 @@
 #pragma once
 
 #include "dma/dma_channel.hpp"
+#include "dma/dma_type.hpp"
 #include "interrupts/interrupts.hpp"
 #include "scheduler/scheduler.hpp"
 
@@ -22,6 +23,8 @@ namespace festation {
         auto write8(uint32_t address, uint8_t value) -> void;
         auto write16(uint32_t address, uint16_t value) -> void;
         auto write32(uint32_t address, uint32_t value) -> void;
+
+        auto setIntFlag(DmaType type) -> void;
 
     private:
         union DmaControlRegister {

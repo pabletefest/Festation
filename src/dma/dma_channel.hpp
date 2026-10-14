@@ -1,5 +1,6 @@
 #pragma once
 
+#include "dma/dma_type.hpp"
 #include "scheduler/scheduler.hpp"
 
 #include <cstdint>
@@ -24,9 +25,11 @@ namespace festation {
         Reserved = 3,
     };
 
+    class DmaControl;
+
     class DmaChannel {
     public:
-        DmaChannel(PSXSystem& system, Scheduler& scheduler);
+        DmaChannel(DmaControl& dmaControl, PSXSystem& system, Scheduler& scheduler);
         virtual ~DmaChannel();
 
         auto read32(uint32_t address) -> uint32_t;
@@ -38,7 +41,7 @@ namespace festation {
     protected:
         virtual auto startTransfer() -> void = 0;
         virtual auto modifyControlRegister(uint32_t value) -> void;
-        auto endTransfer(uint32_t endAddress) -> void;
+        auto endTransfer(uint32_t endAddress, DmaType type) -> void;
 
     protected:
         union DmaBaseAddress {
@@ -91,6 +94,7 @@ namespace festation {
             uint32_t raw;
         } D_CHCR;
 
+        DmaControl& m_dmaControl;
         PSXSystem& m_system;
         Scheduler& m_scheduler;
         bool m_isEnabled;
@@ -98,7 +102,7 @@ namespace festation {
 
     class Dma0MdecIn : public DmaChannel {
     public:
-        Dma0MdecIn(PSXSystem& system, Scheduler& scheduler);
+        Dma0MdecIn(DmaControl& dmaControl,PSXSystem& system, Scheduler& scheduler);
         virtual ~Dma0MdecIn();
 
     protected:
@@ -107,7 +111,7 @@ namespace festation {
 
     class Dma1MdecOut : public DmaChannel {
     public:
-        Dma1MdecOut(PSXSystem& system, Scheduler& scheduler);
+        Dma1MdecOut(DmaControl& dmaControl, PSXSystem& system, Scheduler& scheduler);
         virtual ~Dma1MdecOut();
 
     protected:
@@ -116,7 +120,7 @@ namespace festation {
 
     class Dma2Gpu : public DmaChannel {
     public:
-        Dma2Gpu(PSXSystem& system, Scheduler& scheduler);
+        Dma2Gpu(DmaControl& dmaControl, PSXSystem& system, Scheduler& scheduler);
         virtual ~Dma2Gpu();
     
     protected:
@@ -125,7 +129,7 @@ namespace festation {
 
     class Dma3Cdrom : public DmaChannel {
     public:
-        Dma3Cdrom(PSXSystem& system, Scheduler& scheduler);
+        Dma3Cdrom(DmaControl& dmaControl, PSXSystem& system, Scheduler& scheduler);
         virtual ~Dma3Cdrom();
 
     protected:
@@ -134,7 +138,7 @@ namespace festation {
 
     class Dma4Spu : public DmaChannel {
     public:
-        Dma4Spu(PSXSystem& system, Scheduler& scheduler);
+        Dma4Spu(DmaControl& dmaControl, PSXSystem& system, Scheduler& scheduler);
         virtual ~Dma4Spu();
 
     protected:
@@ -143,7 +147,7 @@ namespace festation {
 
     class Dma5Pio : public DmaChannel {
     public:
-        Dma5Pio(PSXSystem& system, Scheduler& scheduler);
+        Dma5Pio(DmaControl& dmaControl, PSXSystem& system, Scheduler& scheduler);
         virtual ~Dma5Pio();
 
     protected:
@@ -152,7 +156,7 @@ namespace festation {
 
     class Dma6Otc : public DmaChannel {
     public:
-        Dma6Otc(PSXSystem& system, Scheduler& scheduler);
+        Dma6Otc(DmaControl& dmaControl, PSXSystem& system, Scheduler& scheduler);
         virtual ~Dma6Otc();
 
     protected:
